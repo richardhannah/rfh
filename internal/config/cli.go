@@ -1,0 +1,86 @@
+package config
+
+import (
+	"os"
+	"path/filepath"
+
+	"github.com/pelletier/go-toml/v2"
+)
+
+type Registry struct {
+	URL   string `toml:"url"`
+	Token string `toml:"token,omitempty"`
+}
+
+type CLIConfig struct {
+	Current    string              `toml:"current"`
+	Registries map[string]Registry `toml:"registries"`
+}
+
+// ConfigDir returns the CLI config directory path
+func ConfigDir() (string, error) {
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return "", err
+	}
+	return filepath.Join(home, ".rfh"), nil
+}
+
+// ConfigPath returns the full path to config.toml
+func ConfigPath() (string, error) {
+	dir, err := ConfigDir()
+	if err != nil {
+		return "", err
+	}
+	return filepath.Join(dir, "config.toml"), nil
+}
+
+// LoadCLI loads CLI configuration from ~/.rfh/config.toml
+func LoadCLI() (CLIConfig, error) {
+	configPath, err := ConfigPath()
+	if err != nil {
+		return CLIConfig{}, err
+	}
+
+	data, err := os.ReadFile(configPath)
+	if os.IsNotExist(err) {
+		// Return empty config if file doesn't exist
+		return CLIConfig{
+			Registries: make(map[string]Registry),
+		}, nil
+	}
+	if err != nil {
+		return CLIConfig{}, err
+	}
+
+	var config CLIConfig
+	if err := toml.Unmarshal(data, &config); err != nil {
+		return CLIConfig{}, err
+	}
+
+	if config.Registries == nil {
+		config.Registries = make(map[string]Registry)
+	}
+
+	return config, nil
+}
+
+// SaveCLI saves CLI configuration to ~/.rfh/config.toml
+func SaveCLI(config CLIConfig) error {
+	configPath, err := ConfigPath()
+	if err != nil {
+		return err
+	}
+
+	// Ensure config directory exists
+	if err := os.MkdirAll(filepath.Dir(configPath), 0o755); err != nil {
+		return err
+	}
+
+	data, err := toml.Marshal(config)
+	if err != nil {
+		return err
+	}
+
+	return os.WriteFile(configPath, data, 0o600)
+}

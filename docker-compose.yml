@@ -1,0 +1,69 @@
+version: '3.8'
+
+services:
+  # PostgreSQL database
+  postgres:
+    image: postgres:15-alpine
+    container_name: rulestack-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: rulestack_user
+      POSTGRES_PASSWORD: rulestack_password
+      POSTGRES_DB: rulestack_dev
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./migrations:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U rulestack_user -d rulestack_dev"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Flyway for migrations
+  flyway:
+    image: flyway/flyway:9-alpine
+    container_name: rulestack-flyway
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./migrations:/flyway/sql
+    command: >
+      -url=jdbc:postgresql://postgres:5432/rulestack_dev
+      -user=rulestack_user
+      -password=rulestack_password
+      migrate
+    restart: "no"
+
+  # RuleStack API (development mode with hot reload)
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: rulestack-api
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      flyway:
+        condition: service_completed_successfully
+    ports:
+      - "8080:8080"
+    volumes:
+      - .:/app
+      - /app/tmp  # Exclude tmp directory from volume mount
+    environment:
+      DATABASE_URL: postgres://rulestack_user:rulestack_password@postgres:5432/rulestack_dev?sslmode=disable
+      TOKEN_SALT: dev_salt_please_change_in_production
+      STORAGE_PATH: /app/storage
+      PORT: 8080
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8080/v1/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  postgres_data:
