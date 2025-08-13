@@ -160,9 +160,12 @@ go run ./cmd/api &
 ### Testing
 ```bash
 # Run unit tests
-go test ./...
+go test ./... -v
 
-# Run integration tests
+# Run unit tests with coverage
+go test ./... -cover
+
+# Run integration tests (requires running API server)
 go run ./scripts/setup-dev.go
 ./rfh registry add local http://localhost:8080 dev-token-12345
 ./rfh init && ./rfh pack && ./rfh publish
