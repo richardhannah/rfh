@@ -4,16 +4,24 @@ A package manager for AI rulesets, making it easy to share and discover AI rules
 
 ## 🚀 Quick Start
 
-### With Docker (Recommended)
+### With Docker (Database Only - Recommended)
 ```bash
-# Start development environment
-./scripts/dev-up.sh
-
-# Set up development token
-go run ./scripts/setup-dev.go
+# Start PostgreSQL and run migrations
+docker-compose up -d postgres flyway
 
 # Build CLI
 go build -buildvcs=false -o rfh ./cmd/cli
+
+# Start API server
+export DATABASE_URL="postgres://rulestack_user:rulestack_password@localhost:5432/rulestack_dev?sslmode=disable"
+export TOKEN_SALT="dev_salt_please_change_in_production"
+export STORAGE_PATH="./storage"
+export PORT="8080"
+mkdir -p storage
+go run ./cmd/api &
+
+# Set up development token
+go run ./scripts/setup-dev.go
 
 # Configure registry
 ./rfh registry add local http://localhost:8080 dev-token-12345
@@ -27,14 +35,23 @@ go build -buildvcs=false -o rfh ./cmd/cli
 ./rfh search example
 ```
 
-### Manual Setup
+### Manual Setup (Full)
 ```bash
 # Set up database
 createdb rulestack_dev
 flyway -url=jdbc:postgresql://localhost:5432/rulestack_dev -user=postgres migrate
 
+# Set environment variables
+export DATABASE_URL="postgres://postgres@localhost:5432/rulestack_dev?sslmode=disable"
+export TOKEN_SALT="dev_salt_please_change_in_production"
+export STORAGE_PATH="./storage"
+export PORT="8080"
+
+# Create storage directory
+mkdir -p storage
+
 # Start API
-go run ./cmd/api
+go run ./cmd/api &
 
 # Follow steps above for CLI usage
 ```
@@ -61,7 +78,7 @@ RuleStack is a package manager specifically designed for AI rulesets - the confi
 - **API Server**: Go + Gorilla/Mux + PostgreSQL
 - **CLI**: Go + Cobra with TOML configuration
 - **Database**: PostgreSQL with Flyway migrations
-- **Storage**: Filesystem (extensible to S3/cloud storage)
+- **Storage**: Filesystem with sanitized filenames (extensible to S3/cloud storage)
 - **Auth**: Bearer tokens with SHA256 hashing
 - **Packaging**: Compressed tar archives with integrity verification
 
@@ -111,8 +128,8 @@ rulestack/
 ## 🔧 Development
 
 ### Prerequisites
-- Go 1.21+
-- Docker & Docker Compose
+- Go 1.24+ (project uses Go 1.24.4)
+- Docker & Docker Compose (for database)
 - PostgreSQL (if not using Docker)
 
 ### Setup
@@ -121,12 +138,23 @@ rulestack/
 git clone <repo-url>
 cd rulestack
 
-# Start development environment  
-./scripts/dev-up.sh
+# Start database only (Docker method)
+docker-compose up -d postgres flyway
+
+# OR use full Docker (note: currently has Go version compatibility issues)
+# ./scripts/dev-up.sh
 
 # Build tools
 go build -buildvcs=false -o rfh ./cmd/cli
 go build -buildvcs=false -o rulestack-api ./cmd/api
+
+# Start API manually
+export DATABASE_URL="postgres://rulestack_user:rulestack_password@localhost:5432/rulestack_dev?sslmode=disable"
+export TOKEN_SALT="dev_salt_please_change_in_production"
+export STORAGE_PATH="./storage"
+export PORT="8080"
+mkdir -p storage
+go run ./cmd/api &
 ```
 
 ### Testing

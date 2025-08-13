@@ -152,7 +152,10 @@ func (s *Server) publishPackageHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Calculate SHA256 and save archive
 	hasher := sha256.New()
-	archivePath := filepath.Join(s.Config.StoragePath, fmt.Sprintf("%s-%s.tgz", manifest.Name, manifest.Version))
+	// Sanitize filename by replacing invalid characters
+	safeName := strings.ReplaceAll(manifest.Name, "/", "-")
+	safeName = strings.ReplaceAll(safeName, "@", "")
+	archivePath := filepath.Join(s.Config.StoragePath, fmt.Sprintf("%s-%s.tgz", safeName, manifest.Version))
 
 	outFile, err := os.Create(archivePath)
 	if err != nil {
