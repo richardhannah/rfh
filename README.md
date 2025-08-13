@@ -1,5 +1,11 @@
 # RuleStack (RFH) - Registry for Humans
 
+[![CI](https://github.com/username/rulestack/actions/workflows/ci.yml/badge.svg)](https://github.com/username/rulestack/actions/workflows/ci.yml)
+[![Go Report Card](https://goreportcard.com/badge/github.com/username/rulestack)](https://goreportcard.com/report/github.com/username/rulestack)
+[![codecov](https://codecov.io/gh/username/rulestack/branch/master/graph/badge.svg)](https://codecov.io/gh/username/rulestack)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Go Version](https://img.shields.io/github/go-mod/go-version/username/rulestack)](https://golang.org/)
+
 A package manager for AI rulesets, making it easy to share and discover AI rules for code editors like Claude Code, Cursor, and Windsurf.
 
 ## 🚀 Quick Start
@@ -165,12 +171,41 @@ go test ./... -v
 # Run unit tests with coverage
 go test ./... -cover
 
+# Run linting
+golangci-lint run
+
 # Run integration tests (requires running API server)
 go run ./scripts/setup-dev.go
 ./rfh registry add local http://localhost:8080 dev-token-12345
 ./rfh init && ./rfh pack && ./rfh publish
 ./rfh search example
 ```
+
+### CI/CD Pipeline
+
+The project uses GitHub Actions for continuous integration and deployment:
+
+#### **CI Workflow** (`.github/workflows/ci.yml`)
+- **Triggers**: Push to `master`/`main` branch, Pull Requests
+- **Jobs**:
+  - **Test**: Runs unit tests with coverage reporting
+  - **Build**: Compiles CLI and API binaries for Linux
+  - **Lint**: Runs `golangci-lint` for code quality checks
+- **Features**:
+  - Go module caching for faster builds
+  - Race condition detection in tests
+  - Coverage upload to Codecov
+  - Binary artifact uploads
+
+#### **Release Workflow** (`.github/workflows/release.yml`)
+- **Triggers**: Git tags matching `v*.*.*` (e.g., `v1.0.0`)
+- **Cross-platform builds**: Linux, macOS, Windows (AMD64/ARM64)
+- **Auto-generated release notes** from commit messages
+- **GitHub Release creation** with all binaries
+
+#### **Dependency Management**
+- **Dependabot**: Weekly updates for Go modules and GitHub Actions
+- **Security**: Automated vulnerability scanning
 
 ## 🌍 Deployment
 
@@ -231,11 +266,33 @@ MIT License - see LICENSE file for details.
 
 ## 🤝 Contributing
 
-1. Fork the repository
-2. Create feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit changes (`git commit -m 'Add amazing feature'`)
-4. Push to branch (`git push origin feature/amazing-feature`)  
-5. Open Pull Request
+We welcome contributions! Please follow these steps:
+
+1. **Fork** the repository
+2. **Create** a feature branch (`git checkout -b feature/amazing-feature`)
+3. **Ensure** your code passes all checks:
+   ```bash
+   # Run tests
+   go test ./...
+   
+   # Run linting
+   golangci-lint run
+   
+   # Check formatting
+   go fmt ./...
+   ```
+4. **Commit** your changes (`git commit -m 'Add amazing feature'`)
+5. **Push** to your branch (`git push origin feature/amazing-feature`)
+6. **Open** a Pull Request
+
+### CI Requirements
+All Pull Requests must pass:
+- ✅ **Unit Tests**: All tests must pass with coverage reporting
+- ✅ **Linting**: Code must pass `golangci-lint` checks
+- ✅ **Build**: Both CLI and API must compile successfully
+- ✅ **Formatting**: Code must be properly formatted with `gofmt`
+
+The CI pipeline automatically runs these checks on every PR.
 
 ## 📞 Support
 
