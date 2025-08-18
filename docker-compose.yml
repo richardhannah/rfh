@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # PostgreSQL database
   postgres:
@@ -34,6 +32,7 @@ services:
       -url=jdbc:postgresql://postgres:5432/rulestack_dev
       -user=rulestack_user
       -password=rulestack_password
+      -baselineOnMigrate=true
       migrate
     restart: "no"
 
