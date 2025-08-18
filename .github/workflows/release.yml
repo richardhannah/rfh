@@ -1,0 +1,120 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Check out code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: 1.24.x
+    
+    - name: Cache Go modules
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.cache/go-build
+          ~/go/pkg/mod
+        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+        restore-keys: |
+          ${{ runner.os }}-go-
+    
+    - name: Download dependencies
+      run: go mod download
+    
+    - name: Run tests
+      run: go test ./...
+    
+    - name: Build binaries
+      run: |
+        # Build for multiple platforms
+        GOOS=linux GOARCH=amd64 go build -buildvcs=false -ldflags="-s -w" -o rfh-linux-amd64 ./cmd/cli
+        GOOS=linux GOARCH=arm64 go build -buildvcs=false -ldflags="-s -w" -o rfh-linux-arm64 ./cmd/cli
+        GOOS=darwin GOARCH=amd64 go build -buildvcs=false -ldflags="-s -w" -o rfh-darwin-amd64 ./cmd/cli
+        GOOS=darwin GOARCH=arm64 go build -buildvcs=false -ldflags="-s -w" -o rfh-darwin-arm64 ./cmd/cli
+        GOOS=windows GOARCH=amd64 go build -buildvcs=false -ldflags="-s -w" -o rfh-windows-amd64.exe ./cmd/cli
+        
+        # Build API server
+        GOOS=linux GOARCH=amd64 go build -buildvcs=false -ldflags="-s -w" -o rulestack-api-linux-amd64 ./cmd/api
+        GOOS=linux GOARCH=arm64 go build -buildvcs=false -ldflags="-s -w" -o rulestack-api-linux-arm64 ./cmd/api
+        GOOS=darwin GOARCH=amd64 go build -buildvcs=false -ldflags="-s -w" -o rulestack-api-darwin-amd64 ./cmd/api
+        GOOS=darwin GOARCH=arm64 go build -buildvcs=false -ldflags="-s -w" -o rulestack-api-darwin-arm64 ./cmd/api
+        GOOS=windows GOARCH=amd64 go build -buildvcs=false -ldflags="-s -w" -o rulestack-api-windows-amd64.exe ./cmd/api
+    
+    - name: Generate release notes
+      run: |
+        if [[ "${{ github.ref }}" =~ refs/tags/v([0-9]+\.[0-9]+\.[0-9]+)$ ]]; then
+          VERSION=${BASH_REMATCH[1]}
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          
+          echo "# Release v$VERSION" > release-notes.md
+          echo "" >> release-notes.md
+          echo "## 🚀 What's New" >> release-notes.md
+          echo "" >> release-notes.md
+          
+          # Get commits since last tag
+          PREV_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
+          if [ ! -z "$PREV_TAG" ]; then
+            echo "### Changes since $PREV_TAG:" >> release-notes.md
+            echo "" >> release-notes.md
+            git log --pretty=format:"- %s (%h)" $PREV_TAG..HEAD >> release-notes.md
+          else
+            echo "### Initial Release" >> release-notes.md
+            echo "" >> release-notes.md
+            echo "- Initial release of RuleStack" >> release-notes.md
+          fi
+          
+          echo "" >> release-notes.md
+          echo "## 📦 Installation" >> release-notes.md
+          echo "" >> release-notes.md
+          echo "Download the appropriate binary for your platform from the assets below." >> release-notes.md
+          echo "" >> release-notes.md
+          echo "### CLI Tool (rfh)" >> release-notes.md
+          echo "- **Linux AMD64**: \`rfh-linux-amd64\`" >> release-notes.md
+          echo "- **Linux ARM64**: \`rfh-linux-arm64\`" >> release-notes.md
+          echo "- **macOS Intel**: \`rfh-darwin-amd64\`" >> release-notes.md
+          echo "- **macOS Apple Silicon**: \`rfh-darwin-arm64\`" >> release-notes.md
+          echo "- **Windows**: \`rfh-windows-amd64.exe\`" >> release-notes.md
+          echo "" >> release-notes.md
+          echo "### API Server (rulestack-api)" >> release-notes.md
+          echo "- **Linux AMD64**: \`rulestack-api-linux-amd64\`" >> release-notes.md
+          echo "- **Linux ARM64**: \`rulestack-api-linux-arm64\`" >> release-notes.md
+          echo "- **macOS Intel**: \`rulestack-api-darwin-amd64\`" >> release-notes.md
+          echo "- **macOS Apple Silicon**: \`rulestack-api-darwin-arm64\`" >> release-notes.md
+          echo "- **Windows**: \`rulestack-api-windows-amd64.exe\`" >> release-notes.md
+        fi
+    
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
+      with:
+        body_path: release-notes.md
+        files: |
+          rfh-linux-amd64
+          rfh-linux-arm64
+          rfh-darwin-amd64
+          rfh-darwin-arm64
+          rfh-windows-amd64.exe
+          rulestack-api-linux-amd64
+          rulestack-api-linux-arm64
+          rulestack-api-darwin-amd64
+          rulestack-api-darwin-arm64
+          rulestack-api-windows-amd64.exe
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
