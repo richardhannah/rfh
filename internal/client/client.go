@@ -148,6 +148,38 @@ func (c *Client) GetPackage(scope, name string) (map[string]interface{}, error) 
 	return result, nil
 }
 
+// GetPackageVersion gets information about a specific package version
+func (c *Client) GetPackageVersion(scope, name, version string) (map[string]interface{}, error) {
+	var path string
+	if scope != "" {
+		path = fmt.Sprintf("/v1/packages/@%s/%s/versions/%s", scope, name, version)
+	} else {
+		path = fmt.Sprintf("/v1/packages/%s/versions/%s", name, version)
+	}
+
+	resp, err := c.makeRequest("GET", path, nil, "")
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode == http.StatusNotFound {
+		return nil, fmt.Errorf("package version not found")
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		body, _ := io.ReadAll(resp.Body)
+		return nil, fmt.Errorf("request failed (status %d): %s", resp.StatusCode, string(body))
+	}
+
+	var result map[string]interface{}
+	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+		return nil, fmt.Errorf("failed to decode response: %w", err)
+	}
+
+	return result, nil
+}
+
 // PublishPackage publishes a package to the registry
 func (c *Client) PublishPackage(manifestPath, archivePath string) (map[string]interface{}, error) {
 	// Create multipart form

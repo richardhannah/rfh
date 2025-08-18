@@ -54,3 +54,8 @@ rfh.lock
 
 # Cache
 ~/.rfh/cache/
+
+# Distribution folder
+dist/
+
+.idea/

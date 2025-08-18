@@ -1,0 +1,8 @@
+{
+  "name": "monty-python-quotes",
+  "version": "1.0.0",
+  "description": "Monty Python quotes and references for conversational AI",
+  "files": [
+    "rules/spam-quotes.md"
+  ]
+}

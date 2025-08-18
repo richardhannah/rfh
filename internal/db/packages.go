@@ -33,10 +33,19 @@ func (db *DB) GetOrCreatePackage(scope *string, name string) (*Package, error) {
 
 // GetPackage retrieves a package by scope and name
 func (db *DB) GetPackage(scope *string, name string) (*Package, error) {
-	query := `SELECT id, scope, name, created_at FROM packages WHERE scope = $1 AND name = $2`
+	var query string
+	var args []interface{}
+	
+	if scope == nil {
+		query = `SELECT id, scope, name, created_at FROM packages WHERE scope IS NULL AND name = $1`
+		args = []interface{}{name}
+	} else {
+		query = `SELECT id, scope, name, created_at FROM packages WHERE scope = $1 AND name = $2`
+		args = []interface{}{*scope, name}
+	}
 
 	var pkg Package
-	err := db.Get(&pkg, query, scope, name)
+	err := db.Get(&pkg, query, args...)
 	if err != nil {
 		return nil, err
 	}
@@ -73,19 +82,40 @@ func (db *DB) CreatePackageVersion(version PackageVersion) (*PackageVersion, err
 
 // GetPackageVersion retrieves a specific version of a package
 func (db *DB) GetPackageVersion(scope *string, name string, version string) (*PackageVersion, error) {
-	query := `
-        SELECT pv.id, pv.package_id, pv.version, pv.description, pv.targets, pv.tags, 
-               pv.sha256, pv.size_bytes, pv.blob_path, pv.created_at
-        FROM package_versions pv
-        JOIN packages p ON p.id = pv.package_id
-        WHERE p.scope = $1 AND p.name = $2 AND pv.version = $3`
+	var query string
+	var args []interface{}
+	
+	if scope == nil {
+		// For unscoped packages, check that scope IS NULL
+		query = `
+			SELECT pv.id, pv.package_id, pv.version, pv.description, pv.targets, pv.tags, 
+				   pv.sha256, pv.size_bytes, pv.blob_path, pv.created_at
+			FROM package_versions pv
+			JOIN packages p ON p.id = pv.package_id
+			WHERE p.scope IS NULL AND p.name = $1 AND pv.version = $2`
+		args = []interface{}{name, version}
+	} else {
+		// For scoped packages, check that scope equals the value
+		query = `
+			SELECT pv.id, pv.package_id, pv.version, pv.description, pv.targets, pv.tags, 
+				   pv.sha256, pv.size_bytes, pv.blob_path, pv.created_at
+			FROM package_versions pv
+			JOIN packages p ON p.id = pv.package_id
+			WHERE p.scope = $1 AND p.name = $2 AND pv.version = $3`
+		args = []interface{}{*scope, name, version}
+	}
 
+	fmt.Printf("[DEBUG] GetPackageVersion SQL query: %s\n", query)
+	fmt.Printf("[DEBUG] GetPackageVersion parameters: %v\n", args)
+	
 	var pkgVersion PackageVersion
-	err := db.Get(&pkgVersion, query, scope, name, version)
+	err := db.Get(&pkgVersion, query, args...)
 	if err != nil {
+		fmt.Printf("[ERROR] GetPackageVersion SQL error: %v\n", err)
 		return nil, err
 	}
 
+	fmt.Printf("[DEBUG] GetPackageVersion found: %+v\n", pkgVersion)
 	return &pkgVersion, nil
 }
 
