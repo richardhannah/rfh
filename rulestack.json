@@ -1,0 +1,7 @@
+{
+  "version": "1.0.0",
+  "projectRoot": "D:\\projects\\render.com\\rfh",
+  "dependencies": {
+    "monty-python-quotes": "1.0.0"
+  }
+}

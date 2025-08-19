@@ -1,0 +1,10 @@
+{
+  "version": "1.0.0",
+  "projectRoot": "D:\\projects\\render.com\\rfh",
+  "packages": {
+    "monty-python-quotes": {
+      "version": "1.0.0",
+      "sha256": "ce375d1427b73340be3133057709ff3e8b3823d9d81993b0a0a1ad0dd4313ebf"
+    }
+  }
+}

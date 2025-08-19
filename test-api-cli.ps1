@@ -118,9 +118,20 @@ function Test-PackageInit {
     }
     
     try {
-        $manifest = Get-Content "rulestack.json" | ConvertFrom-Json
+        Write-Host "[DEBUG] Current directory: $(Get-Location)" -ForegroundColor Yellow
+        Write-Host "[DEBUG] TestPackageName variable: '$TestPackageName'" -ForegroundColor Yellow
+        Write-Host "[DEBUG] Reading rulestack.json..." -ForegroundColor Yellow
+        
+        $manifestContent = Get-Content "rulestack.json" -Raw
+        Write-Host "[DEBUG] Raw manifest content:" -ForegroundColor Yellow
+        Write-Host $manifestContent -ForegroundColor Gray
+        
+        $manifest = $manifestContent | ConvertFrom-Json
+        Write-Host "[DEBUG] Parsed manifest name: '$($manifest.name)'" -ForegroundColor Yellow
+        Write-Host "[DEBUG] Expected name: '$TestPackageName'" -ForegroundColor Yellow
+        
         if ($manifest.name -ne $TestPackageName) {
-            Write-Error "Package name mismatch in manifest"
+            Write-Error "Package name mismatch in manifest. Expected: '$TestPackageName', Got: '$($manifest.name)'"
             exit 1
         }
         Write-Success "Package manifest is valid"
@@ -211,13 +222,13 @@ function Test-SearchOperation {
 function Test-InstallOperation {
     Write-TestStep "Testing install operation (add command)..."
     
-    # Move to a different directory to test installation
-    $installTestDir = "install-test"
-    if (Test-Path $installTestDir) {
-        Remove-Item $installTestDir -Recurse -Force
-    }
-    New-Item -ItemType Directory -Name $installTestDir | Out-Null
-    Set-Location $installTestDir
+    # Move to a temporary directory outside the project to test installation
+    # This avoids the add command finding the test-package/rulestack.json file
+    $tempTestDir = [System.IO.Path]::GetTempPath() + "rfh-install-test-" + [System.Guid]::NewGuid().ToString()
+    New-Item -ItemType Directory -Path $tempTestDir | Out-Null
+    Set-Location $tempTestDir
+    
+    Write-Host "[DEBUG] Install test directory: $tempTestDir" -ForegroundColor Yellow
     
     try {
         # The add command is now implemented and should work
@@ -228,7 +239,7 @@ function Test-InstallOperation {
             "y" | & rfh add "$TestPackageName@$TestPackageVersion"
         }
         
-        # Verify installation - these are REQUIRED for the test to pass
+        # Verify installation - check current directory (now project root for add command)
         $installSuccess = $true
         
         if (Test-Path ".rulestack") {
@@ -271,7 +282,7 @@ function Test-InstallOperation {
         
         # Check if package files exist
         if (Test-Path ".rulestack\$TestPackageName\*") {
-            $fileCount = (Get-ChildItem ".rulestack\$TestPackageName" -File).Count
+            $fileCount = (Get-ChildItem ".rulestack\$TestPackageName" -Recurse -File).Count
             Write-Success "Package files extracted: $fileCount files found"
         } else {
             Write-Error "No package files found in .rulestack\$TestPackageName - FAILED"
@@ -291,8 +302,9 @@ function Test-InstallOperation {
         exit 1
     }
     
-    # Return to original test directory
-    Set-Location ..
+    # Return to original directory and clean up temp directory
+    Set-Location $OriginalDir
+    Remove-Item $tempTestDir -Recurse -Force -ErrorAction SilentlyContinue
 }
 
 function Cleanup {
