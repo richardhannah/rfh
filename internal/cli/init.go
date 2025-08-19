@@ -3,6 +3,7 @@ package cli
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 
 	"github.com/spf13/cobra"
 
@@ -12,27 +13,42 @@ import (
 // initCmd represents the init command
 var initCmd = &cobra.Command{
 	Use:   "init",
-	Short: "Initialize a new ruleset project",
-	Long: `Creates a new rulestack.json manifest file and basic directory structure
-for developing AI rulesets.
+	Short: "Initialize a new RuleStack project",
+	Long: `Initialize a new RuleStack project in the current directory.
 
-This command will create:
-- rulestack.json (manifest file)
-- rules/ directory (for storing rule files)
-- README.md (basic documentation)`,
+This establishes the current directory as the project root and creates:
+- rulestack.json (package manifest file)
+- rules/ directory (for storing rule files)  
+- README.md (basic documentation)
+- .rulestack/ directory (for dependency management)
+
+Similar to 'git init', this command must be run before using other RFH commands
+in this directory. It explicitly sets the project root to the current directory.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return runInit()
+		force, _ := cmd.Flags().GetBool("force")
+		return runInit(force)
 	},
 }
 
-func runInit() error {
+func runInit(force bool) error {
+	// Get current directory as project root
+	projectRoot, err := os.Getwd()
+	if err != nil {
+		return fmt.Errorf("failed to get current directory: %w", err)
+	}
+
 	manifestPath := "rulestack.json"
 
-	// Check if manifest already exists
+	// Check if already initialized
 	if _, err := os.Stat(manifestPath); err == nil {
-		fmt.Printf("rulestack.json already exists. Use --force to overwrite.\n")
-		return nil
+		if !force {
+			fmt.Printf("RuleStack project already initialized (rulestack.json exists).\n")
+			fmt.Printf("Use --force to reinitialize.\n")
+			return nil
+		}
 	}
+
+	fmt.Printf("Initializing RuleStack project in: %s\n", projectRoot)
 
 	// Create sample manifest
 	sample := manifest.CreateSample()
@@ -45,6 +61,11 @@ func runInit() error {
 	// Create rules directory
 	if err := os.MkdirAll("rules", 0o755); err != nil {
 		return fmt.Errorf("failed to create rules directory: %w", err)
+	}
+
+	// Create .rulestack directory for dependency management
+	if err := os.MkdirAll(".rulestack", 0o755); err != nil {
+		return fmt.Errorf("failed to create .rulestack directory: %w", err)
 	}
 
 	// Create sample rule file
@@ -109,16 +130,18 @@ This ruleset provides AI rules for:
 		return fmt.Errorf("failed to create README: %w", err)
 	}
 
-	fmt.Printf("✅ Initialized new ruleset project\n")
-	fmt.Printf("📁 Created files:\n")
-	fmt.Printf("   - rulestack.json (manifest)\n")
+	fmt.Printf("✅ Initialized RuleStack project in: %s\n", filepath.Base(projectRoot))
+	fmt.Printf("📁 Created:\n")
+	fmt.Printf("   - rulestack.json (package manifest)\n")
 	fmt.Printf("   - rules/example-rule.md (sample rule)\n")
 	fmt.Printf("   - README.md (documentation)\n")
+	fmt.Printf("   - .rulestack/ (dependency directory)\n")
 	fmt.Printf("\n🚀 Next steps:\n")
 	fmt.Printf("   1. Edit rulestack.json with your package details\n")
 	fmt.Printf("   2. Add your rule files to rules/\n")
-	fmt.Printf("   3. Run 'rfh pack' to create archive\n")
-	fmt.Printf("   4. Run 'rfh publish' to publish to registry\n")
+	fmt.Printf("   3. Run 'rfh add <package>' to install dependencies\n")
+	fmt.Printf("   4. Run 'rfh pack' to create archive\n")
+	fmt.Printf("   5. Run 'rfh publish' to publish to registry\n")
 
 	return nil
 }

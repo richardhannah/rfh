@@ -246,9 +246,7 @@ func findProjectRoot() (string, error) {
 		parent := filepath.Dir(dir)
 		if parent == dir {
 			// Reached filesystem root, no rulestack.json found
-			// Use current working directory as project root
-			originalDir, _ := os.Getwd()
-			return originalDir, nil
+			return "", fmt.Errorf("no RuleStack project found. Run 'rfh init' first to initialize a project")
 		}
 		dir = parent
 	}

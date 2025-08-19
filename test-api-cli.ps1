@@ -19,8 +19,9 @@ Write-Host "================================" -ForegroundColor Cyan
 # Global variables
 $TestPackageName = "monty-python-quotes"
 $TestPackageVersion = "1.0.0"
-$TestDir = "test-package"
 $OriginalDir = Get-Location
+$TempTestRoot = "$env:TEMP\rfhlocaltest"
+$TestDir = "$TempTestRoot\test-package"
 
 function Write-TestStep {
     param([string]$Message)
@@ -37,22 +38,64 @@ function Write-Error {
     Write-Host "[ERROR] $Message" -ForegroundColor Red
 }
 
-function Test-Prerequisites {
-    Write-TestStep "Checking prerequisites..."
+function Setup-TestEnvironment {
+    Write-TestStep "Setting up isolated test environment..."
     
-    # Check if rfh executable exists
-    try {
-        $rfhVersion = & rfh --help
-        Write-Success "RFH CLI is available"
+    # Clean up any existing test directory
+    if (Test-Path $TempTestRoot) {
+        Remove-Item $TempTestRoot -Recurse -Force
+        Write-Host "[DEBUG] Cleaned up existing test directory: $TempTestRoot" -ForegroundColor Yellow
     }
-    catch {
-        Write-Error "RFH CLI not found. Run install-cli script first."
+    
+    # Create fresh test environment
+    New-Item -ItemType Directory -Path $TempTestRoot -Force | Out-Null
+    New-Item -ItemType Directory -Path $TestDir -Force | Out-Null
+    
+    # Copy test package files to isolated environment
+    $sourceTestPackage = "$OriginalDir\test-package"
+    if (Test-Path $sourceTestPackage) {
+        Copy-Item "$sourceTestPackage\*" -Destination $TestDir -Recurse -Force
+        Write-Success "Copied test package to isolated environment"
+    } else {
+        Write-Error "Source test-package directory not found at $sourceTestPackage"
         exit 1
     }
     
-    # Check if test package directory exists
+    # Copy RFH binary to test environment for easy access
+    $sourceBinary = "$OriginalDir\dist\rfh.exe"
+    if (Test-Path $sourceBinary) {
+        Copy-Item $sourceBinary -Destination "$TempTestRoot\rfh.exe" -Force
+        Write-Success "Copied RFH binary to test environment"
+    } else {
+        Write-Error "RFH binary not found at $sourceBinary"
+        exit 1
+    }
+    
+    # Change to test environment
+    Set-Location $TempTestRoot
+    Write-Success "Test environment created at: $TempTestRoot"
+    
+    # Add test environment to PATH for this session
+    $env:PATH = "$TempTestRoot;$env:PATH"
+    Write-Success "Added test environment to PATH"
+}
+
+function Test-Prerequisites {
+    Write-TestStep "Checking prerequisites in test environment..."
+    
+    # Check if rfh executable exists in test environment
+    try {
+        $rfhVersion = & rfh --help
+        Write-Success "RFH CLI is available in test environment"
+    }
+    catch {
+        Write-Error "RFH CLI not found in test environment"
+        exit 1
+    }
+    
+    # Check if test package directory exists in test environment
     if (!(Test-Path $TestDir)) {
-        Write-Error "Test package directory '$TestDir' not found"
+        Write-Error "Test package directory '$TestDir' not found in test environment"
         exit 1
     }
     
@@ -118,18 +161,7 @@ function Test-PackageInit {
     }
     
     try {
-        Write-Host "[DEBUG] Current directory: $(Get-Location)" -ForegroundColor Yellow
-        Write-Host "[DEBUG] TestPackageName variable: '$TestPackageName'" -ForegroundColor Yellow
-        Write-Host "[DEBUG] Reading rulestack.json..." -ForegroundColor Yellow
-        
-        $manifestContent = Get-Content "rulestack.json" -Raw
-        Write-Host "[DEBUG] Raw manifest content:" -ForegroundColor Yellow
-        Write-Host $manifestContent -ForegroundColor Gray
-        
-        $manifest = $manifestContent | ConvertFrom-Json
-        Write-Host "[DEBUG] Parsed manifest name: '$($manifest.name)'" -ForegroundColor Yellow
-        Write-Host "[DEBUG] Expected name: '$TestPackageName'" -ForegroundColor Yellow
-        
+        $manifest = Get-Content "rulestack.json" | ConvertFrom-Json
         if ($manifest.name -ne $TestPackageName) {
             Write-Error "Package name mismatch in manifest. Expected: '$TestPackageName', Got: '$($manifest.name)'"
             exit 1
@@ -219,16 +251,88 @@ function Test-SearchOperation {
     }
 }
 
+function Test-PreInitializationErrors {
+    Write-TestStep "Testing commands before initialization..."
+    
+    # Create a clean directory without initialization
+    $noInitDir = "$TempTestRoot\no-init-test"
+    if (Test-Path $noInitDir) {
+        Remove-Item $noInitDir -Recurse -Force
+    }
+    New-Item -ItemType Directory -Path $noInitDir | Out-Null
+    Set-Location $noInitDir
+    
+    # Test that add command fails before initialization
+    $ErrorActionPreference = "Continue"
+    $output = & rfh add "test-package@1.0.0" 2>&1
+    $ErrorActionPreference = "Stop"
+    
+    if ($LASTEXITCODE -eq 0) {
+        Write-Error "add command should have failed before initialization"
+        exit 1
+    }
+    if ($output -match "no RuleStack project found.*Run 'rfh init' first") {
+        Write-Success "add command properly requires initialization"
+    } else {
+        Write-Error "add command error message incorrect: $output"
+        exit 1
+    }
+    
+    # Test that pack command fails before initialization
+    $ErrorActionPreference = "Continue"
+    $output = & rfh pack 2>&1
+    $ErrorActionPreference = "Stop"
+    
+    if ($LASTEXITCODE -eq 0) {
+        Write-Error "pack command should have failed before initialization"
+        exit 1
+    }
+    if ($output -match "failed to load manifest.*rulestack.json") {
+        Write-Success "pack command properly requires rulestack.json"
+    } else {
+        Write-Error "pack command error message unexpected: $output"
+        exit 1
+    }
+    
+    # Test that publish command fails before initialization
+    $ErrorActionPreference = "Continue"
+    $output = & rfh publish 2>&1
+    $ErrorActionPreference = "Stop"
+    
+    if ($LASTEXITCODE -eq 0) {
+        Write-Error "publish command should have failed before initialization"
+        exit 1
+    }
+    if ($output -match "failed to load manifest.*rulestack.json") {
+        Write-Success "publish command properly requires rulestack.json"
+    } else {
+        Write-Error "publish command error message unexpected: $output"
+        exit 1
+    }
+    
+    Write-Success "All pre-initialization error checks passed"
+    
+    # Return to test environment root
+    Set-Location $TempTestRoot
+}
+
 function Test-InstallOperation {
     Write-TestStep "Testing install operation (add command)..."
     
-    # Move to a temporary directory outside the project to test installation
-    # This avoids the add command finding the test-package/rulestack.json file
-    $tempTestDir = [System.IO.Path]::GetTempPath() + "rfh-install-test-" + [System.Guid]::NewGuid().ToString()
-    New-Item -ItemType Directory -Path $tempTestDir | Out-Null
-    Set-Location $tempTestDir
+    # Create a clean install test directory within our test environment
+    $installTestDir = "$TempTestRoot\install-test"
+    if (Test-Path $installTestDir) {
+        Remove-Item $installTestDir -Recurse -Force
+    }
+    New-Item -ItemType Directory -Path $installTestDir | Out-Null
+    Set-Location $installTestDir
     
-    Write-Host "[DEBUG] Install test directory: $tempTestDir" -ForegroundColor Yellow
+    # Initialize a new RuleStack project for testing add command
+    & rfh init | Out-Null
+    if ($LASTEXITCODE -ne 0) {
+        throw "Failed to initialize RuleStack project for testing"
+    }
+    Write-Success "Initialized test RuleStack project"
     
     try {
         # The add command is now implemented and should work
@@ -302,29 +406,21 @@ function Test-InstallOperation {
         exit 1
     }
     
-    # Return to original directory and clean up temp directory
-    Set-Location $OriginalDir
-    Remove-Item $tempTestDir -Recurse -Force -ErrorAction SilentlyContinue
+    # Return to test environment root
+    Set-Location $TempTestRoot
 }
 
 function Cleanup {
     Write-TestStep "Cleaning up test artifacts..."
     
-    Set-Location $OriginalDir
-    
     if (!$SkipCleanup) {
-        # Clean up test files
+        # Clean up test files within the test environment
         if (Test-Path "$TestDir/*.tgz") {
             Remove-Item "$TestDir/*.tgz" -Force
             Write-Success "Removed test archives"
         }
         
-        if (Test-Path "install-test") {
-            Remove-Item "install-test" -Recurse -Force
-            Write-Success "Removed install test directory"
-        }
-        
-        # Remove test registry (optional)
+        # Remove test registry
         try {
             & rfh registry remove test
             Write-Success "Removed test registry configuration"
@@ -332,16 +428,28 @@ function Cleanup {
         catch {
             Write-Host "Note: Could not remove test registry configuration" -ForegroundColor Yellow
         }
+        
+        # Return to original directory
+        Set-Location $OriginalDir
+        
+        # Clean up entire test environment
+        if (Test-Path $TempTestRoot) {
+            Remove-Item $TempTestRoot -Recurse -Force
+            Write-Success "Removed isolated test environment: $TempTestRoot"
+        }
     } else {
-        Write-Host "Skipping cleanup (-SkipCleanup flag used)" -ForegroundColor Yellow
+        Set-Location $OriginalDir
+        Write-Host "[DEBUG] Skipping cleanup - test environment preserved at: $TempTestRoot" -ForegroundColor Yellow
     }
 }
 
 function Run-Tests {
     try {
+        Setup-TestEnvironment
         Test-Prerequisites
         Test-APIHealth
         Setup-Registry
+        Test-PreInitializationErrors
         Test-PackageInit
         Test-PackOperation
         Test-PublishOperation
@@ -349,6 +457,7 @@ function Run-Tests {
         Test-InstallOperation
         
         Write-Host "`n[SUCCESS] All tests completed!" -ForegroundColor Green
+        Write-Host "[OK] Pre-initialization errors: Working" -ForegroundColor Green
         Write-Host "[OK] Pack operation: Working" -ForegroundColor Green
         Write-Host "[OK] Publish operation: Working" -ForegroundColor Green
         Write-Host "[OK] Search operation: Working" -ForegroundColor Green

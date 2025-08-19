@@ -158,8 +158,58 @@ func runRegistryUse(name string) error {
 	return nil
 }
 
+// registryRemoveCmd removes a registry
+var registryRemoveCmd = &cobra.Command{
+	Use:   "remove <name>",
+	Short: "Remove a registry",
+	Long: `Remove a registry configuration.
+
+Examples:
+  rfh registry remove old-registry
+  rfh registry remove test`,
+	Args: cobra.ExactArgs(1),
+	RunE: func(cmd *cobra.Command, args []string) error {
+		return runRegistryRemove(args[0])
+	},
+}
+
+func runRegistryRemove(name string) error {
+	cfg, err := config.LoadCLI()
+	if err != nil {
+		return fmt.Errorf("failed to load config: %w", err)
+	}
+
+	// Check if registry exists
+	if _, exists := cfg.Registries[name]; !exists {
+		return fmt.Errorf("registry '%s' not found. Use 'rfh registry list' to see available registries", name)
+	}
+
+	// Store URL for display
+	url := cfg.Registries[name].URL
+
+	// Remove the registry
+	delete(cfg.Registries, name)
+
+	// If this was the current registry, clear the current setting
+	if cfg.Current == name {
+		cfg.Current = ""
+		fmt.Printf("⚠️  Removed active registry. Use 'rfh registry use' to set a new active registry.\n")
+	}
+
+	// Save config
+	if err := config.SaveCLI(cfg); err != nil {
+		return fmt.Errorf("failed to save config: %w", err)
+	}
+
+	fmt.Printf("✅ Removed registry '%s'\n", name)
+	fmt.Printf("🌐 URL was: %s\n", url)
+
+	return nil
+}
+
 func init() {
 	registryCmd.AddCommand(registryAddCmd)
 	registryCmd.AddCommand(registryListCmd)
 	registryCmd.AddCommand(registryUseCmd)
+	registryCmd.AddCommand(registryRemoveCmd)
 }
