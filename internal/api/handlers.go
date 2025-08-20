@@ -140,12 +140,12 @@ func (s *Server) getPackageVersionHandler(w http.ResponseWriter, r *http.Request
 
 // publishPackageHandler handles package publishing
 func (s *Server) publishPackageHandler(w http.ResponseWriter, r *http.Request) {
-	// For proof of concept, allow publishing without auth
-	// token := getTokenFromContext(r.Context())
-	// if token == nil {
-	//     writeError(w, http.StatusUnauthorized, "Authentication required")
-	//     return
-	// }
+	// Authentication is now handled by middleware based on route metadata
+	token := getTokenFromContext(r.Context())
+	if token == nil {
+		writeError(w, http.StatusUnauthorized, "Authentication required")
+		return
+	}
 
 	// Parse multipart form
 	if err := r.ParseMultipartForm(10 << 20); err != nil { // 10MB limit

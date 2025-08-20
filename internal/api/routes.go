@@ -1,9 +1,6 @@
 package api
 
 import (
-	"log"
-	"net/http"
-
 	"github.com/gorilla/mux"
 
 	"rulestack/internal/config"
@@ -12,63 +9,30 @@ import (
 
 // Server holds dependencies for API handlers
 type Server struct {
-	DB     *db.DB
-	Config config.Config
+	DB       *db.DB
+	Config   config.Config
+	Registry *RouteRegistry
 }
 
-// RegisterRoutes sets up all API routes
+// RegisterRoutes sets up all API routes with enhanced security
 func RegisterRoutes(r *mux.Router, database *db.DB, cfg config.Config) {
 	s := &Server{
 		DB:     database,
 		Config: cfg,
 	}
 
-	// Add middleware
-	r.Use(loggingMiddleware)
-	r.Use(corsMiddleware)
+	// Create route registry
+	registry := s.SetupRoutes(r)
+	s.Registry = registry
 
-	// API v1 routes
-	api := r.PathPrefix("/v1").Subrouter()
+	// Apply middleware in order (outermost to innermost)
+	r.Use(s.securityHeadersMiddleware)       // Security headers
+	r.Use(s.corsMiddleware)                  // CORS
+	r.Use(s.loggingMiddleware)               // Request logging
+	r.Use(s.requestSizeLimitMiddleware(50*1024*1024)) // 50MB max request size
+	r.Use(s.rateLimitMiddleware(registry))   // Rate limiting
+	r.Use(s.jsonSanitizeMiddleware)          // JSON sanitization
+	r.Use(s.enhancedAuthMiddleware(registry)) // Authentication
 
-	// Public routes
-	api.HandleFunc("/health", s.healthHandler).Methods("GET")
-	api.HandleFunc("/packages", s.searchPackagesHandler).Methods("GET")
-	api.HandleFunc("/packages", s.publishPackageHandler).Methods("POST") // Temp: no auth for testing
-	api.HandleFunc("/blobs/{sha256}", s.downloadBlobHandler).Methods("GET")
-	
-	// Unscoped packages (must come before scoped routes)
-	api.HandleFunc("/packages/{name}/versions/{version}", s.getUnscopedPackageVersionHandler).Methods("GET")
-	api.HandleFunc("/packages/{name}", s.getUnscopedPackageHandler).Methods("GET")
-	
-	// Scoped packages (more specific routes)
-	api.HandleFunc("/packages/{scope}/{name}/versions/{version}", s.getPackageVersionHandler).Methods("GET")
-	api.HandleFunc("/packages/{scope}/{name}", s.getPackageHandler).Methods("GET")
-
-	// Authenticated routes
-	authAPI := api.PathPrefix("").Subrouter()
-	authAPI.Use(s.authMiddleware)
-	// authAPI.HandleFunc("/packages", s.publishPackageHandler).Methods("POST") // Moved to public for testing
-}
-
-// Middleware functions
-func loggingMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		log.Printf("%s %s %s", r.Method, r.URL.Path, r.RemoteAddr)
-		next.ServeHTTP(w, r)
-	})
-}
-
-func corsMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", "*")
-		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
-		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
-
-		if r.Method == "OPTIONS" {
-			w.WriteHeader(http.StatusOK)
-			return
-		}
-
-		next.ServeHTTP(w, r)
-	})
+	// API v1 routes are now set up in SetupRoutes method
 }
