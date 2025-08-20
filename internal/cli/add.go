@@ -80,7 +80,7 @@ func runAdd(packageSpec string) error {
 
 	// Check if package already exists
 	rulestackDir := filepath.Join(projectRoot, ".rulestack")
-	packageDir := filepath.Join(rulestackDir, pkgRef.Name)
+	packageDir := filepath.Join(rulestackDir, fmt.Sprintf("%s.%s", pkgRef.Name, pkgRef.Version))
 	
 	if _, err := os.Stat(packageDir); err == nil {
 		// Package exists, prompt user
@@ -160,6 +160,16 @@ func runAdd(packageSpec string) error {
 	// Update manifests
 	if err := updateManifests(projectRoot, pkgRef, sha256); err != nil {
 		return fmt.Errorf("failed to update manifests: %w", err)
+	}
+
+	// Update CLAUDE.md with new package rules
+	if err := updateClaudeFile(projectRoot, pkgRef); err != nil {
+		// Don't fail the entire operation if CLAUDE.md update fails
+		if verbose {
+			fmt.Printf("⚠️ Warning: Failed to update CLAUDE.md: %v\n", err)
+		}
+	} else if verbose {
+		fmt.Printf("📝 Updated CLAUDE.md with new package rules\n")
 	}
 
 	fmt.Printf("✅ Successfully added %s@%s\n", pkgRef.FullName(), pkgRef.Version)
@@ -377,4 +387,174 @@ func saveLockManifest(path string, lockManifest *LockManifest) error {
 	}
 
 	return os.WriteFile(path, data, 0644)
+}
+
+// updateClaudeFile adds the newly installed package to CLAUDE.md
+func updateClaudeFile(projectRoot string, pkgRef *PackageRef) error {
+	claudePath := filepath.Join(projectRoot, "CLAUDE.md")
+	templatePath := filepath.Join(projectRoot, "CLAUDE.TEMPLATE.md")
+	
+	// If CLAUDE.md doesn't exist, copy from template
+	if _, err := os.Stat(claudePath); os.IsNotExist(err) {
+		if _, err := os.Stat(templatePath); err == nil {
+			// Copy template to CLAUDE.md
+			templateData, err := os.ReadFile(templatePath)
+			if err != nil {
+				return fmt.Errorf("failed to read CLAUDE template: %w", err)
+			}
+			if err := os.WriteFile(claudePath, templateData, 0644); err != nil {
+				return fmt.Errorf("failed to create CLAUDE.md from template: %w", err)
+			}
+		} else {
+			// Create basic CLAUDE.md if no template exists
+			basicContent := `# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## Active Rules (Rulestack core)
+- @.rulestack/core.v1.0.0/core_rules.md
+`
+			if err := os.WriteFile(claudePath, []byte(basicContent), 0644); err != nil {
+				return fmt.Errorf("failed to create basic CLAUDE.md: %w", err)
+			}
+		}
+	}
+	
+	// Read current CLAUDE.md content
+	content, err := os.ReadFile(claudePath)
+	if err != nil {
+		return fmt.Errorf("failed to read CLAUDE.md: %w", err)
+	}
+	
+	lines := strings.Split(string(content), "\n")
+	
+	// Find actual rule files in the package directory
+	packageDir := filepath.Join(projectRoot, ".rulestack", fmt.Sprintf("%s.%s", pkgRef.Name, pkgRef.Version))
+	ruleFiles, err := findRuleFiles(packageDir)
+	if err != nil {
+		return fmt.Errorf("failed to find rule files in package: %w", err)
+	}
+	
+	if len(ruleFiles) == 0 {
+		// No rule files found, skip CLAUDE.md update
+		return nil
+	}
+	
+	// Generate rule lines for all found rule files
+	var newRuleLines []string
+	for _, ruleFile := range ruleFiles {
+		// Make path relative to .rulestack directory
+		relPath := filepath.Join(fmt.Sprintf("%s.%s", pkgRef.Name, pkgRef.Version), ruleFile)
+		newRuleLines = append(newRuleLines, fmt.Sprintf("- @.rulestack/%s", strings.ReplaceAll(relPath, "\\", "/")))
+	}
+	
+	// Check if any of these rules are already present
+	existingRules := make(map[string]bool)
+	for _, line := range lines {
+		if strings.HasPrefix(strings.TrimSpace(line), "- @.rulestack/") {
+			existingRules[strings.TrimSpace(line)] = true
+		}
+	}
+	
+	// Filter out already existing rules
+	var rulesToAdd []string
+	for _, ruleeLine := range newRuleLines {
+		if !existingRules[ruleeLine] {
+			rulesToAdd = append(rulesToAdd, ruleeLine)
+		}
+	}
+	
+	if len(rulesToAdd) == 0 {
+		// All rules already exist, no need to add anything
+		return nil
+	}
+	
+	// Find where to insert the new rule
+	var updatedLines []string
+	inserted := false
+	
+	for i, line := range lines {
+		// Look for the Active Rules section header
+		if strings.Contains(line, "### Active Rules (Rulestack core)") || 
+		   strings.Contains(line, "## Active Rules (Rulestack core)") {
+			updatedLines = append(updatedLines, line)
+			
+			// Add all existing rules after the header
+			j := i + 1
+			for j < len(lines) {
+				if strings.HasPrefix(strings.TrimSpace(lines[j]), "- @.rulestack/") {
+					updatedLines = append(updatedLines, lines[j])
+					j++
+				} else if strings.TrimSpace(lines[j]) == "" {
+					// Empty line, might be more rules after it
+					updatedLines = append(updatedLines, lines[j])
+					j++
+				} else {
+					// Found end of rules section, insert new rules here
+					for _, ruleToAdd := range rulesToAdd {
+						updatedLines = append(updatedLines, ruleToAdd)
+					}
+					inserted = true
+					break
+				}
+			}
+			if !inserted {
+				// End of file reached, add the rules
+				for _, ruleToAdd := range rulesToAdd {
+					updatedLines = append(updatedLines, ruleToAdd)
+				}
+				inserted = true
+			}
+			
+			// Add remaining lines after the rules section
+			for j < len(lines) {
+				updatedLines = append(updatedLines, lines[j])
+				j++
+			}
+			break
+		} else {
+			updatedLines = append(updatedLines, line)
+		}
+	}
+	
+	// If we couldn't find the section, append to the end
+	if !inserted {
+		updatedLines = append(updatedLines, "", "## Active Rules (Rulestack core)")
+		for _, ruleToAdd := range rulesToAdd {
+			updatedLines = append(updatedLines, ruleToAdd)
+		}
+	}
+	
+	// Write updated content back to file
+	updatedContent := strings.Join(updatedLines, "\n")
+	if err := os.WriteFile(claudePath, []byte(updatedContent), 0644); err != nil {
+		return fmt.Errorf("failed to update CLAUDE.md: %w", err)
+	}
+	
+	return nil
+}
+
+// findRuleFiles finds all .md files in the package directory that are likely rule files
+func findRuleFiles(packageDir string) ([]string, error) {
+	var ruleFiles []string
+	
+	err := filepath.Walk(packageDir, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		
+		// Only consider .md files
+		if !info.IsDir() && strings.HasSuffix(strings.ToLower(info.Name()), ".md") {
+			// Get relative path from package directory
+			relPath, err := filepath.Rel(packageDir, path)
+			if err != nil {
+				return err
+			}
+			ruleFiles = append(ruleFiles, relPath)
+		}
+		
+		return nil
+	})
+	
+	return ruleFiles, err
 }

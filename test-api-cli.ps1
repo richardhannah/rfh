@@ -38,6 +38,37 @@ function Write-Error {
     Write-Host "[ERROR] $Message" -ForegroundColor Red
 }
 
+function Pre-Cleanup {
+    Write-TestStep "Cleaning up any leftover test state..."
+    
+    # Remove any leftover test registries from previous runs
+    $testRegistries = @('test', 'test-local', 'local')
+    foreach ($regName in $testRegistries) {
+        try {
+            $registryList = & rfh registry list 2>$null
+            if ($LASTEXITCODE -eq 0 -and $registryList -match $regName) {
+                & rfh registry remove $regName 2>$null | Out-Null
+            }
+        }
+        catch {
+            # Continue silently
+        }
+    }
+    
+    # Clean up any leftover temp test directories
+    $tempPattern = "$env:TEMP\rfhlocaltest*"
+    Get-ChildItem $env:TEMP -Directory -Filter "rfhlocaltest*" -ErrorAction SilentlyContinue | ForEach-Object {
+        try {
+            Remove-Item $_.FullName -Recurse -Force
+        }
+        catch {
+            # Continue if we can't remove it
+        }
+    }
+    
+    Write-Success "Pre-cleanup completed"
+}
+
 function Setup-TestEnvironment {
     Write-TestStep "Setting up isolated test environment..."
     
@@ -353,10 +384,10 @@ function Test-InstallOperation {
             $installSuccess = $false
         }
         
-        if (Test-Path ".rulestack\$TestPackageName") {
-            Write-Success "Package directory created: .rulestack\$TestPackageName"
+        if (Test-Path ".rulestack\$TestPackageName.$TestPackageVersion") {
+            Write-Success "Package directory created: .rulestack\$TestPackageName.$TestPackageVersion"
         } else {
-            Write-Error "Package directory NOT created: .rulestack\$TestPackageName - FAILED"
+            Write-Error "Package directory NOT created: .rulestack\$TestPackageName.$TestPackageVersion - FAILED"
             $installSuccess = $false
         }
         
@@ -385,11 +416,46 @@ function Test-InstallOperation {
         }
         
         # Check if package files exist
-        if (Test-Path ".rulestack\$TestPackageName\*") {
-            $fileCount = (Get-ChildItem ".rulestack\$TestPackageName" -Recurse -File).Count
+        if (Test-Path ".rulestack\$TestPackageName.$TestPackageVersion\*") {
+            $fileCount = (Get-ChildItem ".rulestack\$TestPackageName.$TestPackageVersion" -Recurse -File).Count
             Write-Success "Package files extracted: $fileCount files found"
         } else {
-            Write-Error "No package files found in .rulestack\$TestPackageName - FAILED"
+            Write-Error "No package files found in .rulestack\$TestPackageName.$TestPackageVersion - FAILED"
+            $installSuccess = $false
+        }
+        
+        # Check CLAUDE.md was updated correctly without duplicates
+        if (Test-Path "CLAUDE.md") {
+            $claudeContent = Get-Content "CLAUDE.md" -Raw
+            $ruleLines = $claudeContent -split "`n" | Where-Object { $_ -match "^\s*- @\.rulestack/" }
+            
+            # Check for our expected rule entry (actual file from package)
+            $expectedRule = "- @.rulestack/$TestPackageName.$TestPackageVersion/rules/spam-quotes.md"
+            $hasExpectedRule = $ruleLines -contains $expectedRule
+            
+            # Check for duplicates by comparing unique vs total count
+            $uniqueRules = $ruleLines | Sort-Object -Unique
+            $hasDuplicates = $ruleLines.Count -ne $uniqueRules.Count
+            
+            if ($hasExpectedRule) {
+                Write-Success "CLAUDE.md contains expected rule entry"
+            } else {
+                Write-Error "CLAUDE.md missing expected rule entry: $expectedRule - FAILED"
+                $installSuccess = $false
+            }
+            
+            if (!$hasDuplicates) {
+                Write-Success "CLAUDE.md has no duplicate rule entries"
+            } else {
+                Write-Error "CLAUDE.md contains duplicate rule entries - FAILED"
+                if ($Verbose) {
+                    Write-Host "All rule entries:" -ForegroundColor Gray
+                    $ruleLines | ForEach-Object { Write-Host "  $_" -ForegroundColor Gray }
+                }
+                $installSuccess = $false
+            }
+        } else {
+            Write-Error "CLAUDE.md was not created - FAILED"
             $installSuccess = $false
         }
         
@@ -420,13 +486,46 @@ function Cleanup {
             Write-Success "Removed test archives"
         }
         
-        # Remove test registry
+        # Clean up ALL test registries (including any leftover from previous runs)
+        $testRegistries = @('test', 'test-local', 'local')
+        foreach ($regName in $testRegistries) {
+            try {
+                # Check if registry exists first
+                $registryList = & rfh registry list 2>$null
+                if ($LASTEXITCODE -eq 0 -and $registryList -match $regName) {
+                    & rfh registry remove $regName 2>$null
+                    if ($LASTEXITCODE -eq 0) {
+                        Write-Success "Removed registry '$regName'"
+                    }
+                }
+            }
+            catch {
+                # Silently continue if registry doesn't exist
+            }
+        }
+        
+        # Ensure no active registry is set to our test registries
         try {
-            & rfh registry remove test
-            Write-Success "Removed test registry configuration"
+            $currentConfig = & rfh registry list 2>$null
+            if ($LASTEXITCODE -eq 0 -and $currentConfig -match "\* (test|test-local|local)") {
+                # If test registry is active, clear it by trying to set a non-existent one
+                & rfh registry use "" 2>$null | Out-Null
+            }
         }
         catch {
-            Write-Host "Note: Could not remove test registry configuration" -ForegroundColor Yellow
+            # Continue if there's an issue
+        }
+        
+        # Clean up any temporary RFH config that might have been created
+        $tempConfigPath = "$env:TEMP\.rfh"
+        if (Test-Path $tempConfigPath) {
+            try {
+                Remove-Item $tempConfigPath -Recurse -Force
+                Write-Success "Removed temporary RFH configuration"
+            }
+            catch {
+                Write-Host "Note: Could not remove temporary RFH config" -ForegroundColor Yellow
+            }
         }
         
         # Return to original directory
@@ -437,6 +536,8 @@ function Cleanup {
             Remove-Item $TempTestRoot -Recurse -Force
             Write-Success "Removed isolated test environment: $TempTestRoot"
         }
+        
+        Write-Success "Complete environment cleanup performed"
     } else {
         Set-Location $OriginalDir
         Write-Host "[DEBUG] Skipping cleanup - test environment preserved at: $TempTestRoot" -ForegroundColor Yellow
@@ -445,6 +546,7 @@ function Cleanup {
 
 function Run-Tests {
     try {
+        Pre-Cleanup
         Setup-TestEnvironment
         Test-Prerequisites
         Test-APIHealth
