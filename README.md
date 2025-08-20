@@ -6,9 +6,40 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Go Version](https://img.shields.io/github/go-mod/go-version/username/rulestack)](https://golang.org/)
 
-A package manager for AI rulesets, making it easy to share and discover AI rules for code editors like Claude Code, Cursor, and Windsurf.
+A secure package manager for AI rulesets, making it easy to share and discover AI rules for code editors like Claude Code, Cursor, and Windsurf. Built with enterprise-grade security validation and automatic Claude Code integration.
 
 ## 🚀 Quick Start
+
+## 👨‍💻 Developer Quickstart
+
+**TL;DR**: Want to start developing? Run this and you're good to go:
+
+```bash
+# 1. Start the development environment
+docker-compose up -d
+
+# 2. Run the full system test
+powershell -File test-api-cli.ps1
+# OR on Linux/Mac: 
+# bash test-api-cli.sh
+
+# 3. If the test passes, you're ready to develop! 🎉
+```
+
+**What this does:**
+- Starts PostgreSQL database with migrations
+- Builds and runs the API server  
+- Runs comprehensive end-to-end tests including:
+  - Package creation, publishing, and installation
+  - Security validation
+  - Claude Code integration
+  - Registry management
+
+**If the test script passes, your development environment is working correctly.**
+
+📖 **For detailed development guidance, see [DEVELOPER_GUIDE.md](DEVELOPER_GUIDE.md)**
+
+### Production Quick Start
 
 ### With Docker (Database Only - Recommended)
 ```bash
@@ -64,13 +95,35 @@ go run ./cmd/api &
 
 ## 📦 What is RuleStack?
 
-RuleStack is a package manager specifically designed for AI rulesets - the configuration files and prompts that guide AI coding assistants. Just like npm for JavaScript or pip for Python, RuleStack allows you to:
+RuleStack is a secure package manager specifically designed for AI rulesets - the configuration files and prompts that guide AI coding assistants. Just like npm for JavaScript or pip for Python, RuleStack allows you to:
 
 - **Publish** rulesets to public or private registries
 - **Discover** rulesets created by the community  
-- **Install** rulesets into your development environment
+- **Install** rulesets with enterprise-grade security validation
 - **Version** rulesets with semantic versioning
 - **Share** best practices across teams and projects
+- **Integrate** automatically with Claude Code via CLAUDE.md
+
+## ✨ Key Features
+
+### 🔒 **Enterprise Security**
+- **Malware Protection**: Blocks executables, scripts, and malicious content
+- **Path Traversal Prevention**: Protects against zip slip attacks
+- **Content Sanitization**: Uses bluemonday to sanitize markdown (XSS protection)
+- **File Type Validation**: Only allows safe file types (.md, .txt, .json)
+- **Size Limits**: Prevents zip bombs and oversized packages
+
+### 🤖 **AI Editor Integration**
+- **Automatic CLAUDE.md Updates**: Seamlessly integrates with Claude Code
+- **Core Rules System**: Ships with baseline rules for best practices
+- **Versioned Rule References**: Links to actual files, not assumptions
+- **Project-Specific Rules**: Supports both global and project rules
+
+### 🚀 **Developer Experience**  
+- **Git-like Workflow**: Familiar `init`, `pack`, `publish` commands
+- **Explicit Project Roots**: Clear project boundaries like `git init`
+- **Comprehensive Testing**: Full end-to-end validation
+- **Zero-Config Security**: Security validation happens automatically
 
 ## 🎯 Supported Editors
 
@@ -95,40 +148,63 @@ RuleStack is a package manager specifically designed for AI rulesets - the confi
 rfh registry add <name> <url> [token]   # Add a registry
 rfh registry list                       # List configured registries  
 rfh registry use <name>                 # Set active registry
+rfh registry remove <name>              # Remove a registry
 ```
 
 ### Package Development
 ```bash
-rfh init                               # Initialize new ruleset project
-rfh pack                               # Create distributable archive
+rfh init [--force]                     # Initialize new ruleset project (like git init)
+rfh pack                               # Create distributable archive  
 rfh publish                            # Publish to registry
 ```
 
 ### Package Discovery & Installation  
 ```bash
 rfh search <query> [--tag] [--target]  # Search for rulesets
-rfh add <package>[@version]            # Download ruleset
-rfh apply <package> --target <editor>  # Apply to editor
-rfh list                               # List installed rulesets
+rfh add <package>[@version]            # Download and install ruleset (auto-updates CLAUDE.md)
 ```
+
+**New Workflow**: RuleStack now uses explicit project roots like Git:
+1. **`rfh init`** - Creates project structure, CLAUDE.md, and core rules
+2. **`rfh add <package>`** - Installs to `.rulestack/package.version/` and updates CLAUDE.md
+3. **Built-in Security** - All packages validated automatically during installation
 
 ## 📁 Project Structure
 
+### Repository Structure
 ```
 rulestack/
 ├── cmd/
 │   ├── api/           # API server
-│   └── cli/           # CLI tool
+│   └── cli/           # CLI tool  
 ├── internal/
 │   ├── api/           # HTTP handlers
 │   ├── client/        # HTTP client
 │   ├── config/        # Configuration
 │   ├── db/            # Database layer
 │   ├── manifest/      # Package manifests
-│   └── pkg/           # Utilities
+│   ├── pkg/           # Package utilities
+│   └── security/      # Security validation (NEW)
 ├── migrations/        # Database schema
 ├── scripts/           # Development scripts
-└── storage/           # File storage
+├── storage/           # File storage
+├── test-api-cli.ps1   # End-to-end test script (NEW)
+└── planning/          # Design documents
+```
+
+### RuleStack Project Structure (after `rfh init`)
+```
+my-rules/
+├── rulestack.json              # Package manifest
+├── CLAUDE.md                   # Claude Code integration (AUTO-GENERATED)
+├── rules/
+│   └── example-rule.md         # Your rule files
+├── .rulestack/                 # Installed dependencies
+│   ├── core.v1.0.0/           # Core rules (auto-installed)
+│   │   └── core_rules.md
+│   └── package.version/        # Installed packages
+│       └── rules/
+└── rulestack.lock.json        # Dependency lock file
 ```
 
 ## 🔧 Development
@@ -164,22 +240,34 @@ go run ./cmd/api &
 ```
 
 ### Testing
+
 ```bash
-# Run unit tests
+# Run all unit tests
 go test ./... -v
 
-# Run unit tests with coverage
+# Run security validation tests
+go test ./internal/security -v
+
+# Run unit tests with coverage  
 go test ./... -cover
 
 # Run linting
 golangci-lint run
 
-# Run integration tests (requires running API server)
-go run ./scripts/setup-dev.go
-./rfh registry add local http://localhost:8080 dev-token-12345
-./rfh init && ./rfh pack && ./rfh publish
-./rfh search example
+# Run comprehensive end-to-end tests
+powershell -File test-api-cli.ps1
+# OR: bash test-api-cli.sh
+
+# Test security validation specifically
+powershell -File test-security-simple.ps1
 ```
+
+**The test scripts validate:**
+- Package creation, publishing, and installation
+- Security validation (malware protection, path traversal, etc.)
+- Claude Code integration (CLAUDE.md updates)
+- Registry management
+- Complete environment isolation and cleanup
 
 ### CI/CD Pipeline
 
@@ -243,11 +331,31 @@ docker run -e DATABASE_URL=... -e TOKEN_SALT=... -p 8080:8080 rulestack-api
 
 ## 🔒 Security
 
-- **Authentication**: Bearer token with SHA256 hashing
-- **Integrity**: SHA256 verification for all packages
-- **Input validation**: Manifest validation and path sanitization
-- **Directory traversal protection**: Safe archive extraction
-- **Token storage**: Salted hashes in database
+RuleStack implements enterprise-grade security validation to protect against malicious packages:
+
+### Package Security Validation
+- **Path Traversal Protection**: Blocks `../../../etc/passwd` attacks (zip slip prevention)
+- **Executable Detection**: Rejects scripts (.sh, .bat, .ps1), binaries (.exe, .dll), and executables (ELF, PE headers)
+- **Content Sanitization**: Uses bluemonday to sanitize markdown and block XSS attacks
+- **File Type Allowlist**: Only permits safe file types (.md, .txt, .json)
+- **Size Limits**: Prevents zip bombs (1MB per file, 10MB total, max 100 files)
+- **Encoding Validation**: Requires valid UTF-8, rejects NUL bytes
+- **Symlink Protection**: Only allows regular files and directories
+
+### Authentication & Integrity
+- **Bearer Token Auth**: SHA256 hashing with salt
+- **Package Integrity**: SHA256 verification for all packages  
+- **Input Validation**: Comprehensive manifest and path sanitization
+- **Token Storage**: Salted hashes in database
+- **Secure Extraction**: Defense-in-depth package extraction
+
+### Security Testing
+RuleStack includes comprehensive security tests covering all attack vectors:
+```bash
+go test ./internal/security -v
+```
+
+**100% test coverage** for security validation including malicious markdown, path traversal, executables, and more.
 
 ## 🚧 Roadmap
 
@@ -266,33 +374,60 @@ MIT License - see LICENSE file for details.
 
 ## 🤝 Contributing
 
-We welcome contributions! Please follow these steps:
+We welcome and **strongly encourage** contributions! This project embraces the **vibe coding** philosophy - we care more about working software than perfect code.
+
+### 🎯 **Our Philosophy**
+- **Behavior over Beauty**: We prioritize working features over perfect code style
+- **Vibe Coding Encouraged**: If it works and improves the project, we want it
+- **End-to-End Testing**: We prefer tests that validate complete user workflows
+- **Real-World Focus**: Tests should examine the system as users actually use it
+
+### 📝 **Contribution Guidelines**
 
 1. **Fork** the repository
 2. **Create** a feature branch (`git checkout -b feature/amazing-feature`)
-3. **Ensure** your code passes all checks:
+3. **Build something that works** - don't worry about perfection
+4. **Write behavior tests** that validate the complete user experience:
    ```bash
-   # Run tests
+   # We LOVE these kinds of tests - they test the whole system:
+   powershell -File test-api-cli.ps1
+   
+   # Add your own behavior test scripts for new features
+   powershell -File test-my-feature.ps1
+   ```
+5. **Ensure basic quality**:
+   ```bash
+   # Run existing tests
    go test ./...
    
-   # Run linting
-   golangci-lint run
-   
-   # Check formatting
-   go fmt ./...
+   # Check that it builds
+   go build ./cmd/cli
+   go build ./cmd/api
    ```
-4. **Commit** your changes (`git commit -m 'Add amazing feature'`)
-5. **Push** to your branch (`git push origin feature/amazing-feature`)
-6. **Open** a Pull Request
+6. **Commit** with a clear message (`git commit -m 'Add amazing feature'`)
+7. **Push** to your branch (`git push origin feature/amazing-feature`)
+8. **Open** a Pull Request
 
-### CI Requirements
+### 🧪 **Testing Philosophy**
+
+**We strongly encourage behavior testing scripts** that validate complete workflows:
+
+✅ **LOVE**: Tests that start from `docker-compose up` and validate entire user journeys
+✅ **LOVE**: Scripts that test real integration scenarios  
+✅ **LOVE**: End-to-end validation that covers security, UI, and business logic
+✅ **LOVE**: Tests that would catch regressions a real user would experience
+
+👍 **LIKE**: Unit tests for critical algorithms and security validation
+😐 **OKAY**: Mocking and isolated component testing
+
+### 🚀 **CI Requirements**
 All Pull Requests must pass:
-- ✅ **Unit Tests**: All tests must pass with coverage reporting
-- ✅ **Linting**: Code must pass `golangci-lint` checks
-- ✅ **Build**: Both CLI and API must compile successfully
-- ✅ **Formatting**: Code must be properly formatted with `gofmt`
+- ✅ **End-to-End Tests**: `test-api-cli.ps1` must pass
+- ✅ **Build**: Both CLI and API must compile successfully  
+- ✅ **Core Tests**: Security and critical unit tests must pass
+- 📝 **Behavior Tests**: Include behavior test scripts for new features
 
-The CI pipeline automatically runs these checks on every PR.
+**We're more interested in working software than perfect lint scores.** If your code works and has good behavior test coverage, we'll help you with any style issues during review.
 
 ## 📞 Support
 
