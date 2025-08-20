@@ -11,6 +11,7 @@ import (
 	"strings"
 
 	"github.com/bmatcuk/doublestar/v4"
+	"rulestack/internal/security"
 )
 
 // ArchiveInfo contains information about a created archive
@@ -133,8 +134,20 @@ func addFileToArchive(tarWriter *tar.Writer, filePath string) error {
 	return err
 }
 
-// Unpack extracts a tar.gz archive to a destination directory
+// Unpack extracts a tar.gz archive to a destination directory with security validation
 func Unpack(archivePath string, destDir string) error {
+	// First, validate the archive for security
+	validator := security.NewPackageValidator(nil)
+	if err := validator.ValidateArchive(archivePath, destDir); err != nil {
+		return fmt.Errorf("security validation failed: %w", err)
+	}
+
+	// If validation passes, proceed with extraction
+	return UnpackValidated(archivePath, destDir)
+}
+
+// UnpackValidated extracts a pre-validated archive (internal use)
+func UnpackValidated(archivePath string, destDir string) error {
 	file, err := os.Open(archivePath)
 	if err != nil {
 		return fmt.Errorf("failed to open archive: %w", err)
@@ -161,7 +174,7 @@ func Unpack(archivePath string, destDir string) error {
 			return fmt.Errorf("failed to read tar header: %w", err)
 		}
 
-		if err := extractFile(tarReader, header, destDir); err != nil {
+		if err := extractFileSecure(tarReader, header, destDir); err != nil {
 			return fmt.Errorf("failed to extract file %s: %w", header.Name, err)
 		}
 	}
@@ -169,31 +182,73 @@ func Unpack(archivePath string, destDir string) error {
 	return nil
 }
 
-// extractFile extracts a single file from tar archive
-func extractFile(tarReader *tar.Reader, header *tar.Header, destDir string) error {
-	// Clean the file path to prevent directory traversal
-	cleanName := filepath.Clean(header.Name)
-	if strings.Contains(cleanName, "..") {
-		return fmt.Errorf("invalid file path: %s", header.Name)
+// extractFileSecure extracts a single file from tar archive with enhanced security
+func extractFileSecure(tarReader *tar.Reader, header *tar.Header, destDir string) error {
+	// Validate file path (redundant with validator, but defense in depth)
+	if err := validateExtractionPath(header.Name, destDir); err != nil {
+		return err
 	}
 
-	destPath := filepath.Join(destDir, cleanName)
+	destPath := filepath.Join(destDir, header.Name)
+
+	// Handle directories
+	if header.Typeflag == tar.TypeDir {
+		return os.MkdirAll(destPath, 0o755)
+	}
+
+	// Only handle regular files (symlinks and other types rejected by validator)
+	if header.Typeflag != tar.TypeReg {
+		return fmt.Errorf("unsupported file type: %c", header.Typeflag)
+	}
 
 	// Create directory if needed
 	if err := os.MkdirAll(filepath.Dir(destPath), 0o755); err != nil {
 		return err
 	}
 
-	// Create file
-	outFile, err := os.Create(destPath)
+	// Create file with safe permissions
+	outFile, err := os.OpenFile(destPath, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0o644)
 	if err != nil {
 		return err
 	}
 	defer outFile.Close()
 
-	// Copy file content
-	_, err = io.Copy(outFile, tarReader)
-	return err
+	// Copy file content with size limit (defense in depth)
+	_, err = io.CopyN(outFile, tarReader, security.MaxFileSize)
+	if err != nil && err != io.EOF {
+		return err
+	}
+
+	return nil
+}
+
+// validateExtractionPath validates the extraction path for security
+func validateExtractionPath(filePath, destDir string) error {
+	// Reject absolute paths
+	if filepath.IsAbs(filePath) {
+		return fmt.Errorf("absolute paths not allowed: %s", filePath)
+	}
+
+	// Reject paths with .. segments
+	if strings.Contains(filePath, "..") {
+		return fmt.Errorf("path traversal attempt: %s", filePath)
+	}
+
+	// Ensure the final path is within the destination directory
+	destPath := filepath.Join(destDir, filePath)
+	cleanDest := filepath.Clean(destPath)
+	cleanDestDir := filepath.Clean(destDir)
+	
+	if !strings.HasPrefix(cleanDest, cleanDestDir) {
+		return fmt.Errorf("path escapes destination directory: %s", filePath)
+	}
+
+	return nil
+}
+
+// extractFile extracts a single file from tar archive (legacy function for compatibility)
+func extractFile(tarReader *tar.Reader, header *tar.Header, destDir string) error {
+	return extractFileSecure(tarReader, header, destDir)
 }
 
 // CalculateSHA256 calculates SHA256 hash of a file
