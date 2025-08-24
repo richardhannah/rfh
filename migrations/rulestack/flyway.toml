@@ -1,0 +1,34 @@
+databaseType = "PostgreSql"
+id = "0bfe8cbd-5265-4c5c-a250-e42f6fcd5863"
+name = "rulestack"
+
+[flyway]
+locations = [ "filesystem:migrations" ]
+mixed = true
+outOfOrder = true
+schemaModelLocation = "schema-model"
+validateMigrationNaming = true
+createSchemas = true
+
+  [flyway.check]
+  majorTolerance = 0
+
+[flywayDesktop]
+developmentEnvironment = "development"
+shadowEnvironment = "shadow"
+
+[redgateCompare]
+filterFile = "filter.rgf"
+
+[redgateCompare.postgresql.options.ignores]
+ignoreNewlinesInTextObjects = "off"
+
+[environments.rulestack-local]
+url = "jdbc:postgresql://localhost:5432/rulestackdb"
+schemas = [ "rulestack" ]
+displayName = "rulestack-local"
+
+[environments.rulestack-prod]
+url = "jdbc:postgresql://dpg-d2lef7bipnbc7384qnq0-a.frankfurt-postgres.render.com:5432/rulestackdb"
+schemas = [ "rulestack" ]
+displayName = "rulestack-prod"
