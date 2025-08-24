@@ -12,9 +12,15 @@ type Registry struct {
 	Token string `toml:"token,omitempty"`
 }
 
+type User struct {
+	Username string `toml:"username"`
+	Token    string `toml:"token"` // JWT token
+}
+
 type CLIConfig struct {
 	Current    string              `toml:"current"`
 	Registries map[string]Registry `toml:"registries"`
+	User       *User               `toml:"user,omitempty"` // Current authenticated user
 }
 
 // ConfigDir returns the CLI config directory path

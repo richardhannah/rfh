@@ -10,6 +10,7 @@ type Config struct {
 	StoragePath string
 	APIPort     string
 	TokenSalt   string
+	JWTSecret   string
 }
 
 func Load() Config {
@@ -18,6 +19,7 @@ func Load() Config {
 		StoragePath: getEnv("STORAGE_PATH", "./storage"),
 		APIPort:     getEnv("PORT", "8080"),
 		TokenSalt:   os.Getenv("TOKEN_SALT"),
+		JWTSecret:   os.Getenv("JWT_SECRET"),
 	}
 
 	// Validate required fields
@@ -26,6 +28,9 @@ func Load() Config {
 	}
 	if cfg.TokenSalt == "" {
 		log.Fatal("TOKEN_SALT environment variable is required")
+	}
+	if cfg.JWTSecret == "" {
+		log.Fatal("JWT_SECRET environment variable is required")
 	}
 
 	return cfg

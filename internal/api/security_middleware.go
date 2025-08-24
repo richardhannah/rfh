@@ -13,11 +13,23 @@ import (
 	"time"
 
 	"github.com/microcosm-cc/bluemonday"
+	"rulestack/internal/auth"
 	"rulestack/internal/db"
 )
 
-// Enhanced auth middleware with route registry support
+// Context keys for user data
+type contextKey string
+
+const (
+	userContextKey    contextKey = "user"
+	sessionContextKey contextKey = "session"
+	tokenContextKey   contextKey = "token" // Keep for backward compatibility
+)
+
+// Enhanced auth middleware with JWT and role-based access support
 func (s *Server) enhancedAuthMiddleware(registry *RouteRegistry) func(http.Handler) http.Handler {
+	jwtManager := auth.NewJWTManager(s.Config.JWTSecret, auth.DevelopmentTokenDuration)
+	
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			// Skip OPTIONS requests
@@ -26,18 +38,26 @@ func (s *Server) enhancedAuthMiddleware(registry *RouteRegistry) func(http.Handl
 				return
 			}
 
-			// Check if route requires authentication
+			// Get route metadata
+			var routeMetadata RouteMetadata
+			var routeFound bool
 			if registry != nil {
-				if metadata, found := registry.GetRouteMetadata(r.URL.Path, r.Method); found {
-					if !metadata.RequiresAuthentication {
-						// Route doesn't require authentication, proceed
-						next.ServeHTTP(w, r)
-						return
-					}
-				}
+				routeMetadata, routeFound = registry.GetRouteMetadata(r.URL.Path, r.Method)
 			}
 
-			// Validate Bearer token
+			// If route doesn't require authentication, proceed
+			if routeFound && !routeMetadata.RequiresAuthentication {
+				next.ServeHTTP(w, r)
+				return
+			}
+
+			// If route not found in registry, assume it requires authentication
+			if !routeFound {
+				routeMetadata.RequiresAuthentication = true
+				routeMetadata.RequiredRole = "user"
+			}
+
+			// Extract Authorization header
 			authHeader := r.Header.Get("Authorization")
 			if authHeader == "" {
 				writeError(w, http.StatusUnauthorized, "Authorization header required")
@@ -57,16 +77,71 @@ func (s *Server) enhancedAuthMiddleware(registry *RouteRegistry) func(http.Handl
 				return
 			}
 
-			// Hash token and validate
-			tokenHash := db.HashToken(token, s.Config.TokenSalt)
-			dbToken, err := s.DB.ValidateToken(tokenHash)
-			if err != nil {
-				writeError(w, http.StatusUnauthorized, "Invalid token")
-				return
+			var user *db.User
+			var session *db.UserSession
+			var legacyToken *db.Token
+
+			// Try JWT authentication first
+			if _, err := jwtManager.ValidateToken(token); err == nil {
+				// JWT token is valid, get user and session from database
+				tokenHash := jwtManager.GetTokenHash(token)
+				if u, sess, err := s.DB.ValidateUserSession(tokenHash); err == nil {
+					user = u
+					session = sess
+					// Update session last used time
+					s.DB.UpdateSessionLastUsed(session.ID)
+				} else {
+					writeError(w, http.StatusUnauthorized, "Invalid or expired session")
+					return
+				}
+			} else {
+				// Try legacy token authentication
+				tokenHash := db.HashToken(token, s.Config.TokenSalt)
+				if legToken, err := s.DB.ValidateToken(tokenHash); err == nil {
+					legacyToken = legToken
+					// For legacy tokens, we'll allow publisher permissions for backward compatibility
+					// This ensures existing systems continue to work
+					user = &db.User{
+						ID:       0,
+						Username: "legacy-token",
+						Role:     db.RolePublisher, // Grant publisher access to maintain compatibility
+					}
+				} else {
+					writeError(w, http.StatusUnauthorized, "Invalid token")
+					return
+				}
 			}
 
-			// Add token to context and continue
-			ctx := context.WithValue(r.Context(), tokenContextKey, dbToken)
+			// Check role-based access
+			if routeMetadata.RequiredRole != "" {
+				hasAccess := false
+				switch routeMetadata.RequiredRole {
+				case "user":
+					hasAccess = user.Role.HasPermission("read")
+				case "publisher":
+					hasAccess = user.Role.HasPermission("publish")
+				case "admin":
+					hasAccess = user.Role.HasPermission("admin")
+				}
+
+				if !hasAccess {
+					writeError(w, http.StatusForbidden, "Insufficient permissions")
+					return
+				}
+			}
+
+			// Add user and session to context
+			ctx := r.Context()
+			if user != nil {
+				ctx = context.WithValue(ctx, userContextKey, user)
+			}
+			if session != nil {
+				ctx = context.WithValue(ctx, sessionContextKey, session)
+			}
+			if legacyToken != nil {
+				ctx = context.WithValue(ctx, tokenContextKey, legacyToken)
+			}
+
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})
 	}
@@ -333,4 +408,29 @@ type responseWriter struct {
 func (rw *responseWriter) WriteHeader(code int) {
 	rw.statusCode = code
 	rw.ResponseWriter.WriteHeader(code)
+}
+
+// Helper functions to extract data from context
+func getUserFromContext(ctx context.Context) *db.User {
+	user, ok := ctx.Value(userContextKey).(*db.User)
+	if !ok {
+		return nil
+	}
+	return user
+}
+
+func getUserSessionFromContext(ctx context.Context) *db.UserSession {
+	session, ok := ctx.Value(sessionContextKey).(*db.UserSession)
+	if !ok {
+		return nil
+	}
+	return session
+}
+
+func getTokenFromContext(ctx context.Context) *db.Token {
+	token, ok := ctx.Value(tokenContextKey).(*db.Token)
+	if !ok {
+		return nil
+	}
+	return token
 }

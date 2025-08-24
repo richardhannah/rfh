@@ -10,9 +10,7 @@ import (
 	"rulestack/internal/db"
 )
 
-type contextKey string
-
-const tokenContextKey contextKey = "token"
+// Context types moved to security_middleware.go
 
 // authMiddleware validates Bearer tokens
 func (s *Server) authMiddleware(next http.Handler) http.Handler {
@@ -55,14 +53,8 @@ func (s *Server) authMiddleware(next http.Handler) http.Handler {
 	})
 }
 
-// getTokenFromContext retrieves token from request context
-func getTokenFromContext(ctx context.Context) *db.Token {
-	token, ok := ctx.Value(tokenContextKey).(*db.Token)
-	if !ok {
-		return nil
-	}
-	return token
-}
+// getTokenFromContext retrieves token from request context (legacy support)
+// Note: This function is now defined in security_middleware.go
 
 // writeJSON writes JSON response
 func writeJSON(w http.ResponseWriter, status int, data interface{}) {

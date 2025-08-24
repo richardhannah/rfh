@@ -62,29 +62,16 @@ func runPublish() error {
 		return fmt.Errorf("failed to load config: %w", err)
 	}
 
-	// Determine which registry to use
-	registryName := cfg.Current
-	if registry != "" {
-		registryName = registry
+	// Get current registry
+	registryName, reg, err := getCurrentRegistry(cfg)
+	if err != nil {
+		return err
 	}
 
-	if registryName == "" {
-		return fmt.Errorf("no registry configured. Use 'rfh registry add' to add a registry")
-	}
-
-	reg, exists := cfg.Registries[registryName]
-	if !exists {
-		return fmt.Errorf("registry '%s' not found. Use 'rfh registry list' to see available registries", registryName)
-	}
-
-	// Use token from flag or config
-	authToken := reg.Token
-	if token != "" {
-		authToken = token
-	}
-
-	if authToken == "" {
-		return fmt.Errorf("no authentication token configured for registry '%s'", registryName)
+	// Get effective token (flag, registry token, or JWT token)
+	authToken, err := getEffectiveToken(cfg, reg)
+	if err != nil {
+		return err
 	}
 
 	if verbose {

@@ -69,8 +69,14 @@ func runSearch(query string) error {
 		}
 	}
 
-	// Create client (no auth needed for search)
-	c := client.NewClient(reg.URL, reg.Token)
+	// Get effective token (flag, registry token, or JWT token)
+	authToken, err := getEffectiveToken(cfg, reg)
+	if err != nil {
+		return err
+	}
+
+	// Create client
+	c := client.NewClient(reg.URL, authToken)
 	c.SetVerbose(verbose)
 
 	// Search packages

@@ -229,22 +229,85 @@ function Test-PackOperation {
     }
 }
 
+function Setup-Authentication {
+    Write-TestStep "Setting up authentication for testing..."
+    
+    # Simple approach: try to setup JWT auth, fallback to legacy token
+    try {
+        $testUsername = "testuser-$(Get-Date -Format 'yyyyMMddHHmmss')"
+        $testEmail = "$testUsername@example.com"
+        $testPassword = "TestPassword123!"
+        
+        $registerBody = @{
+            username = $testUsername
+            email = $testEmail
+            password = $testPassword
+        } | ConvertTo-Json
+        
+        $authResponse = Invoke-RestMethod -Uri "$RegistryUrl/v1/auth/register" -Method POST -Body $registerBody -ContentType "application/json" -ErrorAction Stop
+        
+        # Create simple CLI config with JWT token
+        $configDir = "$env:USERPROFILE\.rfh"
+        if (!(Test-Path $configDir)) {
+            New-Item -ItemType Directory -Path $configDir -Force | Out-Null
+        }
+        
+        $configContent = @"
+current = "test"
+
+[user]
+username = "$($authResponse.user.username)"
+token = "$($authResponse.token)"
+
+[registries.test]
+url = "$RegistryUrl"
+"@
+        
+        Set-Content -Path "$configDir\config.toml" -Value $configContent
+        Write-Success "JWT authentication configured: $($authResponse.user.username)"
+        return $true
+        
+    } catch {
+        Write-Host "INFO: JWT setup failed, will use legacy token method" -ForegroundColor Yellow
+        return $false
+    }
+}
+
 function Test-PublishOperation {
     Write-TestStep "Testing publish operation..."
     
-    try {
-        # Use token override since no auth is configured for proof of concept
+    # Check if user is authenticated first
+    $whoamiOutput = & rfh auth whoami 2>$null
+    if ($LASTEXITCODE -eq 0 -and $whoamiOutput -match "Logged in as:") {
+        Write-Host "[JWT] Attempting publish with JWT authentication..." -ForegroundColor Cyan
+        
         if ($Verbose) {
-            & rfh publish --token noauth --verbose
+            & rfh publish --verbose
         } else {
-            & rfh publish --token noauth
+            & rfh publish
         }
-        Write-Success "Package published successfully"
+        
+        if ($LASTEXITCODE -eq 0) {
+            Write-Success "Package published successfully with JWT authentication"
+            return
+        } else {
+            Write-Host "JWT publish failed, trying legacy token..." -ForegroundColor Yellow
+        }
     }
-    catch {
-        Write-Error "Publish operation failed: $($_.Exception.Message)"
-        # Don't exit here as the package might already exist
-        Write-Host "This might be expected if the package was already published" -ForegroundColor Yellow
+    
+    # Fallback to legacy token method
+    Write-Host "[LEGACY] Using legacy token authentication..." -ForegroundColor Yellow
+    
+    if ($Verbose) {
+        & rfh publish --token noauth --verbose
+    } else {
+        & rfh publish --token noauth
+    }
+    
+    if ($LASTEXITCODE -eq 0) {
+        Write-Success "Package published successfully"
+    } else {
+        Write-Host "Publish operation failed, but this might be expected if the package was already published" -ForegroundColor Yellow
     }
 }
 
@@ -551,6 +614,7 @@ function Run-Tests {
         Test-Prerequisites
         Test-APIHealth
         Setup-Registry
+        Setup-Authentication
         Test-PreInitializationErrors
         Test-PackageInit
         Test-PackOperation

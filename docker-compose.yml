@@ -56,6 +56,7 @@ services:
     environment:
       DATABASE_URL: postgres://rulestack_user:rulestack_password@postgres:5432/rulestack_dev?sslmode=disable
       TOKEN_SALT: dev_salt_please_change_in_production
+      JWT_SECRET: dev_jwt_secret_please_change_in_production_use_at_least_32_chars
       STORAGE_PATH: /app/storage
       PORT: 8080
     healthcheck:
