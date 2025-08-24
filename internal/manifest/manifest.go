@@ -134,7 +134,7 @@ func CreateSample() *Manifest {
 		Description: "Example AI ruleset",
 		Targets:     []string{"cursor"},
 		Tags:        []string{"example", "starter"},
-		Files:       []string{"rules/**/*.md"},
+		Files:       []string{"*.md"},
 		License:     "MIT",
 	}
 }

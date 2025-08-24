@@ -428,6 +428,26 @@ function Test-InstallOperation {
     }
     Write-Success "Initialized test RuleStack project"
     
+    # Verify that rfh init created the expected files
+    $expectedFiles = @("rulestack.json", "CLAUDE.md", ".rulestack")
+    foreach ($file in $expectedFiles) {
+        if (!(Test-Path $file)) {
+            Write-Error "rfh init should have created $file but it's missing"
+            exit 1
+        }
+    }
+    Write-Success "rfh init created expected files: rulestack.json, CLAUDE.md, .rulestack/"
+    
+    # Verify that rfh init did NOT create unnecessary files
+    $unexpectedFiles = @("README.md", "rules")
+    foreach ($file in $unexpectedFiles) {
+        if (Test-Path $file) {
+            Write-Error "rfh init created unexpected file: $file (should be simplified now)"
+            exit 1
+        }
+    }
+    Write-Success "rfh init correctly avoided creating unnecessary files"
+    
     try {
         # The add command is now implemented and should work
         # Provide "y" input to confirm reinstallation if package already exists
