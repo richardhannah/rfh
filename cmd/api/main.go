@@ -1,11 +1,9 @@
 package main
 
 import (
+	"github.com/gorilla/mux"
 	"log"
 	"net/http"
-	"os"
-
-	"github.com/gorilla/mux"
 
 	"rulestack/internal/api"
 	"rulestack/internal/config"
@@ -29,9 +27,9 @@ func main() {
 	}
 
 	// Create storage directory if it doesn't exist
-	if err := os.MkdirAll(cfg.StoragePath, 0o755); err != nil {
-		log.Fatal("Failed to create storage directory:", err)
-	}
+	//if err := os.MkdirAll(cfg.StoragePath, 0o755); err != nil {
+	//	log.Fatal("Failed to create storage directory:", err)
+	//}
 
 	// Set up router
 	r := mux.NewRouter()
