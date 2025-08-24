@@ -13,12 +13,7 @@ import (
 )
 
 func main() {
-	// Load environment variables
-	if err := config.LoadEnvFile(".env"); err != nil {
-		log.Printf("Warning: Could not load .env file: %v", err)
-	}
-
-	// Load configuration
+	// Load configuration from system environment variables
 	cfg := config.Load()
 
 	// Connect to database
