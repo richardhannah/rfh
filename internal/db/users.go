@@ -2,7 +2,9 @@ package db
 
 import (
 	"database/sql/driver"
+	"encoding/json"
 	"errors"
+	"fmt"
 	"time"
 
 	"golang.org/x/crypto/bcrypt"
@@ -28,11 +30,34 @@ func (r *UserRole) Scan(value interface{}) error {
 		*r = RoleUser
 		return nil
 	}
-	if str, ok := value.(string); ok {
-		*r = UserRole(str)
+	switch v := value.(type) {
+	case string:
+		*r = UserRole(v)
 		return nil
+	case []byte:
+		*r = UserRole(string(v))
+		return nil
+	case UserRole:
+		*r = v
+		return nil
+	default:
+		return errors.New("cannot scan UserRole from type " + fmt.Sprintf("%T", value))
 	}
-	return errors.New("cannot scan UserRole")
+}
+
+// MarshalJSON implements the json.Marshaler interface for JSON serialization
+func (r UserRole) MarshalJSON() ([]byte, error) {
+	return json.Marshal(string(r))
+}
+
+// UnmarshalJSON implements the json.Unmarshaler interface for JSON deserialization
+func (r *UserRole) UnmarshalJSON(data []byte) error {
+	var str string
+	if err := json.Unmarshal(data, &str); err != nil {
+		return err
+	}
+	*r = UserRole(str)
+	return nil
 }
 
 // User represents a user account

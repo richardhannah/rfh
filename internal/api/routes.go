@@ -26,6 +26,7 @@ func RegisterRoutes(r *mux.Router, database *db.DB, cfg config.Config) {
 	s.Registry = registry
 
 	// Apply middleware in order (outermost to innermost)
+	r.Use(panicRecoveryMiddleware)           // Panic recovery (outermost)
 	r.Use(s.securityHeadersMiddleware)       // Security headers
 	r.Use(s.corsMiddleware)                  // CORS
 	r.Use(s.loggingMiddleware)               // Request logging

@@ -229,42 +229,135 @@ function Test-PackOperation {
     }
 }
 
+function Test-UserRegistration {
+    Write-TestStep "Testing user registration API..."
+    
+    # Test successful registration
+    $testUsername = "testuser-$(Get-Date -Format 'yyyyMMddHHmmss')"
+    $testEmail = "$testUsername@example.com"
+    $testPassword = "TestPassword123!"
+    
+    $registerBody = @{
+        username = $testUsername
+        email = $testEmail
+        password = $testPassword
+    } | ConvertTo-Json
+    
+    try {
+        $authResponse = Invoke-RestMethod -Uri "$RegistryUrl/v1/auth/register" -Method POST -Body $registerBody -ContentType "application/json" -ErrorAction Stop
+        
+        # Validate response structure
+        if (-not $authResponse.id -or -not $authResponse.username -or -not $authResponse.email -or -not $authResponse.role -or -not $authResponse.created_at) {
+            Write-Error "Registration response missing required fields"
+            exit 1
+        }
+        
+        if ($authResponse.username -ne $testUsername) {
+            Write-Error "Registration response username mismatch. Expected: $testUsername, Got: $($authResponse.username)"
+            exit 1
+        }
+        
+        if ($authResponse.email -ne $testEmail) {
+            Write-Error "Registration response email mismatch. Expected: $testEmail, Got: $($authResponse.email)"
+            exit 1
+        }
+        
+        if ($authResponse.role -ne "user") {
+            Write-Error "Registration response role mismatch. Expected: user, Got: $($authResponse.role)"
+            exit 1
+        }
+        
+        Write-Success "User registration successful: $($authResponse.username) (ID: $($authResponse.id))"
+        
+    } catch {
+        Write-Error "User registration failed: $($_.Exception.Message)"
+        if ($_.Exception.Response) {
+            $statusCode = $_.Exception.Response.StatusCode.value__
+            Write-Host "HTTP Status Code: $statusCode" -ForegroundColor Red
+        }
+        exit 1
+    }
+    
+    # Test duplicate username registration (should fail)
+    try {
+        $duplicateResponse = Invoke-RestMethod -Uri "$RegistryUrl/v1/auth/register" -Method POST -Body $registerBody -ContentType "application/json" -ErrorAction Stop
+        Write-Error "Duplicate registration should have failed but succeeded"
+        exit 1
+    } catch {
+        $statusCode = $_.Exception.Response.StatusCode.value__
+        if ($statusCode -eq 409) {
+            Write-Success "Duplicate registration correctly rejected with 409 Conflict"
+        } else {
+            Write-Error "Duplicate registration failed with unexpected status code: $statusCode (expected 409)"
+            exit 1
+        }
+    }
+    
+    # Test invalid input (missing fields)
+    $invalidBody = @{
+        username = "testuser"
+        # Missing email and password
+    } | ConvertTo-Json
+    
+    try {
+        $invalidResponse = Invoke-RestMethod -Uri "$RegistryUrl/v1/auth/register" -Method POST -Body $invalidBody -ContentType "application/json" -ErrorAction Stop
+        Write-Error "Invalid registration (missing fields) should have failed but succeeded"
+        exit 1
+    } catch {
+        $statusCode = $_.Exception.Response.StatusCode.value__
+        if ($statusCode -eq 400) {
+            Write-Success "Invalid registration correctly rejected with 400 Bad Request"
+        } else {
+            Write-Error "Invalid registration failed with unexpected status code: $statusCode (expected 400)"
+            exit 1
+        }
+    }
+    
+    Write-Success "All user registration tests passed"
+    
+    # Return the successful registration details for use in authentication setup
+    return @{
+        username = $testUsername
+        email = $testEmail
+        password = $testPassword
+        response = $authResponse
+    }
+}
+
 function Setup-Authentication {
     Write-TestStep "Setting up authentication for testing..."
     
-    # Simple approach: try to setup JWT auth, fallback to legacy token
+    # Use the user registration test to create a user
     try {
-        $testUsername = "testuser-$(Get-Date -Format 'yyyyMMddHHmmss')"
-        $testEmail = "$testUsername@example.com"
-        $testPassword = "TestPassword123!"
+        $registrationResult = Test-UserRegistration
         
-        $registerBody = @{
-            username = $testUsername
-            email = $testEmail
-            password = $testPassword
-        } | ConvertTo-Json
-        
-        $authResponse = Invoke-RestMethod -Uri "$RegistryUrl/v1/auth/register" -Method POST -Body $registerBody -ContentType "application/json" -ErrorAction Stop
-        
-        # Create simple CLI config with JWT token
+        # Create simple CLI config with user info (no JWT token available from registration)
         $configDir = "$env:USERPROFILE\.rfh"
         if (!(Test-Path $configDir)) {
             New-Item -ItemType Directory -Path $configDir -Force | Out-Null
         }
         
+        # Try to login to get a JWT token
+        $loginBody = @{
+            username = $registrationResult.username
+            password = $registrationResult.password
+        } | ConvertTo-Json
+        
+        $loginResponse = Invoke-RestMethod -Uri "$RegistryUrl/v1/auth/login" -Method POST -Body $loginBody -ContentType "application/json" -ErrorAction Stop
+        
         $configContent = @"
 current = "test"
 
 [user]
-username = "$($authResponse.user.username)"
-token = "$($authResponse.token)"
+username = "$($loginResponse.user.username)"
+token = "$($loginResponse.token)"
 
 [registries.test]
 url = "$RegistryUrl"
 "@
         
         Set-Content -Path "$configDir\config.toml" -Value $configContent
-        Write-Success "JWT authentication configured: $($authResponse.user.username)"
+        Write-Success "JWT authentication configured: $($loginResponse.user.username)"
         return $true
         
     } catch {
@@ -408,6 +501,118 @@ function Test-PreInitializationErrors {
     
     # Return to test environment root
     Set-Location $TempTestRoot
+}
+
+function Test-RegistryOperations {
+    Write-TestStep "Testing registry management operations..."
+    
+    # Test registry list (should show our test registry)
+    $registryOutput = & rfh registry list
+    if ($LASTEXITCODE -ne 0) {
+        Write-Error "Registry list command failed"
+        exit 1
+    }
+    
+    if ($registryOutput -notmatch "test") {
+        Write-Error "Test registry not found in registry list"
+        exit 1
+    }
+    
+    if ($registryOutput -notmatch "\*.*test") {
+        Write-Error "Test registry should be marked as active"
+        exit 1
+    }
+    
+    Write-Success "Registry list shows test registry as active"
+    
+    # Test adding a second registry
+    & rfh registry add "test-secondary" "http://localhost:9090" "secondary-token"
+    if ($LASTEXITCODE -ne 0) {
+        Write-Error "Failed to add secondary test registry"
+        exit 1
+    }
+    
+    Write-Success "Added secondary test registry"
+    
+    # Test registry switching
+    & rfh registry use "test-secondary"
+    if ($LASTEXITCODE -ne 0) {
+        Write-Error "Failed to switch to secondary registry"
+        exit 1
+    }
+    
+    # Verify the switch worked
+    $registryOutput = & rfh registry list
+    if ($registryOutput -notmatch "\*.*test-secondary") {
+        Write-Error "Secondary registry should be marked as active after switch"
+        exit 1
+    }
+    
+    if ($registryOutput -match "\*.*test[^-]") {
+        Write-Error "Original test registry should no longer be active"
+        exit 1
+    }
+    
+    Write-Success "Registry switching works correctly"
+    
+    # Switch back to original test registry for remaining tests
+    & rfh registry use "test"
+    if ($LASTEXITCODE -ne 0) {
+        Write-Error "Failed to switch back to test registry"
+        exit 1
+    }
+    
+    # Test registry removal
+    & rfh registry remove "test-secondary"
+    if ($LASTEXITCODE -ne 0) {
+        Write-Error "Failed to remove secondary test registry"
+        exit 1
+    }
+    
+    # Verify removal
+    $registryOutput = & rfh registry list
+    if ($registryOutput -match "test-secondary") {
+        Write-Error "Secondary registry should be removed from list"
+        exit 1
+    }
+    
+    Write-Success "Registry removal works correctly"
+    
+    # Test error handling - try to use non-existent registry
+    $ErrorActionPreference = "Continue"
+    $output = & rfh registry use "nonexistent-registry" 2>&1
+    $ErrorActionPreference = "Stop"
+    
+    if ($LASTEXITCODE -eq 0) {
+        Write-Error "Using non-existent registry should have failed"
+        exit 1
+    }
+    
+    if ($output -notmatch "registry.*not found") {
+        Write-Error "Error message for non-existent registry should mention 'not found'"
+        exit 1
+    }
+    
+    Write-Success "Error handling for non-existent registry works correctly"
+    
+    # Test error handling - try to remove non-existent registry
+    $ErrorActionPreference = "Continue"
+    $output = & rfh registry remove "nonexistent-registry" 2>&1
+    $ErrorActionPreference = "Stop"
+    
+    if ($LASTEXITCODE -eq 0) {
+        Write-Error "Removing non-existent registry should have failed"
+        exit 1
+    }
+    
+    if ($output -notmatch "registry.*not found") {
+        Write-Error "Error message for removing non-existent registry should mention 'not found'"
+        exit 1
+    }
+    
+    Write-Success "Error handling for registry removal works correctly"
+    
+    Write-Success "All registry operations completed successfully"
 }
 
 function Test-InstallOperation {
@@ -634,8 +839,9 @@ function Run-Tests {
         Test-Prerequisites
         Test-APIHealth
         Setup-Registry
-        Setup-Authentication
+        Setup-Authentication  # This includes Test-UserRegistration
         Test-PreInitializationErrors
+        Test-RegistryOperations
         Test-PackageInit
         Test-PackOperation
         Test-PublishOperation
@@ -643,7 +849,9 @@ function Run-Tests {
         Test-InstallOperation
         
         Write-Host "`n[SUCCESS] All tests completed!" -ForegroundColor Green
+        Write-Host "[OK] User registration: Working" -ForegroundColor Green
         Write-Host "[OK] Pre-initialization errors: Working" -ForegroundColor Green
+        Write-Host "[OK] Registry operations: Working" -ForegroundColor Green
         Write-Host "[OK] Pack operation: Working" -ForegroundColor Green
         Write-Host "[OK] Publish operation: Working" -ForegroundColor Green
         Write-Host "[OK] Search operation: Working" -ForegroundColor Green
