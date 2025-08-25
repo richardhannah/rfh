@@ -174,11 +174,18 @@ func runPack(projectPath string) error {
 		}()
 	}
 
+	// Check if package name contains scope characters and warn user
+	originalName := m.GetPackageName()
+	safeName := sanitizeFilename(originalName)
+	if originalName != safeName {
+		fmt.Printf("⚠️  Package name '%s' contains scope characters. Using '%s' for filename.\n", originalName, safeName)
+		fmt.Printf("💡 Consider updating your manifest to use simple names (scope support has been removed).\n")
+	}
+	
 	// Determine output path
 	output := outputPath
 	if output == "" {
-		// Remove @ and / from package name for filename
-		safeName := m.GetPackageName()
+		// Use sanitized package name for filename
 		output = fmt.Sprintf("%s-%s.tgz", safeName, m.Version)
 		
 		// If we changed directories, put output back in original location
@@ -188,7 +195,7 @@ func runPack(projectPath string) error {
 	}
 
 	if verbose {
-		fmt.Printf("📦 Packing %s v%s\n", m.Name, m.Version)
+		fmt.Printf("📦 Packing %s v%s\n", safeName, m.Version)
 		fmt.Printf("🎯 Targets: %v\n", m.Targets)
 		fmt.Printf("🏷️  Tags: %v\n", m.Tags)
 		fmt.Printf("📄 File patterns: %v\n", filesToPack)
@@ -200,7 +207,7 @@ func runPack(projectPath string) error {
 		return fmt.Errorf("failed to pack files: %w", err)
 	}
 
-	fmt.Printf("✅ Successfully packed %s\n", m.Name)
+	fmt.Printf("✅ Successfully packed %s\n", safeName)
 	fmt.Printf("📦 Archive: %s\n", info.Path)
 	fmt.Printf("📏 Size: %d bytes\n", info.SizeBytes)
 	fmt.Printf("🔒 SHA256: %s\n", info.SHA256)
@@ -316,6 +323,31 @@ func extractPackageNameFromPattern(pattern string) string {
 	}
 	
 	return ""
+}
+
+// sanitizeFilename removes characters that are invalid in filenames
+func sanitizeFilename(name string) string {
+	// Replace invalid filename characters with safe alternatives
+	safeName := strings.ReplaceAll(name, "@", "")
+	safeName = strings.ReplaceAll(safeName, "/", "-")
+	safeName = strings.ReplaceAll(safeName, "\\", "-")
+	safeName = strings.ReplaceAll(safeName, ":", "-")
+	safeName = strings.ReplaceAll(safeName, "*", "-")
+	safeName = strings.ReplaceAll(safeName, "?", "-")
+	safeName = strings.ReplaceAll(safeName, "\"", "-")
+	safeName = strings.ReplaceAll(safeName, "<", "-")
+	safeName = strings.ReplaceAll(safeName, ">", "-")
+	safeName = strings.ReplaceAll(safeName, "|", "-")
+	
+	// Remove any leading/trailing spaces or dashes
+	safeName = strings.Trim(safeName, " -")
+	
+	// Ensure we have a valid name
+	if safeName == "" {
+		safeName = "unnamed-package"
+	}
+	
+	return safeName
 }
 
 func init() {

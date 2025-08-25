@@ -111,7 +111,7 @@ func (m *Manifest) GetPackageName() string {
 // CreateSample creates a sample manifest for initialization
 func CreateSample() *Manifest {
 	return &Manifest{
-		Name:        "@acme/example-rules",
+		Name:        "example-rules",
 		Version:     "0.1.0",
 		Description: "Example AI ruleset",
 		Targets:     []string{"cursor"},

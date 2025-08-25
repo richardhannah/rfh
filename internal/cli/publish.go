@@ -3,6 +3,7 @@ package cli
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/spf13/cobra"
 
@@ -43,8 +44,8 @@ func runPublish() error {
 	// Determine archive path
 	archive := archivePath
 	if archive == "" {
-		// Generate default archive name
-		safeName := manifest.GetPackageName()
+		// Generate default archive name (sanitize for filename)
+		safeName := sanitizePackageName(manifest.GetPackageName())
 		archive = fmt.Sprintf("%s-%s.tgz", safeName, manifest.Version)
 	}
 
@@ -107,6 +108,31 @@ func runPublish() error {
 	}
 
 	return nil
+}
+
+// sanitizePackageName removes characters that are invalid in filenames
+func sanitizePackageName(name string) string {
+	// Replace invalid filename characters with safe alternatives
+	safeName := strings.ReplaceAll(name, "@", "")
+	safeName = strings.ReplaceAll(safeName, "/", "-")
+	safeName = strings.ReplaceAll(safeName, "\\", "-")
+	safeName = strings.ReplaceAll(safeName, ":", "-")
+	safeName = strings.ReplaceAll(safeName, "*", "-")
+	safeName = strings.ReplaceAll(safeName, "?", "-")
+	safeName = strings.ReplaceAll(safeName, "\"", "-")
+	safeName = strings.ReplaceAll(safeName, "<", "-")
+	safeName = strings.ReplaceAll(safeName, ">", "-")
+	safeName = strings.ReplaceAll(safeName, "|", "-")
+	
+	// Remove any leading/trailing spaces or dashes
+	safeName = strings.Trim(safeName, " -")
+	
+	// Ensure we have a valid name
+	if safeName == "" {
+		safeName = "unnamed-package"
+	}
+	
+	return safeName
 }
 
 func init() {
