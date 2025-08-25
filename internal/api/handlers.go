@@ -56,23 +56,9 @@ func (s *Server) searchPackagesHandler(w http.ResponseWriter, r *http.Request) {
 // getPackageHandler gets package information
 func (s *Server) getPackageHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	scope := vars["scope"]
 	name := vars["name"]
 
-	// Handle unscoped packages (scope will be the name in that case)
-	var scopePtr *string
-	if scope != "" && name == "" {
-		name = scope
-		scopePtr = nil
-	} else if scope != "" {
-		// Remove @ prefix if present
-		if scope[0] == '@' {
-			scope = scope[1:]
-		}
-		scopePtr = &scope
-	}
-
-	pkg, err := s.DB.GetPackage(scopePtr, name)
+	pkg, err := s.DB.GetPackage(name)
 	if err != nil {
 		writeError(w, http.StatusNotFound, "Package not found")
 		return
@@ -81,29 +67,16 @@ func (s *Server) getPackageHandler(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, pkg)
 }
 
-// getUnscopedPackageHandler gets unscoped package information
-func (s *Server) getUnscopedPackageHandler(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	name := vars["name"]
-	
-	pkg, err := s.DB.GetPackage(nil, name)
-	if err != nil {
-		writeError(w, http.StatusNotFound, "Package not found")
-		return
-	}
-	
-	writeJSON(w, http.StatusOK, pkg)
-}
 
-// getUnscopedPackageVersionHandler gets specific unscoped package version
-func (s *Server) getUnscopedPackageVersionHandler(w http.ResponseWriter, r *http.Request) {
+// getPackageVersionHandler gets specific package version
+func (s *Server) getPackageVersionHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	name := vars["name"]
 	version := vars["version"]
 	
-	fmt.Printf("[DEBUG] getUnscopedPackageVersionHandler called with name='%s', version='%s'\n", name, version)
+	fmt.Printf("[DEBUG] getPackageVersionHandler called with name='%s', version='%s'\n", name, version)
 	
-	pkgVersion, err := s.DB.GetPackageVersion(nil, name, version)
+	pkgVersion, err := s.DB.GetPackageVersion(name, version)
 	if err != nil {
 		fmt.Printf("[ERROR] GetPackageVersion failed: %v\n", err)
 		writeError(w, http.StatusNotFound, "Package version not found")
@@ -114,38 +87,19 @@ func (s *Server) getUnscopedPackageVersionHandler(w http.ResponseWriter, r *http
 	writeJSON(w, http.StatusOK, pkgVersion)
 }
 
-// getPackageVersionHandler gets specific package version
-func (s *Server) getPackageVersionHandler(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	scope := vars["scope"]
-	name := vars["name"]
-	version := vars["version"]
-
-	var scopePtr *string
-	if scope != "" {
-		if scope[0] == '@' {
-			scope = scope[1:]
-		}
-		scopePtr = &scope
-	}
-
-	pkgVersion, err := s.DB.GetPackageVersion(scopePtr, name, version)
-	if err != nil {
-		writeError(w, http.StatusNotFound, "Package version not found")
-		return
-	}
-
-	writeJSON(w, http.StatusOK, pkgVersion)
-}
 
 // publishPackageHandler handles package publishing
 func (s *Server) publishPackageHandler(w http.ResponseWriter, r *http.Request) {
 	// Authentication is now handled by middleware based on route metadata
-	token := getTokenFromContext(r.Context())
-	if token == nil {
+	// Check if user is authenticated (works for both JWT and legacy tokens)
+	user := getUserFromContext(r.Context())
+	if user == nil {
+		fmt.Fprintf(os.Stderr, "DEBUG PUBLISH: No user found in context\n")
 		writeError(w, http.StatusUnauthorized, "Authentication required")
 		return
 	}
+	
+	fmt.Fprintf(os.Stderr, "DEBUG PUBLISH: User authenticated: %s (ID: %d, Role: %s)\n", user.Username, user.ID, user.Role)
 
 	// Parse multipart form
 	if err := r.ParseMultipartForm(10 << 20); err != nil { // 10MB limit
@@ -207,21 +161,11 @@ func (s *Server) publishPackageHandler(w http.ResponseWriter, r *http.Request) {
 
 	sha256Hash := fmt.Sprintf("%x", hasher.Sum(nil))
 
-	// Parse package name and scope
-	var scope *string
+	// Use package name directly (no scope support)
 	packageName := manifest.Name
 
-	if strings.HasPrefix(manifest.Name, "@") {
-		parts := strings.SplitN(manifest.Name[1:], "/", 2)
-		if len(parts) == 2 {
-			s := parts[0]
-			scope = &s
-			packageName = parts[1]
-		}
-	}
-
 	// Create or get package
-	pkg, err := s.DB.GetOrCreatePackage(scope, packageName)
+	pkg, err := s.DB.GetOrCreatePackage(packageName)
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, "Failed to create package")
 		return

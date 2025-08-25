@@ -164,19 +164,12 @@ func (s *Server) SetupRoutes(router *mux.Router) *RouteRegistry {
 	registry.RegisterRouteWithRateLimit("/v1/blobs/{sha256}", "GET", false, s.downloadBlobHandler, "Download package blob", 150)
 	api.HandleFunc("/blobs/{sha256}", s.downloadBlobHandler).Methods("GET")
 
-	// Unscoped package routes (must come before scoped routes)
-	registry.RegisterRouteWithRateLimit("/v1/packages/{name}/versions/{version}", "GET", false, s.getUnscopedPackageVersionHandler, "Get package version (unscoped)", 600)
-	api.HandleFunc("/packages/{name}/versions/{version}", s.getUnscopedPackageVersionHandler).Methods("GET")
+	// Package routes (no scope support)
+	registry.RegisterRouteWithRateLimit("/v1/packages/{name}/versions/{version}", "GET", false, s.getPackageVersionHandler, "Get package version", 600)
+	api.HandleFunc("/packages/{name}/versions/{version}", s.getPackageVersionHandler).Methods("GET")
 	
-	registry.RegisterRouteWithRateLimit("/v1/packages/{name}", "GET", false, s.getUnscopedPackageHandler, "Get package details (unscoped)", 600)
-	api.HandleFunc("/packages/{name}", s.getUnscopedPackageHandler).Methods("GET")
-
-	// Scoped package routes (more specific)
-	registry.RegisterRouteWithRateLimit("/v1/packages/{scope}/{name}/versions/{version}", "GET", false, s.getPackageVersionHandler, "Get package version", 600)
-	api.HandleFunc("/packages/{scope}/{name}/versions/{version}", s.getPackageVersionHandler).Methods("GET")
-	
-	registry.RegisterRouteWithRateLimit("/v1/packages/{scope}/{name}", "GET", false, s.getPackageHandler, "Get package details", 600)
-	api.HandleFunc("/packages/{scope}/{name}", s.getPackageHandler).Methods("GET")
+	registry.RegisterRouteWithRateLimit("/v1/packages/{name}", "GET", false, s.getPackageHandler, "Get package details", 600)
+	api.HandleFunc("/packages/{name}", s.getPackageHandler).Methods("GET")
 
 	// Publishing - requires publisher role, with rate limiting
 	registry.RegisterRouteWithRoleAndRateLimit("/v1/packages", "POST", "publisher", s.publishPackageHandler, "Publish package", 50)

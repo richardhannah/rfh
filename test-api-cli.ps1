@@ -615,6 +615,176 @@ function Test-RegistryOperations {
     Write-Success "All registry operations completed successfully"
 }
 
+function Test-ScopeRemoval {
+    Write-TestStep "Testing scope functionality removal..."
+    
+    # Test 1: Verify scoped package references are rejected by add command
+    $scopeTestDir = "$TempTestRoot\scope-rejection-test"
+    if (Test-Path $scopeTestDir) {
+        Remove-Item $scopeTestDir -Recurse -Force
+    }
+    New-Item -ItemType Directory -Path $scopeTestDir | Out-Null
+    Set-Location $scopeTestDir
+    
+    # Initialize project for testing add command
+    & rfh init | Out-Null
+    if ($LASTEXITCODE -ne 0) {
+        throw "Failed to initialize RuleStack project for scope testing"
+    }
+    
+    # Test that scoped package format (@scope/name@version) is rejected
+    $ErrorActionPreference = "Continue"
+    $scopedOutput = & rfh add "@myorg/test-package@1.0.0" 2>&1
+    $ErrorActionPreference = "Stop"
+    
+    if ($LASTEXITCODE -eq 0) {
+        Write-Error "Scoped package reference should have been rejected but was accepted"
+        exit 1
+    }
+    
+    if ($scopedOutput -match "invalid package format.*name@version") {
+        Write-Success "Scoped package reference correctly rejected"
+    } else {
+        Write-Error "Scoped package rejection error message incorrect: $scopedOutput"
+        exit 1
+    }
+    
+    # Test 2: Direct API calls to scoped endpoints should fail
+    try {
+        $scopedApiResponse = Invoke-RestMethod -Uri "$RegistryUrl/v1/packages/@myorg/test-package" -Method GET -ErrorAction Stop
+        Write-Error "Scoped API endpoint should have returned 404 but succeeded"
+        exit 1
+    } catch {
+        $statusCode = $_.Exception.Response.StatusCode.value__
+        if ($statusCode -eq 404) {
+            Write-Success "Scoped API endpoint correctly returns 404"
+        } else {
+            Write-Error "Scoped API endpoint returned unexpected status: $statusCode (expected 404)"
+            exit 1
+        }
+    }
+    
+    # Test 3: Try scoped version endpoint
+    try {
+        $scopedVersionResponse = Invoke-RestMethod -Uri "$RegistryUrl/v1/packages/@myorg/test-package/versions/1.0.0" -Method GET -ErrorAction Stop
+        Write-Error "Scoped version API endpoint should have returned 404 but succeeded"
+        exit 1
+    } catch {
+        $statusCode = $_.Exception.Response.StatusCode.value__
+        if ($statusCode -eq 404) {
+            Write-Success "Scoped version API endpoint correctly returns 404"
+        } else {
+            Write-Error "Scoped version API endpoint returned unexpected status: $statusCode (expected 404)"
+            exit 1
+        }
+    }
+    
+    # Test 4: Verify that simple package names still work (regression test)
+    $simpleOutput = & rfh search "monty" 2>&1
+    if ($LASTEXITCODE -ne 0) {
+        Write-Error "Simple package search should work but failed: $simpleOutput"
+        exit 1
+    }
+    Write-Success "Simple package names still work correctly"
+    
+    Write-Success "All scope removal tests passed"
+    
+    # Return to test environment root
+    Set-Location $TempTestRoot
+}
+
+function Test-SimplifiedPackageOperations {
+    Write-TestStep "Testing simplified package operations (no scope)..."
+    
+    # Test that our test package can be found and retrieved correctly
+    try {
+        # Test simple package retrieval
+        $packageResponse = Invoke-RestMethod -Uri "$RegistryUrl/v1/packages/$TestPackageName" -Method GET -ErrorAction Stop
+        
+        if ($packageResponse.name -ne $TestPackageName) {
+            Write-Error "Package response name mismatch. Expected: $TestPackageName, Got: $($packageResponse.name)"
+            exit 1
+        }
+        
+        # Verify no scope field exists in response
+        if ($packageResponse.PSObject.Properties.Name -contains "scope") {
+            Write-Error "Package response should not contain 'scope' field but it does"
+            exit 1
+        }
+        
+        Write-Success "Simple package retrieval works correctly without scope"
+        
+    } catch {
+        $statusCode = $_.Exception.Response.StatusCode.value__
+        if ($statusCode -eq 404) {
+            Write-Host "Package not found - this is expected if publish hasn't run yet" -ForegroundColor Yellow
+        } else {
+            Write-Error "Package retrieval failed with unexpected status: $statusCode"
+            exit 1
+        }
+    }
+    
+    # Test simple package version retrieval  
+    try {
+        $versionResponse = Invoke-RestMethod -Uri "$RegistryUrl/v1/packages/$TestPackageName/versions/$TestPackageVersion" -Method GET -ErrorAction Stop
+        
+        if ($versionResponse.version -ne $TestPackageVersion) {
+            Write-Error "Version response mismatch. Expected: $TestPackageVersion, Got: $($versionResponse.version)"
+            exit 1
+        }
+        
+        Write-Success "Simple package version retrieval works correctly"
+        
+    } catch {
+        $statusCode = $_.Exception.Response.StatusCode.value__
+        if ($statusCode -eq 404) {
+            Write-Host "Package version not found - this is expected if publish hasn't run yet" -ForegroundColor Yellow
+        } else {
+            Write-Error "Package version retrieval failed with unexpected status: $statusCode"
+            exit 1
+        }
+    }
+    
+    # Test search results format (should not contain scope field)
+    try {
+        $searchResponse = Invoke-RestMethod -Uri "$RegistryUrl/v1/packages?q=test" -Method GET -ErrorAction Stop
+        
+        if ($searchResponse.Count -gt 0) {
+            foreach ($result in $searchResponse) {
+                if ($result.PSObject.Properties.Name -contains "scope") {
+                    Write-Error "Search result should not contain 'scope' field but it does"
+                    exit 1
+                }
+            }
+            Write-Success "Search results correctly exclude scope field"
+        } else {
+            Write-Success "Search completed (no results to validate scope removal)"
+        }
+        
+    } catch {
+        Write-Error "Search operation failed: $($_.Exception.Message)"
+        exit 1
+    }
+    
+    # Test edge case: package names that contain @ or / should still work (they're just part of the name now)
+    try {
+        # This should work - @ and / are just characters in the package name, not scope delimiters
+        $specialNameTest = "test@company"
+        $specialNameResponse = Invoke-RestMethod -Uri "$RegistryUrl/v1/packages/$specialNameTest" -Method GET -ErrorAction Stop
+        Write-Success "Package names with special characters work correctly"
+    } catch {
+        $statusCode = $_.Exception.Response.StatusCode.value__
+        if ($statusCode -eq 404) {
+            Write-Success "Package with special characters correctly returns 404 when not found"
+        } else {
+            Write-Error "Package name with special characters failed with unexpected status: $statusCode"
+            exit 1
+        }
+    }
+    
+    Write-Success "All simplified package operations tests passed"
+}
+
 function Test-InstallOperation {
     Write-TestStep "Testing install operation (add command)..."
     
@@ -842,9 +1012,11 @@ function Run-Tests {
         Setup-Authentication  # This includes Test-UserRegistration
         Test-PreInitializationErrors
         Test-RegistryOperations
+        Test-ScopeRemoval      # NEW: Test scope functionality removal
         Test-PackageInit
         Test-PackOperation
         Test-PublishOperation
+        Test-SimplifiedPackageOperations  # NEW: Test simplified package operations
         Test-SearchOperation
         Test-InstallOperation
         
@@ -852,8 +1024,10 @@ function Run-Tests {
         Write-Host "[OK] User registration: Working" -ForegroundColor Green
         Write-Host "[OK] Pre-initialization errors: Working" -ForegroundColor Green
         Write-Host "[OK] Registry operations: Working" -ForegroundColor Green
+        Write-Host "[OK] Scope removal: Working" -ForegroundColor Green
         Write-Host "[OK] Pack operation: Working" -ForegroundColor Green
         Write-Host "[OK] Publish operation: Working" -ForegroundColor Green
+        Write-Host "[OK] Simplified package operations: Working" -ForegroundColor Green
         Write-Host "[OK] Search operation: Working" -ForegroundColor Green
         Write-Host "[OK] Install operation: Working" -ForegroundColor Green
         

@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"os"
 	"regexp"
-	"strings"
 )
 
 // Manifest represents a rulestack.json file
@@ -104,25 +103,8 @@ func (m *Manifest) Validate() error {
 	return nil
 }
 
-// GetScope returns the scope part of the package name, or empty string if unscoped
-func (m *Manifest) GetScope() string {
-	if strings.HasPrefix(m.Name, "@") {
-		parts := strings.SplitN(m.Name[1:], "/", 2)
-		if len(parts) == 2 {
-			return parts[0]
-		}
-	}
-	return ""
-}
-
-// GetPackageName returns the package name without scope
+// GetPackageName returns the package name (no scope support)
 func (m *Manifest) GetPackageName() string {
-	if strings.HasPrefix(m.Name, "@") {
-		parts := strings.SplitN(m.Name[1:], "/", 2)
-		if len(parts) == 2 {
-			return parts[1]
-		}
-	}
 	return m.Name
 }
 

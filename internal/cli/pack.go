@@ -179,9 +179,6 @@ func runPack(projectPath string) error {
 	if output == "" {
 		// Remove @ and / from package name for filename
 		safeName := m.GetPackageName()
-		if scope := m.GetScope(); scope != "" {
-			safeName = scope + "-" + safeName
-		}
 		output = fmt.Sprintf("%s-%s.tgz", safeName, m.Version)
 		
 		// If we changed directories, put output back in original location

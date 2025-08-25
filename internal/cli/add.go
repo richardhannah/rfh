@@ -22,8 +22,7 @@ var addCmd = &cobra.Command{
 	Long: `Download and add a ruleset package to the current workspace.
 
 Examples:
-  rfh add mypackage@1.0.0
-  rfh add @scope/mypackage@2.1.0`,
+  rfh add mypackage@1.0.0`,
 	Args: cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return runAdd(args[0])
@@ -32,7 +31,6 @@ Examples:
 
 // PackageRef represents a parsed package reference
 type PackageRef struct {
-	Scope   string
 	Name    string
 	Version string
 }
@@ -126,7 +124,7 @@ func runAdd(packageSpec string) error {
 		fmt.Printf("🔍 Looking up package version...\n")
 	}
 	
-	versionInfo, err := c.GetPackageVersion(pkgRef.Scope, pkgRef.Name, pkgRef.Version)
+	versionInfo, err := c.GetPackageVersion(pkgRef.Name, pkgRef.Version)
 	if err != nil {
 		return fmt.Errorf("failed to get package version: %w", err)
 	}
@@ -182,45 +180,30 @@ func runAdd(packageSpec string) error {
 	return nil
 }
 
-// parsePackageRef parses a package reference like "name@version" or "@scope/name@version"
+// parsePackageRef parses a package reference like "name@version"
 func parsePackageRef(spec string) (*PackageRef, error) {
 	if spec == "" {
 		return nil, fmt.Errorf("package specification cannot be empty")
 	}
 
+	// Reject scoped package format (we don't support scopes anymore)
+	if strings.HasPrefix(spec, "@") {
+		return nil, fmt.Errorf("scoped packages are not supported: use simple name@version format (not @scope/name@version)")
+	}
+
 	// Check if version is specified
-	if !strings.Contains(spec, "@") || strings.Count(spec, "@") == 0 {
+	if !strings.Contains(spec, "@") {
 		return nil, fmt.Errorf("version must be specified: use package@version format")
 	}
 
-	var scope, name, version string
-
-	if strings.HasPrefix(spec, "@") {
-		// Scoped package: @scope/name@version
-		parts := strings.Split(spec[1:], "@") // Remove leading @ and split
-		if len(parts) != 2 {
-			return nil, fmt.Errorf("invalid scoped package format: use @scope/name@version")
-		}
-		
-		scopeAndName := parts[0]
-		version = parts[1]
-		
-		if !strings.Contains(scopeAndName, "/") {
-			return nil, fmt.Errorf("invalid scoped package format: use @scope/name@version")
-		}
-		
-		scopeParts := strings.SplitN(scopeAndName, "/", 2)
-		scope = scopeParts[0]
-		name = scopeParts[1]
-	} else {
-		// Regular package: name@version
-		parts := strings.Split(spec, "@")
-		if len(parts) != 2 {
-			return nil, fmt.Errorf("invalid package format: use name@version")
-		}
-		name = parts[0]
-		version = parts[1]
+	// Parse name@version
+	parts := strings.Split(spec, "@")
+	if len(parts) != 2 {
+		return nil, fmt.Errorf("invalid package format: use name@version")
 	}
+	
+	name := parts[0]
+	version := parts[1]
 
 	if name == "" {
 		return nil, fmt.Errorf("package name cannot be empty")
@@ -231,17 +214,13 @@ func parsePackageRef(spec string) (*PackageRef, error) {
 	}
 
 	return &PackageRef{
-		Scope:   scope,
 		Name:    name,
 		Version: version,
 	}, nil
 }
 
-// FullName returns the full package name including scope if present
+// FullName returns the package name
 func (p *PackageRef) FullName() string {
-	if p.Scope != "" {
-		return fmt.Sprintf("@%s/%s", p.Scope, p.Name)
-	}
 	return p.Name
 }
 

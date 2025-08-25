@@ -45,9 +45,6 @@ func runPublish() error {
 	if archive == "" {
 		// Generate default archive name
 		safeName := manifest.GetPackageName()
-		if scope := manifest.GetScope(); scope != "" {
-			safeName = scope + "-" + safeName
-		}
 		archive = fmt.Sprintf("%s-%s.tgz", safeName, manifest.Version)
 	}
 

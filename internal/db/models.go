@@ -9,7 +9,6 @@ import (
 // Package represents a package in the registry
 type Package struct {
 	ID        int       `db:"id" json:"id"`
-	Scope     *string   `db:"scope" json:"scope"`
 	Name      string    `db:"name" json:"name"`
 	CreatedAt time.Time `db:"created_at" json:"created_at"`
 }
@@ -45,7 +44,6 @@ type PackageInfo struct {
 // SearchResult represents a search result
 type SearchResult struct {
 	ID          int            `db:"id" json:"id"`
-	Scope       *string        `db:"scope" json:"scope"`
 	Name        string         `db:"name" json:"name"`
 	Version     string         `db:"version" json:"version"`
 	Description *string        `db:"description" json:"description"`
@@ -54,10 +52,7 @@ type SearchResult struct {
 	CreatedAt   time.Time      `db:"created_at" json:"created_at"`
 }
 
-// FullPackageName returns the full package name with scope
+// FullPackageName returns the package name (no scope support)
 func (p *Package) FullPackageName() string {
-	if p.Scope != nil && *p.Scope != "" {
-		return "@" + *p.Scope + "/" + p.Name
-	}
 	return p.Name
 }

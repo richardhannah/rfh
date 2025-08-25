@@ -6,9 +6,9 @@ import (
 )
 
 // GetOrCreatePackage gets existing package or creates new one
-func (db *DB) GetOrCreatePackage(scope *string, name string) (*Package, error) {
+func (db *DB) GetOrCreatePackage(name string) (*Package, error) {
 	// First try to get existing
-	pkg, err := db.GetPackage(scope, name)
+	pkg, err := db.GetPackage(name)
 	if err == nil {
 		return pkg, nil
 	}
@@ -18,12 +18,12 @@ func (db *DB) GetOrCreatePackage(scope *string, name string) (*Package, error) {
 
 	// Create new package
 	query := `
-        INSERT INTO packages (scope, name) 
-        VALUES ($1, $2) 
-        RETURNING id, scope, name, created_at`
+        INSERT INTO packages (name) 
+        VALUES ($1) 
+        RETURNING id, name, created_at`
 
 	var newPkg Package
-	err = db.Get(&newPkg, query, scope, name)
+	err = db.Get(&newPkg, query, name)
 	if err != nil {
 		return nil, err
 	}
@@ -31,21 +31,12 @@ func (db *DB) GetOrCreatePackage(scope *string, name string) (*Package, error) {
 	return &newPkg, nil
 }
 
-// GetPackage retrieves a package by scope and name
-func (db *DB) GetPackage(scope *string, name string) (*Package, error) {
-	var query string
-	var args []interface{}
-	
-	if scope == nil {
-		query = `SELECT id, scope, name, created_at FROM packages WHERE scope IS NULL AND name = $1`
-		args = []interface{}{name}
-	} else {
-		query = `SELECT id, scope, name, created_at FROM packages WHERE scope = $1 AND name = $2`
-		args = []interface{}{*scope, name}
-	}
+// GetPackage retrieves a package by name
+func (db *DB) GetPackage(name string) (*Package, error) {
+	query := `SELECT id, name, created_at FROM packages WHERE name = $1`
 
 	var pkg Package
-	err := db.Get(&pkg, query, args...)
+	err := db.Get(&pkg, query, name)
 	if err != nil {
 		return nil, err
 	}
@@ -81,35 +72,19 @@ func (db *DB) CreatePackageVersion(version PackageVersion) (*PackageVersion, err
 }
 
 // GetPackageVersion retrieves a specific version of a package
-func (db *DB) GetPackageVersion(scope *string, name string, version string) (*PackageVersion, error) {
-	var query string
-	var args []interface{}
-	
-	if scope == nil {
-		// For unscoped packages, check that scope IS NULL
-		query = `
-			SELECT pv.id, pv.package_id, pv.version, pv.description, pv.targets, pv.tags, 
-				   pv.sha256, pv.size_bytes, pv.blob_path, pv.created_at
-			FROM package_versions pv
-			JOIN packages p ON p.id = pv.package_id
-			WHERE p.scope IS NULL AND p.name = $1 AND pv.version = $2`
-		args = []interface{}{name, version}
-	} else {
-		// For scoped packages, check that scope equals the value
-		query = `
-			SELECT pv.id, pv.package_id, pv.version, pv.description, pv.targets, pv.tags, 
-				   pv.sha256, pv.size_bytes, pv.blob_path, pv.created_at
-			FROM package_versions pv
-			JOIN packages p ON p.id = pv.package_id
-			WHERE p.scope = $1 AND p.name = $2 AND pv.version = $3`
-		args = []interface{}{*scope, name, version}
-	}
+func (db *DB) GetPackageVersion(name string, version string) (*PackageVersion, error) {
+	query := `
+		SELECT pv.id, pv.package_id, pv.version, pv.description, pv.targets, pv.tags, 
+			   pv.sha256, pv.size_bytes, pv.blob_path, pv.created_at
+		FROM package_versions pv
+		JOIN packages p ON p.id = pv.package_id
+		WHERE p.name = $1 AND pv.version = $2`
 
 	fmt.Printf("[DEBUG] GetPackageVersion SQL query: %s\n", query)
-	fmt.Printf("[DEBUG] GetPackageVersion parameters: %v\n", args)
+	fmt.Printf("[DEBUG] GetPackageVersion parameters: [%s, %s]\n", name, version)
 	
 	var pkgVersion PackageVersion
-	err := db.Get(&pkgVersion, query, args...)
+	err := db.Get(&pkgVersion, query, name, version)
 	if err != nil {
 		fmt.Printf("[ERROR] GetPackageVersion SQL error: %v\n", err)
 		return nil, err
@@ -122,7 +97,7 @@ func (db *DB) GetPackageVersion(scope *string, name string, version string) (*Pa
 // SearchPackages searches for packages
 func (db *DB) SearchPackages(query string, tag string, target string, limit int) ([]SearchResult, error) {
 	sqlQuery := `
-        SELECT DISTINCT p.id, p.scope, p.name, pv.version, pv.description, pv.targets, pv.tags, p.created_at
+        SELECT DISTINCT p.id, p.name, pv.version, pv.description, pv.targets, pv.tags, p.created_at
         FROM packages p
         JOIN package_versions pv ON p.id = pv.package_id
         WHERE 1=1`

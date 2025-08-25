@@ -144,13 +144,8 @@ func (c *Client) SearchPackages(query, tag, target string, limit int) ([]map[str
 }
 
 // GetPackage gets information about a specific package
-func (c *Client) GetPackage(scope, name string) (map[string]interface{}, error) {
-	var path string
-	if scope != "" {
-		path = fmt.Sprintf("/v1/packages/@%s/%s", scope, name)
-	} else {
-		path = fmt.Sprintf("/v1/packages/%s", name)
-	}
+func (c *Client) GetPackage(name string) (map[string]interface{}, error) {
+	path := fmt.Sprintf("/v1/packages/%s", name)
 
 	resp, err := c.makeRequest("GET", path, nil, "")
 	if err != nil {
@@ -176,13 +171,8 @@ func (c *Client) GetPackage(scope, name string) (map[string]interface{}, error) 
 }
 
 // GetPackageVersion gets information about a specific package version
-func (c *Client) GetPackageVersion(scope, name, version string) (map[string]interface{}, error) {
-	var path string
-	if scope != "" {
-		path = fmt.Sprintf("/v1/packages/@%s/%s/versions/%s", scope, name, version)
-	} else {
-		path = fmt.Sprintf("/v1/packages/%s/versions/%s", name, version)
-	}
+func (c *Client) GetPackageVersion(name, version string) (map[string]interface{}, error) {
+	path := fmt.Sprintf("/v1/packages/%s/versions/%s", name, version)
 
 	resp, err := c.makeRequest("GET", path, nil, "")
 	if err != nil {
