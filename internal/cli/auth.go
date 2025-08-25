@@ -145,7 +145,13 @@ func runRegister() error {
 		return fmt.Errorf("registration failed: %w", err)
 	}
 
-	// Save user credentials
+	// Save user credentials to the current registry
+	registryConfig := cfg.Registries[cfg.Current]
+	registryConfig.Username = authResp.User.Username
+	registryConfig.JWTToken = authResp.Token
+	cfg.Registries[cfg.Current] = registryConfig
+
+	// Also save to global user config for backward compatibility
 	cfg.User = &config.User{
 		Username: authResp.User.Username,
 		Token:    authResp.Token,
@@ -216,7 +222,13 @@ func runLogin() error {
 		return fmt.Errorf("login failed: %w", err)
 	}
 
-	// Save user credentials
+	// Save user credentials to the current registry
+	registryConfig := cfg.Registries[cfg.Current]
+	registryConfig.Username = authResp.User.Username
+	registryConfig.JWTToken = authResp.Token
+	cfg.Registries[cfg.Current] = registryConfig
+
+	// Also save to global user config for backward compatibility
 	cfg.User = &config.User{
 		Username: authResp.User.Username,
 		Token:    authResp.Token,
@@ -239,25 +251,52 @@ func runLogout() error {
 		return fmt.Errorf("failed to load config: %w", err)
 	}
 
-	if cfg.User == nil {
+	var username string
+	var tokenToLogout string
+
+	// Check for per-registry authentication first
+	if cfg.Current != "" {
+		if registry, exists := cfg.Registries[cfg.Current]; exists && registry.Username != "" {
+			username = registry.Username
+			tokenToLogout = registry.JWTToken
+			if tokenToLogout == "" {
+				tokenToLogout = registry.Token // fallback to legacy token
+			}
+		}
+	}
+
+	// Fallback to global user authentication
+	if username == "" && cfg.User != nil {
+		username = cfg.User.Username
+		tokenToLogout = cfg.User.Token
+	}
+
+	if username == "" {
 		fmt.Println("ℹ️  You are not currently logged in")
 		return nil
 	}
 
-	// Get current registry for logout API call
-	if cfg.Current != "" {
+	// Try to logout from server (invalidate session)
+	if cfg.Current != "" && tokenToLogout != "" {
 		if registry, exists := cfg.Registries[cfg.Current]; exists {
-			// Try to logout from server (invalidate session)
 			authClient := client.NewAuthClient(registry.URL)
-			if err := authClient.Logout(cfg.User.Token); err != nil {
+			if err := authClient.Logout(tokenToLogout); err != nil {
 				// Don't fail if server logout fails - we'll clear local credentials anyway
 				fmt.Printf("⚠️  Warning: Failed to logout from server: %v\n", err)
 			}
 		}
 	}
 
-	// Clear local user credentials
-	username := cfg.User.Username
+	// Clear per-registry credentials
+	if cfg.Current != "" {
+		if registryConfig, exists := cfg.Registries[cfg.Current]; exists {
+			registryConfig.Username = ""
+			registryConfig.JWTToken = ""
+			cfg.Registries[cfg.Current] = registryConfig
+		}
+	}
+
+	// Clear global user credentials for backward compatibility
 	cfg.User = nil
 
 	if err := config.SaveCLI(cfg); err != nil {
@@ -276,19 +315,39 @@ func runWhoami() error {
 		return fmt.Errorf("failed to load config: %w", err)
 	}
 
-	if cfg.User == nil {
+	var username string
+	var token string
+
+	// Check for per-registry authentication first
+	if cfg.Current != "" {
+		if registry, exists := cfg.Registries[cfg.Current]; exists && registry.Username != "" {
+			username = registry.Username
+			token = registry.JWTToken
+			if token == "" {
+				token = registry.Token // fallback to legacy token
+			}
+		}
+	}
+
+	// Fallback to global user authentication
+	if username == "" && cfg.User != nil {
+		username = cfg.User.Username
+		token = cfg.User.Token
+	}
+
+	if username == "" {
 		fmt.Println("❌ You are not currently logged in")
 		fmt.Println("Use 'rfh auth login' to authenticate or 'rfh auth register' to create an account")
 		return nil
 	}
 
-	fmt.Printf("👤 Logged in as: %s\n", cfg.User.Username)
+	fmt.Printf("👤 Logged in as: %s\n", username)
 
 	// Try to get detailed profile from server
-	if cfg.Current != "" {
+	if cfg.Current != "" && token != "" {
 		if registry, exists := cfg.Registries[cfg.Current]; exists {
 			authClient := client.NewAuthClient(registry.URL)
-			if profile, err := authClient.GetProfile(cfg.User.Token); err == nil {
+			if profile, err := authClient.GetProfile(token); err == nil {
 				fmt.Printf("📧 Email: %s\n", profile.Email)
 				fmt.Printf("🎭 Role: %s\n", profile.Role)
 				if profile.LastLogin != nil {

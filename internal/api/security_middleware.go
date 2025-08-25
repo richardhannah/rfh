@@ -4,9 +4,11 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
+	"os"
 	"strconv"
 	"strings"
 	"sync"
@@ -59,7 +61,10 @@ func (s *Server) enhancedAuthMiddleware(registry *RouteRegistry) func(http.Handl
 
 			// Extract Authorization header
 			authHeader := r.Header.Get("Authorization")
+			fmt.Fprintf(os.Stderr, "DEBUG AUTH: %s %s - Authorization header: %s\n", r.Method, r.URL.Path, authHeader)
+			
 			if authHeader == "" {
+				fmt.Fprintf(os.Stderr, "DEBUG AUTH: No Authorization header found\n")
 				writeError(w, http.StatusUnauthorized, "Authorization header required")
 				return
 			}
@@ -67,38 +72,53 @@ func (s *Server) enhancedAuthMiddleware(registry *RouteRegistry) func(http.Handl
 			// Check Bearer token format
 			parts := strings.SplitN(authHeader, " ", 2)
 			if len(parts) != 2 || parts[0] != "Bearer" {
+				fmt.Fprintf(os.Stderr, "DEBUG AUTH: Invalid Authorization header format: %s\n", authHeader)
 				writeError(w, http.StatusUnauthorized, "Authorization header must be 'Bearer <token>'")
 				return
 			}
 
 			token := parts[1]
 			if token == "" {
+				fmt.Fprintf(os.Stderr, "DEBUG AUTH: Empty token in Authorization header\n")
 				writeError(w, http.StatusUnauthorized, "Token cannot be empty")
 				return
 			}
+
+			tokenPreview := token
+			if len(tokenPreview) > 20 {
+				tokenPreview = tokenPreview[:20] + "..."
+			}
+			fmt.Fprintf(os.Stderr, "DEBUG AUTH: Processing token: %s (length: %d)\n", tokenPreview, len(token))
 
 			var user *db.User
 			var session *db.UserSession
 			var legacyToken *db.Token
 
 			// Try JWT authentication first
-			if _, err := jwtManager.ValidateToken(token); err == nil {
+			if claims, err := jwtManager.ValidateToken(token); err == nil {
+				fmt.Fprintf(os.Stderr, "DEBUG AUTH: JWT token validation successful for user: %s, role: %s\n", claims.Username, claims.Role)
+				
 				// JWT token is valid, get user and session from database
 				tokenHash := jwtManager.GetTokenHash(token)
 				if u, sess, err := s.DB.ValidateUserSession(tokenHash); err == nil {
 					user = u
 					session = sess
+					fmt.Fprintf(os.Stderr, "DEBUG AUTH: Database session found for user ID %d, role: %s\n", user.ID, user.Role)
 					// Update session last used time
 					s.DB.UpdateSessionLastUsed(session.ID)
 				} else {
+					fmt.Fprintf(os.Stderr, "DEBUG AUTH: JWT valid but no database session found: %v\n", err)
 					writeError(w, http.StatusUnauthorized, "Invalid or expired session")
 					return
 				}
 			} else {
+				fmt.Fprintf(os.Stderr, "DEBUG AUTH: JWT validation failed: %v, trying legacy token\n", err)
+				
 				// Try legacy token authentication
 				tokenHash := db.HashToken(token, s.Config.TokenSalt)
 				if legToken, err := s.DB.ValidateToken(tokenHash); err == nil {
 					legacyToken = legToken
+					fmt.Fprintf(os.Stderr, "DEBUG AUTH: Legacy token found and valid\n")
 					// For legacy tokens, we'll allow publisher permissions for backward compatibility
 					// This ensures existing systems continue to work
 					user = &db.User{
@@ -107,6 +127,7 @@ func (s *Server) enhancedAuthMiddleware(registry *RouteRegistry) func(http.Handl
 						Role:     db.RolePublisher, // Grant publisher access to maintain compatibility
 					}
 				} else {
+					fmt.Fprintf(os.Stderr, "DEBUG AUTH: Both JWT and legacy token validation failed\n")
 					writeError(w, http.StatusUnauthorized, "Invalid token")
 					return
 				}
@@ -114,6 +135,8 @@ func (s *Server) enhancedAuthMiddleware(registry *RouteRegistry) func(http.Handl
 
 			// Check role-based access
 			if routeMetadata.RequiredRole != "" {
+				fmt.Fprintf(os.Stderr, "DEBUG AUTH: Route requires role: %s, user has role: %s\n", routeMetadata.RequiredRole, user.Role)
+				
 				hasAccess := false
 				switch routeMetadata.RequiredRole {
 				case "user":
@@ -124,7 +147,10 @@ func (s *Server) enhancedAuthMiddleware(registry *RouteRegistry) func(http.Handl
 					hasAccess = user.Role.HasPermission("admin")
 				}
 
+				fmt.Fprintf(os.Stderr, "DEBUG AUTH: Permission check result: %t\n", hasAccess)
+
 				if !hasAccess {
+					fmt.Fprintf(os.Stderr, "DEBUG AUTH: Access denied due to insufficient permissions\n")
 					writeError(w, http.StatusForbidden, "Insufficient permissions")
 					return
 				}

@@ -58,7 +58,17 @@ func (c *Client) makeRequest(method, path string, body io.Reader, contentType st
 
 	// Add authentication header
 	if c.token != "" {
-		req.Header.Set("Authorization", "Bearer "+c.token)
+		authHeader := "Bearer " + c.token
+		req.Header.Set("Authorization", authHeader)
+		if c.verbose {
+			tokenPreview := c.token
+			if len(tokenPreview) > 20 {
+				tokenPreview = tokenPreview[:20] + "..."
+			}
+			fmt.Printf("🔍 Setting Authorization header: Bearer %s\n", tokenPreview)
+		}
+	} else if c.verbose {
+		fmt.Printf("⚠️  No token available - sending request without Authorization header\n")
 	}
 
 	// Set content type if provided
@@ -69,6 +79,23 @@ func (c *Client) makeRequest(method, path string, body io.Reader, contentType st
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("request failed: %w", err)
+	}
+
+	if c.verbose {
+		fmt.Printf("🔍 HTTP Response: %d %s\n", resp.StatusCode, resp.Status)
+		if resp.StatusCode >= 400 {
+			// Log response headers for debugging auth issues
+			authHeader := resp.Request.Header.Get("Authorization")
+			if authHeader != "" {
+				tokenPart := authHeader[7:] // Remove "Bearer "
+				if len(tokenPart) > 20 {
+					tokenPart = tokenPart[:20] + "..."
+				}
+				fmt.Printf("🔍 Request had Authorization: Bearer %s\n", tokenPart)
+			} else {
+				fmt.Printf("⚠️  Request had no Authorization header\n")
+			}
+		}
 	}
 
 	return resp, nil

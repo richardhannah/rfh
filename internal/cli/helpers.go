@@ -6,20 +6,37 @@ import (
 )
 
 // getEffectiveToken returns the token to use for API calls
-// Priority: 1) --token flag, 2) registry token, 3) JWT token from auth
+// Priority: 1) --token flag, 2) registry JWT token, 3) registry legacy token, 4) global JWT token (deprecated)
 func getEffectiveToken(cfg config.CLIConfig, registry config.Registry) (string, error) {
 	// 1. Check command line flag (highest priority)
 	if token != "" {
+		if verbose {
+			fmt.Printf("🔍 Using token from --token flag (length: %d chars)\n", len(token))
+		}
 		return token, nil
 	}
 
-	// 2. Check registry-specific token
+	// 2. Check registry-specific JWT token (preferred)
+	if registry.JWTToken != "" {
+		if verbose {
+			fmt.Printf("🔍 Using JWT token from registry config (length: %d chars)\n", len(registry.JWTToken))
+		}
+		return registry.JWTToken, nil
+	}
+
+	// 3. Check registry-specific legacy token
 	if registry.Token != "" {
+		if verbose {
+			fmt.Printf("🔍 Using legacy token from registry config (length: %d chars)\n", len(registry.Token))
+		}
 		return registry.Token, nil
 	}
 
-	// 3. Check JWT token from user authentication
+	// 4. Check global JWT token from user authentication (deprecated, for backward compatibility)
 	if cfg.User != nil && cfg.User.Token != "" {
+		if verbose {
+			fmt.Printf("🔍 Using global JWT token (DEPRECATED) (length: %d chars)\n", len(cfg.User.Token))
+		}
 		return cfg.User.Token, nil
 	}
 
