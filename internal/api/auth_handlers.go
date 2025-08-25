@@ -2,9 +2,7 @@ package api
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
-	"os"
 	"strconv"
 	"strings"
 
@@ -342,7 +340,7 @@ func (s *Server) adminDeleteUserHandler(w http.ResponseWriter, r *http.Request) 
 	}
 
 	writeJSON(w, http.StatusOK, map[string]string{
-		"message": "User deleted successfully",
+		"message":      "User deleted successfully",
 		"deleted_user": targetUser.Username,
 	})
 }
