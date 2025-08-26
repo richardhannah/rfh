@@ -14,7 +14,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 644499
+              "duration": 767300
             }
           },
           {
@@ -27,7 +27,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 442100
+              "duration": 386000
             }
           },
           {
@@ -36,11 +36,11 @@
             "line": 8,
             "name": "I have a clean config file",
             "match": {
-              "location": "features\\step_definitions\\registry_steps.js:8"
+              "location": "features\\step_definitions\\registry_steps.js:11"
             },
             "result": {
               "status": "passed",
-              "duration": 3007499
+              "duration": 1067200
             }
           },
           {
@@ -49,11 +49,11 @@
             "line": 11,
             "name": "I have a registry \"test-registry\" configured at \"http://localhost:8080\"",
             "match": {
-              "location": "features\\step_definitions\\registry_steps.js:21"
+              "location": "features\\step_definitions\\registry_steps.js:24"
             },
             "result": {
               "status": "passed",
-              "duration": 57159799
+              "duration": 58293700
             }
           },
           {
@@ -62,11 +62,11 @@
             "line": 12,
             "name": "\"test-registry\" is the active registry",
             "match": {
-              "location": "features\\step_definitions\\registry_steps.js:30"
+              "location": "features\\step_definitions\\registry_steps.js:33"
             },
             "result": {
               "status": "passed",
-              "duration": 53345600
+              "duration": 54406399
             }
           },
           {
@@ -75,11 +75,11 @@
             "line": 13,
             "name": "I attempt to login interactively",
             "match": {
-              "location": "features\\step_definitions\\auth_steps.js:37"
+              "location": "features\\step_definitions\\auth_steps.js:40"
             },
             "result": {
               "status": "passed",
-              "duration": 45094000
+              "duration": 49278900
             }
           },
           {
@@ -92,7 +92,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 474199
+              "duration": 517799
             }
           },
           {
@@ -105,7 +105,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 205500
+              "duration": 98899
             }
           },
           {
@@ -113,7 +113,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 108899
+              "duration": 141700
             }
           },
           {
@@ -121,7 +121,15 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 709699
+              "duration": 806900
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 170799
             }
           }
         ],
@@ -140,7 +148,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 72900
+              "duration": 28400
             }
           },
           {
@@ -153,7 +161,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 137600
+              "duration": 126200
             }
           },
           {
@@ -162,11 +170,11 @@
             "line": 8,
             "name": "I have a clean config file",
             "match": {
-              "location": "features\\step_definitions\\registry_steps.js:8"
+              "location": "features\\step_definitions\\registry_steps.js:11"
             },
             "result": {
               "status": "passed",
-              "duration": 757299
+              "duration": 346999
             }
           },
           {
@@ -175,11 +183,11 @@
             "line": 18,
             "name": "I have a clean config file with no registries",
             "match": {
-              "location": "features\\step_definitions\\auth_steps.js:87"
+              "location": "features\\step_definitions\\auth_steps.js:90"
             },
             "result": {
               "status": "passed",
-              "duration": 458099
+              "duration": 758300
             }
           },
           {
@@ -188,11 +196,11 @@
             "line": 19,
             "name": "I login with username \"testuser\" and password \"password123\"",
             "match": {
-              "location": "features\\step_definitions\\auth_steps.js:27"
+              "location": "features\\step_definitions\\auth_steps.js:30"
             },
             "result": {
               "status": "passed",
-              "duration": 47281799
+              "duration": 57301800
             }
           },
           {
@@ -205,7 +213,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 193899
+              "duration": 196499
             }
           },
           {
@@ -218,7 +226,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 110599
+              "duration": 159499
             }
           },
           {
@@ -226,7 +234,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 97499
+              "duration": 97700
             }
           },
           {
@@ -234,7 +242,15 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 559399
+              "duration": 1375499
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 51900
             }
           }
         ],
@@ -253,7 +269,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 26000
+              "duration": 19099
             }
           },
           {
@@ -266,7 +282,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 122400
+              "duration": 130400
             }
           },
           {
@@ -275,11 +291,11 @@
             "line": 8,
             "name": "I have a clean config file",
             "match": {
-              "location": "features\\step_definitions\\registry_steps.js:8"
+              "location": "features\\step_definitions\\registry_steps.js:11"
             },
             "result": {
               "status": "passed",
-              "duration": 733000
+              "duration": 328699
             }
           },
           {
@@ -288,11 +304,11 @@
             "line": 24,
             "name": "I have a config with current registry \"missing-registry\"",
             "match": {
-              "location": "features\\step_definitions\\auth_steps.js:94"
+              "location": "features\\step_definitions\\auth_steps.js:97"
             },
             "result": {
               "status": "passed",
-              "duration": 511900
+              "duration": 678200
             }
           },
           {
@@ -301,11 +317,11 @@
             "line": 25,
             "name": "I login with username \"testuser\" and password \"password123\"",
             "match": {
-              "location": "features\\step_definitions\\auth_steps.js:27"
+              "location": "features\\step_definitions\\auth_steps.js:30"
             },
             "result": {
               "status": "passed",
-              "duration": 43295300
+              "duration": 45346499
             }
           },
           {
@@ -318,7 +334,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 187300
+              "duration": 338199
             }
           },
           {
@@ -326,7 +342,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 49700
+              "duration": 88499
             }
           },
           {
@@ -334,7 +350,15 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 432299
+              "duration": 461900
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 108499
             }
           }
         ],
@@ -353,7 +377,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 54399
+              "duration": 54200
             }
           },
           {
@@ -366,7 +390,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 151299
+              "duration": 259900
             }
           },
           {
@@ -375,11 +399,11 @@
             "line": 8,
             "name": "I have a clean config file",
             "match": {
-              "location": "features\\step_definitions\\registry_steps.js:8"
+              "location": "features\\step_definitions\\registry_steps.js:11"
             },
             "result": {
               "status": "passed",
-              "duration": 1238499
+              "duration": 319599
             }
           },
           {
@@ -392,7 +416,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 52751100
+              "duration": 55814900
             }
           },
           {
@@ -405,7 +429,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 132500
+              "duration": 121499
             }
           },
           {
@@ -418,7 +442,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 50199
+              "duration": 45399
             }
           },
           {
@@ -426,7 +450,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 95400
+              "duration": 42599
             }
           },
           {
@@ -434,7 +458,15 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 444399
+              "duration": 221999
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 20300
             }
           }
         ],
@@ -453,7 +485,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 72000
+              "duration": 9500
             }
           },
           {
@@ -466,7 +498,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 160200
+              "duration": 107699
             }
           },
           {
@@ -475,11 +507,11 @@
             "line": 8,
             "name": "I have a clean config file",
             "match": {
-              "location": "features\\step_definitions\\registry_steps.js:8"
+              "location": "features\\step_definitions\\registry_steps.js:11"
             },
             "result": {
               "status": "passed",
-              "duration": 699500
+              "duration": 282500
             }
           },
           {
@@ -492,7 +524,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 52047399
+              "duration": 53784800
             }
           },
           {
@@ -505,7 +537,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 104899
+              "duration": 105300
             }
           },
           {
@@ -513,7 +545,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 41900
+              "duration": 34799
             }
           },
           {
@@ -521,7 +553,15 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 498600
+              "duration": 153199
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 18799
             }
           }
         ],
@@ -540,7 +580,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 28000
+              "duration": 9200
             }
           },
           {
@@ -553,7 +593,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 168299
+              "duration": 107199
             }
           },
           {
@@ -562,11 +602,11 @@
             "line": 8,
             "name": "I have a clean config file",
             "match": {
-              "location": "features\\step_definitions\\registry_steps.js:8"
+              "location": "features\\step_definitions\\registry_steps.js:11"
             },
             "result": {
               "status": "passed",
-              "duration": 701099
+              "duration": 238299
             }
           },
           {
@@ -575,11 +615,11 @@
             "line": 38,
             "name": "I have a registry \"offline-registry\" configured at \"http://localhost:9999\"",
             "match": {
-              "location": "features\\step_definitions\\registry_steps.js:21"
+              "location": "features\\step_definitions\\registry_steps.js:24"
             },
             "result": {
               "status": "passed",
-              "duration": 54885599
+              "duration": 51838799
             }
           },
           {
@@ -588,11 +628,11 @@
             "line": 39,
             "name": "\"offline-registry\" is the active registry",
             "match": {
-              "location": "features\\step_definitions\\registry_steps.js:30"
+              "location": "features\\step_definitions\\registry_steps.js:33"
             },
             "result": {
               "status": "passed",
-              "duration": 53754400
+              "duration": 51562500
             }
           },
           {
@@ -601,11 +641,11 @@
             "line": 40,
             "name": "I login with username \"testuser\" and password \"password123\"",
             "match": {
-              "location": "features\\step_definitions\\auth_steps.js:27"
+              "location": "features\\step_definitions\\auth_steps.js:30"
             },
             "result": {
               "status": "passed",
-              "duration": 52692499
+              "duration": 47140999
             }
           },
           {
@@ -618,7 +658,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 157299
+              "duration": 161200
             }
           },
           {
@@ -626,7 +666,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 41500
+              "duration": 35500
             }
           },
           {
@@ -634,7 +674,15 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 454200
+              "duration": 393999
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 37199
             }
           }
         ],
@@ -653,7 +701,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 16300
+              "duration": 10200
             }
           },
           {
@@ -666,7 +714,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 136799
+              "duration": 121700
             }
           },
           {
@@ -675,11 +723,11 @@
             "line": 8,
             "name": "I have a clean config file",
             "match": {
-              "location": "features\\step_definitions\\registry_steps.js:8"
+              "location": "features\\step_definitions\\registry_steps.js:11"
             },
             "result": {
               "status": "passed",
-              "duration": 683899
+              "duration": 272499
             }
           },
           {
@@ -688,11 +736,11 @@
             "line": 44,
             "name": "I have a registry \"test-registry\" configured at \"http://localhost:8080\"",
             "match": {
-              "location": "features\\step_definitions\\registry_steps.js:21"
+              "location": "features\\step_definitions\\registry_steps.js:24"
             },
             "result": {
               "status": "passed",
-              "duration": 52626399
+              "duration": 48330099
             }
           },
           {
@@ -701,11 +749,11 @@
             "line": 45,
             "name": "\"test-registry\" is the active registry",
             "match": {
-              "location": "features\\step_definitions\\registry_steps.js:30"
+              "location": "features\\step_definitions\\registry_steps.js:33"
             },
             "result": {
               "status": "passed",
-              "duration": 51774099
+              "duration": 53577699
             }
           },
           {
@@ -714,11 +762,11 @@
             "line": 46,
             "name": "I login with username \"validuser\" and password \"validpass\"",
             "match": {
-              "location": "features\\step_definitions\\auth_steps.js:27"
+              "location": "features\\step_definitions\\auth_steps.js:30"
             },
             "result": {
               "status": "passed",
-              "duration": 58925299
+              "duration": 52668899
             }
           },
           {
@@ -731,7 +779,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 120200
+              "duration": 113599
             }
           },
           {
@@ -744,7 +792,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 46700
+              "duration": 46199
             }
           },
           {
@@ -752,7 +800,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 36699
+              "duration": 30799
             }
           },
           {
@@ -760,7 +808,15 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 954999
+              "duration": 430400
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 22799
             }
           }
         ],
@@ -779,7 +835,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 37799
+              "duration": 8299
             }
           },
           {
@@ -792,7 +848,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 128799
+              "duration": 108999
             }
           },
           {
@@ -801,11 +857,11 @@
             "line": 8,
             "name": "I have a clean config file",
             "match": {
-              "location": "features\\step_definitions\\registry_steps.js:8"
+              "location": "features\\step_definitions\\registry_steps.js:11"
             },
             "result": {
               "status": "passed",
-              "duration": 1195200
+              "duration": 243799
             }
           },
           {
@@ -814,11 +870,11 @@
             "line": 51,
             "name": "I have a registry \"test-registry\" configured at \"http://localhost:8080\"",
             "match": {
-              "location": "features\\step_definitions\\registry_steps.js:21"
+              "location": "features\\step_definitions\\registry_steps.js:24"
             },
             "result": {
               "status": "passed",
-              "duration": 51410399
+              "duration": 54272100
             }
           },
           {
@@ -827,11 +883,11 @@
             "line": 52,
             "name": "\"test-registry\" is the active registry",
             "match": {
-              "location": "features\\step_definitions\\registry_steps.js:30"
+              "location": "features\\step_definitions\\registry_steps.js:33"
             },
             "result": {
               "status": "passed",
-              "duration": 52523900
+              "duration": 54583500
             }
           },
           {
@@ -840,11 +896,11 @@
             "line": 53,
             "name": "I login with username \"invaliduser\" and password \"wrongpass\"",
             "match": {
-              "location": "features\\step_definitions\\auth_steps.js:27"
+              "location": "features\\step_definitions\\auth_steps.js:30"
             },
             "result": {
               "status": "passed",
-              "duration": 54748399
+              "duration": 60113499
             }
           },
           {
@@ -857,7 +913,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 120599
+              "duration": 110500
             }
           },
           {
@@ -870,7 +926,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 39100
+              "duration": 41300
             }
           },
           {
@@ -878,7 +934,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 40399
+              "duration": 31100
             }
           },
           {
@@ -886,7 +942,15 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 575999
+              "duration": 472199
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 25499
             }
           }
         ],
@@ -916,7 +980,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 18000
+              "duration": 8900
             }
           },
           {
@@ -929,7 +993,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 124199
+              "duration": 144999
             }
           },
           {
@@ -938,11 +1002,11 @@
             "line": 8,
             "name": "I have a clean config file",
             "match": {
-              "location": "features\\step_definitions\\registry_steps.js:8"
+              "location": "features\\step_definitions\\registry_steps.js:11"
             },
             "result": {
               "status": "passed",
-              "duration": 1161900
+              "duration": 303599
             }
           },
           {
@@ -951,11 +1015,11 @@
             "line": 11,
             "name": "I have a registry \"test-registry\" configured at \"http://localhost:8080\"",
             "match": {
-              "location": "features\\step_definitions\\registry_steps.js:21"
+              "location": "features\\step_definitions\\registry_steps.js:24"
             },
             "result": {
               "status": "passed",
-              "duration": 50867899
+              "duration": 52618099
             }
           },
           {
@@ -964,11 +1028,11 @@
             "line": 12,
             "name": "\"test-registry\" is the active registry",
             "match": {
-              "location": "features\\step_definitions\\registry_steps.js:30"
+              "location": "features\\step_definitions\\registry_steps.js:33"
             },
             "result": {
               "status": "passed",
-              "duration": 50508199
+              "duration": 51489900
             }
           },
           {
@@ -977,11 +1041,11 @@
             "line": 13,
             "name": "I attempt to register interactively",
             "match": {
-              "location": "features\\step_definitions\\auth_steps.js:41"
+              "location": "features\\step_definitions\\auth_steps.js:44"
             },
             "result": {
               "status": "passed",
-              "duration": 45119799
+              "duration": 45748200
             }
           },
           {
@@ -994,7 +1058,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 217600
+              "duration": 103600
             }
           },
           {
@@ -1007,7 +1071,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 44300
+              "duration": 33699
             }
           },
           {
@@ -1015,7 +1079,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 32900
+              "duration": 208499
             }
           },
           {
@@ -1023,7 +1087,15 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 441000
+              "duration": 507399
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 24400
             }
           }
         ],
@@ -1042,7 +1114,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 17299
+              "duration": 53899
             }
           },
           {
@@ -1055,7 +1127,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 126100
+              "duration": 117899
             }
           },
           {
@@ -1064,11 +1136,11 @@
             "line": 8,
             "name": "I have a clean config file",
             "match": {
-              "location": "features\\step_definitions\\registry_steps.js:8"
+              "location": "features\\step_definitions\\registry_steps.js:11"
             },
             "result": {
               "status": "passed",
-              "duration": 867499
+              "duration": 287100
             }
           },
           {
@@ -1077,11 +1149,11 @@
             "line": 18,
             "name": "I have a clean config file with no registries",
             "match": {
-              "location": "features\\step_definitions\\auth_steps.js:87"
+              "location": "features\\step_definitions\\auth_steps.js:90"
             },
             "result": {
               "status": "passed",
-              "duration": 406199
+              "duration": 426399
             }
           },
           {
@@ -1090,11 +1162,11 @@
             "line": 19,
             "name": "I register with username \"testuser\", email \"test@example.com\", and password \"password123\"",
             "match": {
-              "location": "features\\step_definitions\\auth_steps.js:10"
+              "location": "features\\step_definitions\\auth_steps.js:13"
             },
             "result": {
               "status": "passed",
-              "duration": 43704400
+              "duration": 43951499
             }
           },
           {
@@ -1107,7 +1179,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 110300
+              "duration": 107799
             }
           },
           {
@@ -1120,7 +1192,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 39100
+              "duration": 38600
             }
           },
           {
@@ -1128,7 +1200,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 29699
+              "duration": 31499
             }
           },
           {
@@ -1136,7 +1208,15 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 345299
+              "duration": 435799
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 21199
             }
           }
         ],
@@ -1155,7 +1235,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 12600
+              "duration": 6300
             }
           },
           {
@@ -1168,7 +1248,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 104500
+              "duration": 107899
             }
           },
           {
@@ -1177,11 +1257,11 @@
             "line": 8,
             "name": "I have a clean config file",
             "match": {
-              "location": "features\\step_definitions\\registry_steps.js:8"
+              "location": "features\\step_definitions\\registry_steps.js:11"
             },
             "result": {
               "status": "passed",
-              "duration": 676899
+              "duration": 271700
             }
           },
           {
@@ -1190,11 +1270,11 @@
             "line": 24,
             "name": "I have a config with current registry \"missing-registry\"",
             "match": {
-              "location": "features\\step_definitions\\auth_steps.js:94"
+              "location": "features\\step_definitions\\auth_steps.js:97"
             },
             "result": {
               "status": "passed",
-              "duration": 393499
+              "duration": 518800
             }
           },
           {
@@ -1203,11 +1283,11 @@
             "line": 25,
             "name": "I register with username \"testuser\", email \"test@example.com\", and password \"password123\"",
             "match": {
-              "location": "features\\step_definitions\\auth_steps.js:10"
+              "location": "features\\step_definitions\\auth_steps.js:13"
             },
             "result": {
               "status": "passed",
-              "duration": 46991500
+              "duration": 42426099
             }
           },
           {
@@ -1220,7 +1300,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 125999
+              "duration": 114800
             }
           },
           {
@@ -1228,7 +1308,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 34499
+              "duration": 32600
             }
           },
           {
@@ -1236,7 +1316,15 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 417999
+              "duration": 343900
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 29600
             }
           }
         ],
@@ -1255,7 +1343,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 14200
+              "duration": 7900
             }
           },
           {
@@ -1268,7 +1356,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 117199
+              "duration": 108999
             }
           },
           {
@@ -1277,11 +1365,11 @@
             "line": 8,
             "name": "I have a clean config file",
             "match": {
-              "location": "features\\step_definitions\\registry_steps.js:8"
+              "location": "features\\step_definitions\\registry_steps.js:11"
             },
             "result": {
               "status": "passed",
-              "duration": 692700
+              "duration": 298399
             }
           },
           {
@@ -1294,7 +1382,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 53552999
+              "duration": 52358899
             }
           },
           {
@@ -1307,7 +1395,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 118800
+              "duration": 100699
             }
           },
           {
@@ -1320,7 +1408,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 46199
+              "duration": 43499
             }
           },
           {
@@ -1328,7 +1416,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 29700
+              "duration": 27500
             }
           },
           {
@@ -1336,7 +1424,15 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 404399
+              "duration": 164800
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 12799
             }
           }
         ],
@@ -1355,7 +1451,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 12200
+              "duration": 5499
             }
           },
           {
@@ -1368,7 +1464,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 108300
+              "duration": 98300
             }
           },
           {
@@ -1377,11 +1473,11 @@
             "line": 8,
             "name": "I have a clean config file",
             "match": {
-              "location": "features\\step_definitions\\registry_steps.js:8"
+              "location": "features\\step_definitions\\registry_steps.js:11"
             },
             "result": {
               "status": "passed",
-              "duration": 815200
+              "duration": 279099
             }
           },
           {
@@ -1394,7 +1490,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 48210199
+              "duration": 50904299
             }
           },
           {
@@ -1407,7 +1503,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 110500
+              "duration": 100200
             }
           },
           {
@@ -1420,7 +1516,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 34499
+              "duration": 33200
             }
           },
           {
@@ -1433,7 +1529,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 101100
+              "duration": 92499
             }
           },
           {
@@ -1446,7 +1542,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 31500
+              "duration": 30999
             }
           },
           {
@@ -1459,7 +1555,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 21500
+              "duration": 22200
             }
           },
           {
@@ -1467,7 +1563,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 28399
+              "duration": 28900
             }
           },
           {
@@ -1475,7 +1571,15 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 473100
+              "duration": 139400
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 14899
             }
           }
         ],
@@ -1494,7 +1598,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 13999
+              "duration": 5599
             }
           },
           {
@@ -1507,7 +1611,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 112800
+              "duration": 99100
             }
           },
           {
@@ -1516,11 +1620,11 @@
             "line": 8,
             "name": "I have a clean config file",
             "match": {
-              "location": "features\\step_definitions\\registry_steps.js:8"
+              "location": "features\\step_definitions\\registry_steps.js:11"
             },
             "result": {
               "status": "passed",
-              "duration": 718800
+              "duration": 185400
             }
           },
           {
@@ -1529,11 +1633,11 @@
             "line": 42,
             "name": "I have a registry \"test-registry\" configured at \"http://localhost:8080\"",
             "match": {
-              "location": "features\\step_definitions\\registry_steps.js:21"
+              "location": "features\\step_definitions\\registry_steps.js:24"
             },
             "result": {
               "status": "passed",
-              "duration": 51648500
+              "duration": 51590300
             }
           },
           {
@@ -1542,11 +1646,11 @@
             "line": 43,
             "name": "\"test-registry\" is the active registry",
             "match": {
-              "location": "features\\step_definitions\\registry_steps.js:30"
+              "location": "features\\step_definitions\\registry_steps.js:33"
             },
             "result": {
               "status": "passed",
-              "duration": 51045099
+              "duration": 49047199
             }
           },
           {
@@ -1555,11 +1659,11 @@
             "line": 44,
             "name": "I register with username \"newuser\", email \"newuser@example.com\", and password \"password123\" using flags",
             "match": {
-              "location": "features\\step_definitions\\auth_steps.js:32"
+              "location": "features\\step_definitions\\auth_steps.js:35"
             },
             "result": {
               "status": "passed",
-              "duration": 95675399
+              "duration": 93357700
             }
           },
           {
@@ -1572,7 +1676,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 102899
+              "duration": 115000
             }
           },
           {
@@ -1585,7 +1689,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 32000
+              "duration": 33599
             }
           },
           {
@@ -1593,7 +1697,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 34000
+              "duration": 33200
             }
           },
           {
@@ -1601,7 +1705,15 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 438800
+              "duration": 505099
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 30799
             }
           }
         ],
@@ -1620,7 +1732,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 12500
+              "duration": 7000
             }
           },
           {
@@ -1633,7 +1745,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 110900
+              "duration": 111000
             }
           },
           {
@@ -1642,11 +1754,11 @@
             "line": 8,
             "name": "I have a clean config file",
             "match": {
-              "location": "features\\step_definitions\\registry_steps.js:8"
+              "location": "features\\step_definitions\\registry_steps.js:11"
             },
             "result": {
               "status": "passed",
-              "duration": 1090300
+              "duration": 327600
             }
           },
           {
@@ -1655,11 +1767,11 @@
             "line": 49,
             "name": "I have a registry \"test-registry\" configured at \"http://localhost:8080\"",
             "match": {
-              "location": "features\\step_definitions\\registry_steps.js:21"
+              "location": "features\\step_definitions\\registry_steps.js:24"
             },
             "result": {
               "status": "passed",
-              "duration": 52150700
+              "duration": 52634999
             }
           },
           {
@@ -1668,11 +1780,11 @@
             "line": 50,
             "name": "\"test-registry\" is the active registry",
             "match": {
-              "location": "features\\step_definitions\\registry_steps.js:30"
+              "location": "features\\step_definitions\\registry_steps.js:33"
             },
             "result": {
               "status": "passed",
-              "duration": 50457599
+              "duration": 50630100
             }
           },
           {
@@ -1681,11 +1793,11 @@
             "line": 51,
             "name": "I register with username \"testuser\", email \"test@domain.com\", and password \"securepass\" using flags",
             "match": {
-              "location": "features\\step_definitions\\auth_steps.js:32"
+              "location": "features\\step_definitions\\auth_steps.js:35"
             },
             "result": {
               "status": "passed",
-              "duration": 92539899
+              "duration": 99643199
             }
           },
           {
@@ -1698,7 +1810,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 94200
+              "duration": 144800
             }
           },
           {
@@ -1711,7 +1823,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 29899
+              "duration": 35200
             }
           },
           {
@@ -1719,7 +1831,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 30600
+              "duration": 33400
             }
           },
           {
@@ -1727,7 +1839,15 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 477200
+              "duration": 374299
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 29999
             }
           }
         ],
@@ -1757,7 +1877,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 10300
+              "duration": 7599
             }
           },
           {
@@ -1770,7 +1890,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 521199
+              "duration": 524499
             }
           },
           {
@@ -1783,7 +1903,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 120799
+              "duration": 104299
             }
           },
           {
@@ -1796,7 +1916,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 54754500
+              "duration": 58393700
             }
           },
           {
@@ -1809,7 +1929,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 137799
+              "duration": 147000
             }
           },
           {
@@ -1822,7 +1942,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 253400
+              "duration": 904700
             }
           },
           {
@@ -1835,7 +1955,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 336199
+              "duration": 654700
             }
           },
           {
@@ -1848,7 +1968,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 203899
+              "duration": 235099
             }
           },
           {
@@ -1861,7 +1981,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 93100
+              "duration": 152500
             }
           },
           {
@@ -1874,7 +1994,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 125900
+              "duration": 185899
             }
           },
           {
@@ -1882,7 +2002,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 1318999
+              "duration": 1328099
             }
           },
           {
@@ -1890,7 +2010,15 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 24699
+              "duration": 20600
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 11100
             }
           }
         ],
@@ -1909,7 +2037,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 6699
+              "duration": 6800
             }
           },
           {
@@ -1922,7 +2050,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 314100
+              "duration": 276800
             }
           },
           {
@@ -1935,7 +2063,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 89300
+              "duration": 77499
             }
           },
           {
@@ -1948,7 +2076,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 51631600
+              "duration": 52962599
             }
           },
           {
@@ -1961,7 +2089,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 537899
+              "duration": 625599
             }
           },
           {
@@ -2003,7 +2131,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 321699
+              "duration": 364400
             }
           },
           {
@@ -2021,7 +2149,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 193999
+              "duration": 241800
             }
           },
           {
@@ -2029,7 +2157,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 1192999
+              "duration": 1296100
             }
           },
           {
@@ -2037,7 +2165,15 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 24700
+              "duration": 26599
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 11700
             }
           }
         ],
@@ -2056,7 +2192,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 7399
+              "duration": 7300
             }
           },
           {
@@ -2069,7 +2205,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 257900
+              "duration": 292199
             }
           },
           {
@@ -2082,7 +2218,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 89399
+              "duration": 97800
             }
           },
           {
@@ -2095,7 +2231,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 65396799
+              "duration": 50021200
             }
           },
           {
@@ -2149,7 +2285,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 450400
+              "duration": 452000
             }
           },
           {
@@ -2157,7 +2293,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 1280400
+              "duration": 1191499
             }
           },
           {
@@ -2165,7 +2301,15 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 26999
+              "duration": 24100
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 11700
             }
           }
         ],
@@ -2184,7 +2328,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 6799
+              "duration": 7300
             }
           },
           {
@@ -2197,7 +2341,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 277199
+              "duration": 287100
             }
           },
           {
@@ -2210,7 +2354,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 94699
+              "duration": 86800
             }
           },
           {
@@ -2223,7 +2367,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 55657299
+              "duration": 53714400
             }
           },
           {
@@ -2236,7 +2380,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 125099
+              "duration": 108299
             }
           },
           {
@@ -2249,7 +2393,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 47399
+              "duration": 33100
             }
           },
           {
@@ -2262,7 +2406,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 111399
+              "duration": 85199
             }
           },
           {
@@ -2275,7 +2419,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 42999
+              "duration": 27799
             }
           },
           {
@@ -2283,7 +2427,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 488699
+              "duration": 438700
             }
           },
           {
@@ -2291,7 +2435,15 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 32000
+              "duration": 28700
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 11399
             }
           }
         ],
@@ -2310,7 +2462,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 7399
+              "duration": 7100
             }
           },
           {
@@ -2323,7 +2475,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 470699
+              "duration": 283000
             }
           },
           {
@@ -2336,7 +2488,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 105399
+              "duration": 88000
             }
           },
           {
@@ -2349,7 +2501,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 53053199
+              "duration": 50169699
             }
           },
           {
@@ -2402,7 +2554,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 227499
+              "duration": 228100
             }
           },
           {
@@ -2410,7 +2562,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 1496000
+              "duration": 1278099
             }
           },
           {
@@ -2418,7 +2570,15 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 30700
+              "duration": 26200
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 11199
             }
           }
         ],
@@ -2448,7 +2608,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 7299
+              "duration": 6499
             }
           },
           {
@@ -2461,7 +2621,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 329799
+              "duration": 259000
             }
           },
           {
@@ -2474,7 +2634,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 94900
+              "duration": 89599
             }
           },
           {
@@ -2487,7 +2647,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 433300
+              "duration": 381300
             }
           },
           {
@@ -2500,7 +2660,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 62110799
+              "duration": 51125199
             }
           },
           {
@@ -2513,7 +2673,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 138099
+              "duration": 131800
             }
           },
           {
@@ -2526,7 +2686,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 37100
+              "duration": 36399
             }
           },
           {
@@ -2539,7 +2699,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 226500
+              "duration": 187699
             }
           },
           {
@@ -2547,7 +2707,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 686899
+              "duration": 779699
             }
           },
           {
@@ -2555,7 +2715,15 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 38299
+              "duration": 26799
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 11300
             }
           }
         ],
@@ -2574,7 +2742,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 7399
+              "duration": 6800
             }
           },
           {
@@ -2587,7 +2755,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 245900
+              "duration": 287100
             }
           },
           {
@@ -2600,7 +2768,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 90799
+              "duration": 93899
             }
           },
           {
@@ -2613,7 +2781,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 298400
+              "duration": 374200
             }
           },
           {
@@ -2626,7 +2794,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 53404000
+              "duration": 54853900
             }
           },
           {
@@ -2639,7 +2807,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 108200
+              "duration": 105999
             }
           },
           {
@@ -2652,7 +2820,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 309799
+              "duration": 335300
             }
           },
           {
@@ -2665,7 +2833,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 102300
+              "duration": 113400
             }
           },
           {
@@ -2678,7 +2846,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 103600
+              "duration": 123099
             }
           },
           {
@@ -2686,7 +2854,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 1269299
+              "duration": 1157999
             }
           },
           {
@@ -2694,7 +2862,15 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 25200
+              "duration": 64800
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 12299
             }
           }
         ],
@@ -2713,7 +2889,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 6899
+              "duration": 6800
             }
           },
           {
@@ -2726,7 +2902,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 263500
+              "duration": 289599
             }
           },
           {
@@ -2739,7 +2915,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 100600
+              "duration": 82499
             }
           },
           {
@@ -2752,7 +2928,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 371900
+              "duration": 325299
             }
           },
           {
@@ -2765,7 +2941,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 53138899
+              "duration": 52857399
             }
           },
           {
@@ -2778,7 +2954,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 104700
+              "duration": 101000
             }
           },
           {
@@ -2791,7 +2967,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 137899
+              "duration": 148499
             }
           },
           {
@@ -2804,7 +2980,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 148999
+              "duration": 164200
             }
           },
           {
@@ -2812,7 +2988,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 1086600
+              "duration": 1440099
             }
           },
           {
@@ -2820,7 +2996,15 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 22699
+              "duration": 32000
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 13900
             }
           }
         ],
@@ -2834,6 +3018,1327 @@
     "name": "Initialize RFH project with existing files",
     "tags": [],
     "uri": "features\\init-existing-project.feature"
+  },
+  {
+    "description": "  As a developer\n  I want to pack my ruleset files into a distributable archive\n  So that I can publish them to a registry",
+    "elements": [
+      {
+        "description": "",
+        "id": "package-creation;pack-with-existing-rulestack.json-manifest",
+        "keyword": "Scenario",
+        "line": 9,
+        "name": "Pack with existing rulestack.json manifest",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 7299
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 7,
+            "name": "RFH is installed and accessible",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:10"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 115999
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 10,
+            "name": "I have a temporary project directory",
+            "match": {
+              "location": "features\\step_definitions\\pack_steps.js:13"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 324699
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 11,
+            "name": "I have a rulestack.json manifest with name \"test-rules\" and version \"1.0.0\"",
+            "match": {
+              "location": "features\\step_definitions\\pack_steps.js:25"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 508200
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 12,
+            "name": "I have a rule file \"security-rules.md\" with content \"# Security Rules\"",
+            "match": {
+              "location": "features\\step_definitions\\pack_steps.js:61"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 370899
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 13,
+            "name": "I run \"rfh pack\" in the project directory",
+            "match": {
+              "location": "features\\step_definitions\\pack_steps.js:81"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 56454299
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 14,
+            "name": "I should see \"✅ Successfully packed test-rules\"",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:32"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 113800
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 15,
+            "name": "I should see \"📦 Archive: test-rules-1.0.0.tgz\"",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:32"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 36399
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 16,
+            "name": "the archive file \"test-rules-1.0.0.tgz\" should exist",
+            "match": {
+              "location": "features\\step_definitions\\pack_steps.js:85"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 220299
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 17,
+            "name": "the command should exit with zero status",
+            "match": {
+              "location": "features\\step_definitions\\auth_steps.js:86"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 39699
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 25899
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 11600
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 1467500
+            }
+          }
+        ],
+        "tags": [],
+        "type": "scenario"
+      },
+      {
+        "description": "",
+        "id": "package-creation;pack-with-custom-manifest-file",
+        "keyword": "Scenario",
+        "line": 19,
+        "name": "Pack with custom manifest file",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 19700
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 7,
+            "name": "RFH is installed and accessible",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:10"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 119900
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 20,
+            "name": "I have a temporary project directory",
+            "match": {
+              "location": "features\\step_definitions\\pack_steps.js:13"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 245599
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 21,
+            "name": "I have a custom manifest \"custom-rules.json\" with name \"custom-package\" and version \"2.1.0\"",
+            "match": {
+              "location": "features\\step_definitions\\pack_steps.js:49"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 440399
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 22,
+            "name": "I have a rule file \"rules.md\" with content \"# Custom Rules\"",
+            "match": {
+              "location": "features\\step_definitions\\pack_steps.js:61"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 449000
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 23,
+            "name": "I run \"rfh pack --manifest custom-rules.json\" in the project directory",
+            "match": {
+              "location": "features\\step_definitions\\pack_steps.js:81"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 54421199
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 24,
+            "name": "I should see \"✅ Successfully packed custom-package\"",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:32"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 103000
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 25,
+            "name": "I should see \"📦 Archive: custom-package-2.1.0.tgz\"",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:32"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 31600
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 26,
+            "name": "the archive file \"custom-package-2.1.0.tgz\" should exist",
+            "match": {
+              "location": "features\\step_definitions\\pack_steps.js:85"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 136700
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 19199
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 9599
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 833700
+            }
+          }
+        ],
+        "tags": [],
+        "type": "scenario"
+      },
+      {
+        "description": "",
+        "id": "package-creation;pack-single-file-with-auto-manifest-creation",
+        "keyword": "Scenario",
+        "line": 28,
+        "name": "Pack single file with auto-manifest creation",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 13399
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 7,
+            "name": "RFH is installed and accessible",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:10"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 99699
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 29,
+            "name": "I have a temporary project directory",
+            "match": {
+              "location": "features\\step_definitions\\pack_steps.js:13"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 229699
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 30,
+            "name": "I have a rule file \"my-security-rules.md\" with content \"# My Security Rules\"",
+            "match": {
+              "location": "features\\step_definitions\\pack_steps.js:61"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 345600
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 31,
+            "name": "I run \"rfh pack --file my-security-rules.md --verbose\" in the project directory",
+            "match": {
+              "location": "features\\step_definitions\\pack_steps.js:81"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 57050400
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 32,
+            "name": "I should see \"📝 No manifest found, creating auto-manifest from file\"",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:32"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 116300
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 33,
+            "name": "I should see \"📦 Packing my-security-rules v1.0.0\"",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:32"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 31399
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 34,
+            "name": "I should see \"✅ Successfully packed my-security-rules\"",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:32"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 22899
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 35,
+            "name": "the archive file \"my-security-rules-1.0.0.tgz\" should exist",
+            "match": {
+              "location": "features\\step_definitions\\pack_steps.js:85"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 153999
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 27000
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 12200
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 711900
+            }
+          }
+        ],
+        "tags": [],
+        "type": "scenario"
+      },
+      {
+        "description": "",
+        "id": "package-creation;pack-with-custom-output-path",
+        "keyword": "Scenario",
+        "line": 37,
+        "name": "Pack with custom output path",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 9499
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 7,
+            "name": "RFH is installed and accessible",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:10"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 99500
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 38,
+            "name": "I have a temporary project directory",
+            "match": {
+              "location": "features\\step_definitions\\pack_steps.js:13"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 243199
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 39,
+            "name": "I have a rulestack.json manifest with name \"output-test\" and version \"1.0.0\"",
+            "match": {
+              "location": "features\\step_definitions\\pack_steps.js:25"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 335499
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 40,
+            "name": "I have a rule file \"rules.md\" with content \"# Output Test Rules\"",
+            "match": {
+              "location": "features\\step_definitions\\pack_steps.js:61"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 344999
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 41,
+            "name": "I run \"rfh pack --output custom-output.tgz\" in the project directory",
+            "match": {
+              "location": "features\\step_definitions\\pack_steps.js:81"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 54321600
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 42,
+            "name": "I should see \"✅ Successfully packed output-test\"",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:32"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 99400
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 43,
+            "name": "I should see \"📦 Archive: custom-output.tgz\"",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:32"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 29799
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 44,
+            "name": "the archive file \"custom-output.tgz\" should exist",
+            "match": {
+              "location": "features\\step_definitions\\pack_steps.js:85"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 152099
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 28699
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 11500
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 823300
+            }
+          }
+        ],
+        "tags": [],
+        "type": "scenario"
+      },
+      {
+        "description": "",
+        "id": "package-creation;pack-from-different-project-directory",
+        "keyword": "Scenario",
+        "line": 46,
+        "name": "Pack from different project directory",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 13999
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 7,
+            "name": "RFH is installed and accessible",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:10"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 114000
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 47,
+            "name": "I have a temporary project directory at \"remote-project\"",
+            "match": {
+              "location": "features\\step_definitions\\pack_steps.js:19"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 291299
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 48,
+            "name": "I have a rulestack.json manifest with name \"remote-rules\" and version \"1.5.0\" in \"remote-project\"",
+            "match": {
+              "location": "features\\step_definitions\\pack_steps.js:37"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 329100
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 49,
+            "name": "I have a rule file \"remote.md\" with content \"# Remote Rules\" in \"remote-project\"",
+            "match": {
+              "location": "features\\step_definitions\\pack_steps.js:66"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 299900
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 50,
+            "name": "I run \"rfh pack remote-project --verbose\"",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:17"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 55815900
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 51,
+            "name": "I should see \"📁 Working directory: remote-project\"",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:32"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 95400
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 52,
+            "name": "I should see \"📦 Packing remote-rules v1.5.0\"",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:32"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 36000
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 53,
+            "name": "I should see \"✅ Successfully packed remote-rules\"",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:32"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 25999
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 26800
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 10099
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 651100
+            }
+          }
+        ],
+        "tags": [],
+        "type": "scenario"
+      },
+      {
+        "description": "",
+        "id": "package-creation;pack-command-help-text",
+        "keyword": "Scenario",
+        "line": 55,
+        "name": "Pack command help text",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 13699
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 7,
+            "name": "RFH is installed and accessible",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:10"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 96300
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 56,
+            "name": "I run \"rfh pack --help\"",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:17"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 54386899
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 57,
+            "name": "I should see \"Creates a tar.gz archive containing all files\"",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:32"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 110200
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 58,
+            "name": "I should see \"--manifest string   path to manifest file\"",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:32"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 42300
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 59,
+            "name": "I should see \"--file string       override single file to pack\"",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:32"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 27799
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 60,
+            "name": "I should see \"--output string     output archive path\"",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:32"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 22699
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 30299
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 11300
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 11700
+            }
+          }
+        ],
+        "tags": [],
+        "type": "scenario"
+      },
+      {
+        "description": "",
+        "id": "package-creation;pack-with-missing-manifest",
+        "keyword": "Scenario",
+        "line": 62,
+        "name": "Pack with missing manifest",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 6199
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 7,
+            "name": "RFH is installed and accessible",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:10"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 107800
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 63,
+            "name": "I have a temporary project directory",
+            "match": {
+              "location": "features\\step_definitions\\pack_steps.js:13"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 299800
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 64,
+            "name": "I have a rule file \"orphan-rules.md\" with content \"# Orphan Rules\"",
+            "match": {
+              "location": "features\\step_definitions\\pack_steps.js:61"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 512799
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 65,
+            "name": "I run \"rfh pack\" in the project directory",
+            "match": {
+              "location": "features\\step_definitions\\pack_steps.js:81"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 53237499
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 66,
+            "name": "I should see \"failed to load manifest\"",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:32"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 99200
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 67,
+            "name": "I should see \"The system cannot find the file specified\"",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:32"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 34200
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 68,
+            "name": "the command should exit with non-zero status",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:57"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 50200
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 29500
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 10299
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 713300
+            }
+          }
+        ],
+        "tags": [],
+        "type": "scenario"
+      },
+      {
+        "description": "",
+        "id": "package-creation;pack-with-missing-file-in-manifest",
+        "keyword": "Scenario",
+        "line": 70,
+        "name": "Pack with missing file in manifest",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 14499
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 7,
+            "name": "RFH is installed and accessible",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:10"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 126700
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 71,
+            "name": "I have a temporary project directory",
+            "match": {
+              "location": "features\\step_definitions\\pack_steps.js:13"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 266100
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 72,
+            "name": "I have a rulestack.json manifest with name \"broken-rules\" and version \"1.0.0\"",
+            "match": {
+              "location": "features\\step_definitions\\pack_steps.js:25"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 446100
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 73,
+            "name": "the manifest includes file \"missing-file.md\"",
+            "match": {
+              "location": "features\\step_definitions\\pack_steps.js:71"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 1214400
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 74,
+            "name": "I run \"rfh pack\" in the project directory",
+            "match": {
+              "location": "features\\step_definitions\\pack_steps.js:81"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 55974200
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 75,
+            "name": "I should see \"failed to pack files\"",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:32"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 105399
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 76,
+            "name": "I should see \"no files matched the specified patterns\"",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:32"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 66000
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 77,
+            "name": "the command should exit with non-zero status",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:57"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 23599
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 28400
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 11500
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 561699
+            }
+          }
+        ],
+        "tags": [],
+        "type": "scenario"
+      },
+      {
+        "description": "",
+        "id": "package-creation;pack-verbose-output",
+        "keyword": "Scenario",
+        "line": 79,
+        "name": "Pack verbose output",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 13400
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 7,
+            "name": "RFH is installed and accessible",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:10"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 123100
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 80,
+            "name": "I have a temporary project directory",
+            "match": {
+              "location": "features\\step_definitions\\pack_steps.js:13"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 239099
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 81,
+            "name": "I have a rulestack.json manifest with name \"verbose-test\" and version \"1.0.0\"",
+            "match": {
+              "location": "features\\step_definitions\\pack_steps.js:25"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 300999
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 82,
+            "name": "I have a rule file \"verbose-rules.md\" with content \"# Verbose Rules\"",
+            "match": {
+              "location": "features\\step_definitions\\pack_steps.js:61"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 367499
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 83,
+            "name": "I run \"rfh pack --verbose\" in the project directory",
+            "match": {
+              "location": "features\\step_definitions\\pack_steps.js:81"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 55855699
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 84,
+            "name": "I should see \"📄 Manifest file:\"",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:32"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 95299
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 85,
+            "name": "I should see \"📦 Packing verbose-test v1.0.0\"",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:32"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 28099
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 86,
+            "name": "I should see \"📋 Files included:\"",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:32"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 21299
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 87,
+            "name": "I should see \"✅ Successfully packed verbose-test\"",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:32"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 18600
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 27000
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 19499
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 3394999
+            }
+          }
+        ],
+        "tags": [],
+        "type": "scenario"
+      }
+    ],
+    "id": "package-creation",
+    "line": 1,
+    "keyword": "Feature",
+    "name": "Package Creation",
+    "tags": [],
+    "uri": "features\\pack.feature"
   },
   {
     "description": "  As a developer\n  I want to manage multiple registry configurations\n  So that I can work with different package repositories",
@@ -2850,7 +4355,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 6599
+              "duration": 16599
             }
           },
           {
@@ -2863,7 +4368,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 99900
+              "duration": 120300
             }
           },
           {
@@ -2872,11 +4377,11 @@
             "line": 8,
             "name": "I have a clean config file",
             "match": {
-              "location": "features\\step_definitions\\registry_steps.js:8"
+              "location": "features\\step_definitions\\registry_steps.js:11"
             },
             "result": {
               "status": "passed",
-              "duration": 570799
+              "duration": 231600
             }
           },
           {
@@ -2889,7 +4394,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 54851000
+              "duration": 54394099
             }
           },
           {
@@ -2902,7 +4407,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 111300
+              "duration": 102000
             }
           },
           {
@@ -2915,7 +4420,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 32299
+              "duration": 29999
             }
           },
           {
@@ -2928,7 +4433,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 26099
+              "duration": 23900
             }
           },
           {
@@ -2937,11 +4442,11 @@
             "line": 15,
             "name": "the config should contain registry \"production\" with URL \"https://registry.example.com\"",
             "match": {
-              "location": "features\\step_definitions\\registry_steps.js:35"
+              "location": "features\\step_definitions\\registry_steps.js:38"
             },
             "result": {
               "status": "passed",
-              "duration": 459300
+              "duration": 385099
             }
           },
           {
@@ -2950,11 +4455,11 @@
             "line": 16,
             "name": "\"production\" should be the current active registry",
             "match": {
-              "location": "features\\step_definitions\\registry_steps.js:47"
+              "location": "features\\step_definitions\\registry_steps.js:50"
             },
             "result": {
               "status": "passed",
-              "duration": 236100
+              "duration": 209600
             }
           },
           {
@@ -2962,7 +4467,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 23300
+              "duration": 21799
             }
           },
           {
@@ -2970,7 +4475,15 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 359599
+              "duration": 285000
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 29499
             }
           }
         ],
@@ -2989,7 +4502,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 12799
+              "duration": 7200
             }
           },
           {
@@ -3002,7 +4515,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 94500
+              "duration": 99199
             }
           },
           {
@@ -3011,11 +4524,11 @@
             "line": 8,
             "name": "I have a clean config file",
             "match": {
-              "location": "features\\step_definitions\\registry_steps.js:8"
+              "location": "features\\step_definitions\\registry_steps.js:11"
             },
             "result": {
               "status": "passed",
-              "duration": 762799
+              "duration": 225799
             }
           },
           {
@@ -3024,11 +4537,11 @@
             "line": 19,
             "name": "I have a registry \"production\" configured at \"https://registry.example.com\"",
             "match": {
-              "location": "features\\step_definitions\\registry_steps.js:21"
+              "location": "features\\step_definitions\\registry_steps.js:24"
             },
             "result": {
               "status": "passed",
-              "duration": 50901899
+              "duration": 49624100
             }
           },
           {
@@ -3041,7 +4554,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 55138899
+              "duration": 54483900
             }
           },
           {
@@ -3054,7 +4567,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 111799
+              "duration": 97899
             }
           },
           {
@@ -3063,11 +4576,11 @@
             "line": 22,
             "name": "the config should contain both registries",
             "match": {
-              "location": "features\\step_definitions\\registry_steps.js:52"
+              "location": "features\\step_definitions\\registry_steps.js:55"
             },
             "result": {
               "status": "passed",
-              "duration": 342300
+              "duration": 2208800
             }
           },
           {
@@ -3076,11 +4589,11 @@
             "line": 23,
             "name": "\"production\" should remain the active registry",
             "match": {
-              "location": "features\\step_definitions\\registry_steps.js:57"
+              "location": "features\\step_definitions\\registry_steps.js:60"
             },
             "result": {
               "status": "passed",
-              "duration": 195299
+              "duration": 261799
             }
           },
           {
@@ -3088,7 +4601,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 19099
+              "duration": 22599
             }
           },
           {
@@ -3096,7 +4609,15 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 283000
+              "duration": 322299
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 31300
             }
           }
         ],
@@ -3115,7 +4636,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 11500
+              "duration": 8000
             }
           },
           {
@@ -3128,7 +4649,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 104800
+              "duration": 99099
             }
           },
           {
@@ -3137,11 +4658,11 @@
             "line": 8,
             "name": "I have a clean config file",
             "match": {
-              "location": "features\\step_definitions\\registry_steps.js:8"
+              "location": "features\\step_definitions\\registry_steps.js:11"
             },
             "result": {
               "status": "passed",
-              "duration": 1032600
+              "duration": 267499
             }
           },
           {
@@ -3154,7 +4675,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 55230900
+              "duration": 53076199
             }
           },
           {
@@ -3167,7 +4688,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 110299
+              "duration": 101500
             }
           },
           {
@@ -3175,7 +4696,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 31899
+              "duration": 31900
             }
           },
           {
@@ -3183,7 +4704,15 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 514400
+              "duration": 198699
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 24900
             }
           }
         ],
@@ -3202,7 +4731,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 12999
+              "duration": 7399
             }
           },
           {
@@ -3215,7 +4744,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 107300
+              "duration": 98399
             }
           },
           {
@@ -3224,11 +4753,11 @@
             "line": 8,
             "name": "I have a clean config file",
             "match": {
-              "location": "features\\step_definitions\\registry_steps.js:8"
+              "location": "features\\step_definitions\\registry_steps.js:11"
             },
             "result": {
               "status": "passed",
-              "duration": 1030799
+              "duration": 186500
             }
           },
           {
@@ -3237,11 +4766,11 @@
             "line": 31,
             "name": "I have a registry \"production\" configured at \"https://registry.example.com\"",
             "match": {
-              "location": "features\\step_definitions\\registry_steps.js:21"
+              "location": "features\\step_definitions\\registry_steps.js:24"
             },
             "result": {
               "status": "passed",
-              "duration": 53749900
+              "duration": 51505000
             }
           },
           {
@@ -3254,7 +4783,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 51695400
+              "duration": 51557400
             }
           },
           {
@@ -3263,11 +4792,11 @@
             "line": 33,
             "name": "I should see \"production\" in the registry list",
             "match": {
-              "location": "features\\step_definitions\\registry_steps.js:73"
+              "location": "features\\step_definitions\\registry_steps.js:76"
             },
             "result": {
               "status": "passed",
-              "duration": 145700
+              "duration": 147399
             }
           },
           {
@@ -3276,11 +4805,11 @@
             "line": 34,
             "name": "I should see \"https://registry.example.com\" in the registry list",
             "match": {
-              "location": "features\\step_definitions\\registry_steps.js:73"
+              "location": "features\\step_definitions\\registry_steps.js:76"
             },
             "result": {
               "status": "passed",
-              "duration": 32200
+              "duration": 35900
             }
           },
           {
@@ -3289,11 +4818,11 @@
             "line": 35,
             "name": "I should see \"production\" marked as active",
             "match": {
-              "location": "features\\step_definitions\\registry_steps.js:78"
+              "location": "features\\step_definitions\\registry_steps.js:81"
             },
             "result": {
               "status": "passed",
-              "duration": 111300
+              "duration": 112999
             }
           },
           {
@@ -3301,7 +4830,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 33600
+              "duration": 31400
             }
           },
           {
@@ -3309,7 +4838,15 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 417300
+              "duration": 316200
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 28499
             }
           }
         ],
@@ -3328,7 +4865,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 17500
+              "duration": 7999
             }
           },
           {
@@ -3341,7 +4878,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 109000
+              "duration": 103900
             }
           },
           {
@@ -3350,11 +4887,11 @@
             "line": 8,
             "name": "I have a clean config file",
             "match": {
-              "location": "features\\step_definitions\\registry_steps.js:8"
+              "location": "features\\step_definitions\\registry_steps.js:11"
             },
             "result": {
               "status": "passed",
-              "duration": 814200
+              "duration": 272299
             }
           },
           {
@@ -3363,11 +4900,11 @@
             "line": 38,
             "name": "I have a registry \"production\" configured at \"https://registry.example.com\"",
             "match": {
-              "location": "features\\step_definitions\\registry_steps.js:21"
+              "location": "features\\step_definitions\\registry_steps.js:24"
             },
             "result": {
               "status": "passed",
-              "duration": 51084199
+              "duration": 49997699
             }
           },
           {
@@ -3376,11 +4913,11 @@
             "line": 39,
             "name": "I have a registry \"staging\" configured at \"https://staging.example.com\"",
             "match": {
-              "location": "features\\step_definitions\\registry_steps.js:21"
+              "location": "features\\step_definitions\\registry_steps.js:24"
             },
             "result": {
               "status": "passed",
-              "duration": 51272800
+              "duration": 52606399
             }
           },
           {
@@ -3389,11 +4926,11 @@
             "line": 40,
             "name": "\"staging\" is the active registry",
             "match": {
-              "location": "features\\step_definitions\\registry_steps.js:30"
+              "location": "features\\step_definitions\\registry_steps.js:33"
             },
             "result": {
               "status": "passed",
-              "duration": 54890700
+              "duration": 53350899
             }
           },
           {
@@ -3406,7 +4943,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 51644399
+              "duration": 53114800
             }
           },
           {
@@ -3415,11 +4952,11 @@
             "line": 42,
             "name": "I should see both registries in the list",
             "match": {
-              "location": "features\\step_definitions\\registry_steps.js:89"
+              "location": "features\\step_definitions\\registry_steps.js:92"
             },
             "result": {
               "status": "passed",
-              "duration": 138100
+              "duration": 220000
             }
           },
           {
@@ -3428,11 +4965,11 @@
             "line": 43,
             "name": "I should see \"staging\" marked as active",
             "match": {
-              "location": "features\\step_definitions\\registry_steps.js:78"
+              "location": "features\\step_definitions\\registry_steps.js:81"
             },
             "result": {
               "status": "passed",
-              "duration": 97200
+              "duration": 99599
             }
           },
           {
@@ -3441,11 +4978,11 @@
             "line": 44,
             "name": "I should not see \"production\" marked as active",
             "match": {
-              "location": "features\\step_definitions\\registry_steps.js:84"
+              "location": "features\\step_definitions\\registry_steps.js:87"
             },
             "result": {
               "status": "passed",
-              "duration": 74299
+              "duration": 72799
             }
           },
           {
@@ -3453,7 +4990,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 31300
+              "duration": 34200
             }
           },
           {
@@ -3461,7 +4998,15 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 401899
+              "duration": 325899
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 26199
             }
           }
         ],
@@ -3480,7 +5025,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 12099
+              "duration": 10099
             }
           },
           {
@@ -3493,7 +5038,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 102900
+              "duration": 101799
             }
           },
           {
@@ -3502,11 +5047,11 @@
             "line": 8,
             "name": "I have a clean config file",
             "match": {
-              "location": "features\\step_definitions\\registry_steps.js:8"
+              "location": "features\\step_definitions\\registry_steps.js:11"
             },
             "result": {
               "status": "passed",
-              "duration": 839500
+              "duration": 254199
             }
           },
           {
@@ -3515,11 +5060,11 @@
             "line": 47,
             "name": "I have a registry \"production\" configured at \"https://registry.example.com\"",
             "match": {
-              "location": "features\\step_definitions\\registry_steps.js:21"
+              "location": "features\\step_definitions\\registry_steps.js:24"
             },
             "result": {
               "status": "passed",
-              "duration": 53152100
+              "duration": 51989099
             }
           },
           {
@@ -3528,11 +5073,11 @@
             "line": 48,
             "name": "I have a registry \"staging\" configured at \"https://staging.example.com\"",
             "match": {
-              "location": "features\\step_definitions\\registry_steps.js:21"
+              "location": "features\\step_definitions\\registry_steps.js:24"
             },
             "result": {
               "status": "passed",
-              "duration": 50857500
+              "duration": 53815200
             }
           },
           {
@@ -3541,11 +5086,11 @@
             "line": 49,
             "name": "\"production\" is the active registry",
             "match": {
-              "location": "features\\step_definitions\\registry_steps.js:30"
+              "location": "features\\step_definitions\\registry_steps.js:33"
             },
             "result": {
               "status": "passed",
-              "duration": 55432099
+              "duration": 57133899
             }
           },
           {
@@ -3558,7 +5103,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 50861599
+              "duration": 53157799
             }
           },
           {
@@ -3571,7 +5116,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 111100
+              "duration": 106199
             }
           },
           {
@@ -3580,11 +5125,11 @@
             "line": 52,
             "name": "\"staging\" should be the current active registry",
             "match": {
-              "location": "features\\step_definitions\\registry_steps.js:47"
+              "location": "features\\step_definitions\\registry_steps.js:50"
             },
             "result": {
               "status": "passed",
-              "duration": 247200
+              "duration": 272799
             }
           },
           {
@@ -3592,7 +5137,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 19700
+              "duration": 21099
             }
           },
           {
@@ -3600,7 +5145,15 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 331299
+              "duration": 265100
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 26499
             }
           }
         ],
@@ -3619,7 +5172,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 10700
+              "duration": 8200
             }
           },
           {
@@ -3632,7 +5185,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 103300
+              "duration": 103900
             }
           },
           {
@@ -3641,11 +5194,11 @@
             "line": 8,
             "name": "I have a clean config file",
             "match": {
-              "location": "features\\step_definitions\\registry_steps.js:8"
+              "location": "features\\step_definitions\\registry_steps.js:11"
             },
             "result": {
               "status": "passed",
-              "duration": 1446299
+              "duration": 322400
             }
           },
           {
@@ -3654,11 +5207,11 @@
             "line": 55,
             "name": "I have a registry \"production\" configured at \"https://registry.example.com\"",
             "match": {
-              "location": "features\\step_definitions\\registry_steps.js:21"
+              "location": "features\\step_definitions\\registry_steps.js:24"
             },
             "result": {
               "status": "passed",
-              "duration": 52652799
+              "duration": 50881899
             }
           },
           {
@@ -3667,11 +5220,11 @@
             "line": 56,
             "name": "I have a registry \"staging\" configured at \"https://staging.example.com\"",
             "match": {
-              "location": "features\\step_definitions\\registry_steps.js:21"
+              "location": "features\\step_definitions\\registry_steps.js:24"
             },
             "result": {
               "status": "passed",
-              "duration": 51599899
+              "duration": 56210000
             }
           },
           {
@@ -3680,11 +5233,11 @@
             "line": 57,
             "name": "\"staging\" is the active registry",
             "match": {
-              "location": "features\\step_definitions\\registry_steps.js:30"
+              "location": "features\\step_definitions\\registry_steps.js:33"
             },
             "result": {
               "status": "passed",
-              "duration": 53413700
+              "duration": 53496899
             }
           },
           {
@@ -3697,7 +5250,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 54029799
+              "duration": 54311099
             }
           },
           {
@@ -3710,7 +5263,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 109300
+              "duration": 131100
             }
           },
           {
@@ -3719,11 +5272,11 @@
             "line": 60,
             "name": "\"staging\" should remain the active registry",
             "match": {
-              "location": "features\\step_definitions\\registry_steps.js:57"
+              "location": "features\\step_definitions\\registry_steps.js:60"
             },
             "result": {
               "status": "passed",
-              "duration": 897699
+              "duration": 326500
             }
           },
           {
@@ -3732,11 +5285,11 @@
             "line": 61,
             "name": "the config should not contain registry \"production\"",
             "match": {
-              "location": "features\\step_definitions\\registry_steps.js:67"
+              "location": "features\\step_definitions\\registry_steps.js:70"
             },
             "result": {
               "status": "passed",
-              "duration": 232100
+              "duration": 329299
             }
           },
           {
@@ -3744,7 +5297,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 19299
+              "duration": 27400
             }
           },
           {
@@ -3752,7 +5305,15 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 284900
+              "duration": 825299
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 28200
             }
           }
         ],
@@ -3771,7 +5332,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 19800
+              "duration": 7900
             }
           },
           {
@@ -3784,7 +5345,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 98100
+              "duration": 120300
             }
           },
           {
@@ -3793,11 +5354,11 @@
             "line": 8,
             "name": "I have a clean config file",
             "match": {
-              "location": "features\\step_definitions\\registry_steps.js:8"
+              "location": "features\\step_definitions\\registry_steps.js:11"
             },
             "result": {
               "status": "passed",
-              "duration": 613899
+              "duration": 279199
             }
           },
           {
@@ -3806,11 +5367,11 @@
             "line": 64,
             "name": "I have a registry \"production\" configured at \"https://registry.example.com\"",
             "match": {
-              "location": "features\\step_definitions\\registry_steps.js:21"
+              "location": "features\\step_definitions\\registry_steps.js:24"
             },
             "result": {
               "status": "passed",
-              "duration": 52890199
+              "duration": 51180100
             }
           },
           {
@@ -3819,11 +5380,11 @@
             "line": 65,
             "name": "I have a registry \"staging\" configured at \"https://staging.example.com\"",
             "match": {
-              "location": "features\\step_definitions\\registry_steps.js:21"
+              "location": "features\\step_definitions\\registry_steps.js:24"
             },
             "result": {
               "status": "passed",
-              "duration": 50826999
+              "duration": 52567399
             }
           },
           {
@@ -3832,11 +5393,11 @@
             "line": 66,
             "name": "\"staging\" is the active registry",
             "match": {
-              "location": "features\\step_definitions\\registry_steps.js:30"
+              "location": "features\\step_definitions\\registry_steps.js:33"
             },
             "result": {
               "status": "passed",
-              "duration": 51606200
+              "duration": 50300500
             }
           },
           {
@@ -3849,7 +5410,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 53504199
+              "duration": 53112100
             }
           },
           {
@@ -3862,7 +5423,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 94399
+              "duration": 230499
             }
           },
           {
@@ -3871,11 +5432,11 @@
             "line": 69,
             "name": "I should see a warning about setting a new active registry",
             "match": {
-              "location": "features\\step_definitions\\registry_steps.js:102"
+              "location": "features\\step_definitions\\registry_steps.js:105"
             },
             "result": {
               "status": "passed",
-              "duration": 122800
+              "duration": 137499
             }
           },
           {
@@ -3884,11 +5445,11 @@
             "line": 70,
             "name": "no registry should be active",
             "match": {
-              "location": "features\\step_definitions\\registry_steps.js:62"
+              "location": "features\\step_definitions\\registry_steps.js:65"
             },
             "result": {
               "status": "passed",
-              "duration": 325499
+              "duration": 321899
             }
           },
           {
@@ -3896,7 +5457,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 26600
+              "duration": 27700
             }
           },
           {
@@ -3904,7 +5465,15 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 540699
+              "duration": 324099
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 27000
             }
           }
         ],
@@ -3923,7 +5492,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 9799
+              "duration": 8700
             }
           },
           {
@@ -3936,7 +5505,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 98199
+              "duration": 99199
             }
           },
           {
@@ -3945,11 +5514,11 @@
             "line": 8,
             "name": "I have a clean config file",
             "match": {
-              "location": "features\\step_definitions\\registry_steps.js:8"
+              "location": "features\\step_definitions\\registry_steps.js:11"
             },
             "result": {
               "status": "passed",
-              "duration": 690200
+              "duration": 265999
             }
           },
           {
@@ -3962,7 +5531,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 55341599
+              "duration": 54212800
             }
           },
           {
@@ -3971,11 +5540,11 @@
             "line": 74,
             "name": "I should see an error about registry not found",
             "match": {
-              "location": "features\\step_definitions\\registry_steps.js:97"
+              "location": "features\\step_definitions\\registry_steps.js:100"
             },
             "result": {
               "status": "passed",
-              "duration": 175700
+              "duration": 189399
             }
           },
           {
@@ -3988,7 +5557,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 47900
+              "duration": 27199
             }
           },
           {
@@ -3996,7 +5565,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 27999
+              "duration": 28699
             }
           },
           {
@@ -4004,7 +5573,15 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 435300
+              "duration": 174299
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 27200
             }
           }
         ],
@@ -4023,7 +5600,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 11600
+              "duration": 9200
             }
           },
           {
@@ -4036,7 +5613,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 103100
+              "duration": 101000
             }
           },
           {
@@ -4045,11 +5622,11 @@
             "line": 8,
             "name": "I have a clean config file",
             "match": {
-              "location": "features\\step_definitions\\registry_steps.js:8"
+              "location": "features\\step_definitions\\registry_steps.js:11"
             },
             "result": {
               "status": "passed",
-              "duration": 777000
+              "duration": 197400
             }
           },
           {
@@ -4058,11 +5635,11 @@
             "line": 78,
             "name": "I have a registry \"production\" configured at \"https://registry.example.com\"",
             "match": {
-              "location": "features\\step_definitions\\registry_steps.js:21"
+              "location": "features\\step_definitions\\registry_steps.js:24"
             },
             "result": {
               "status": "passed",
-              "duration": 49884500
+              "duration": 51143099
             }
           },
           {
@@ -4075,7 +5652,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 55421299
+              "duration": 57861200
             }
           },
           {
@@ -4088,7 +5665,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 106200
+              "duration": 99299
             }
           },
           {
@@ -4097,11 +5674,11 @@
             "line": 81,
             "name": "the config should contain registry \"production\" with URL \"https://different.example.com\"",
             "match": {
-              "location": "features\\step_definitions\\registry_steps.js:35"
+              "location": "features\\step_definitions\\registry_steps.js:38"
             },
             "result": {
               "status": "passed",
-              "duration": 355700
+              "duration": 406699
             }
           },
           {
@@ -4109,7 +5686,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 30600
+              "duration": 34199
             }
           },
           {
@@ -4117,7 +5694,15 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 306100
+              "duration": 342500
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 27399
             }
           }
         ],

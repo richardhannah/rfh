@@ -221,3 +221,6 @@ Then('the {string} directory should exist', async function (dirPath) {
   const exists = await this.directoryExists(dirPath);
   expect(exists, `Directory ${dirPath} should exist`).to.be.true;
 });
+
+// Import shared helper functions
+require('./helpers');

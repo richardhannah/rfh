@@ -2,6 +2,9 @@ const { Given, When, Then } = require('@cucumber/cucumber');
 const { expect } = require('chai');
 const fs = require('fs-extra');
 const path = require('path');
+
+// Import shared helper functions
+require('./helpers');
 const os = require('os');
 
 // Config management steps

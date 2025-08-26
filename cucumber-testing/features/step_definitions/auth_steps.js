@@ -4,6 +4,9 @@ const fs = require('fs-extra');
 const path = require('path');
 const { spawn } = require('child_process');
 
+// Import shared helper functions
+const { runCommand, runCommandInDirectory } = require('./helpers');
+
 // Auth-specific step definitions for user registration testing
 
 // Basic test for command availability
@@ -104,7 +107,7 @@ Given('I have a config with current registry {string}', async function (registry
 
 // Simple test helper that focuses on error cases that don't require interactive input
 async function runAuthRegisterTest() {
-  const rfhPath = path.resolve(process.cwd(), '../dist/rfh.exe');
+  const rfhPath = path.resolve(__dirname, '../../../dist/rfh.exe');
   const configPath = this.configPath;
   
   return new Promise((resolve) => {
@@ -153,7 +156,7 @@ async function runAuthRegisterTest() {
 
 // Simple test helper for auth login command 
 async function runAuthLoginTest() {
-  const rfhPath = path.resolve(process.cwd(), '../dist/rfh.exe');
+  const rfhPath = path.resolve(__dirname, '../../../dist/rfh.exe');
   const configPath = this.configPath;
   
   return new Promise((resolve) => {
@@ -202,7 +205,7 @@ async function runAuthLoginTest() {
 
 // Helper function for non-interactive auth login with credentials
 async function runAuthLoginWithCredentials(username, password) {
-  const rfhPath = path.resolve(process.cwd(), '../dist/rfh.exe');
+  const rfhPath = path.resolve(__dirname, '../../../dist/rfh.exe');
   const configPath = this.configPath;
   
   return new Promise((resolve) => {
@@ -253,7 +256,7 @@ async function runAuthLoginWithCredentials(username, password) {
 
 // Helper function for non-interactive auth register with credentials
 async function runAuthRegisterWithCredentials(username, email, password) {
-  const rfhPath = path.resolve(process.cwd(), '../dist/rfh.exe');
+  const rfhPath = path.resolve(__dirname, '../../../dist/rfh.exe');
   const configPath = this.configPath;
   
   return new Promise((resolve) => {
@@ -303,9 +306,14 @@ async function runAuthRegisterWithCredentials(username, email, password) {
   });
 }
 
-// Attach the helper functions to the world context  
+// Attach ALL helper functions to the world context (both shared and auth-specific)
 require('@cucumber/cucumber').setDefinitionFunctionWrapper(function(fn) {
   return function(...args) {
+    // Shared command execution functions
+    this.runCommand = runCommand.bind(this);
+    this.runCommandInDirectory = runCommandInDirectory.bind(this);
+    
+    // Auth-specific functions
     this.runAuthRegisterTest = runAuthRegisterTest.bind(this);
     this.runAuthLoginTest = runAuthLoginTest.bind(this);
     this.runAuthLoginWithCredentials = runAuthLoginWithCredentials.bind(this);
