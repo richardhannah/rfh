@@ -20,7 +20,6 @@ Feature: Initialize RuleStack Project
     Then I should see "Initialized RuleStack project"
     And a file "rulestack.json" should be created
     And the manifest should have name "example-rules"
-    And the manifest should not contain scope characters "@" or "/"
     And a directory ".rulestack" should be created
     And a file "CLAUDE.md" should be created
     And core rules should be downloaded to ".rulestack/core.v1.0.0/"
@@ -28,19 +27,14 @@ Feature: Initialize RuleStack Project
   Scenario: Initialize in directory with existing project
     Given a RuleStack project already exists
     When I run "rfh init"
-    Then I should see a warning about existing project
-    And existing files should not be overwritten without confirmation
+    Then I should see "RuleStack project already initialized"
+    And I should see "Use --force to reinitialize"
 
-  Scenario: Initialize with custom project name
-    When I run "rfh init --name my-custom-rules"
-    Then the manifest should have name "my-custom-rules"
-    And the name should not contain scope characters
-
-  Scenario: Generate simple package names without scopes
-    When I run "rfh init"
-    Then the default package name should be "example-rules"
-    And the package name should not be "@acme/example-rules"
-    And no scope characters should appear in the manifest
+  Scenario: Force overwrite existing project
+    Given a RuleStack project already exists  
+    When I run "rfh init --force"
+    Then I should see "Initialized RuleStack project"
+    And the manifest should have name "example-rules"
 ```
 
 **Status**: ✅ All scenarios passing

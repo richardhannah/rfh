@@ -5,7 +5,9 @@
   "main": "index.js",
   "scripts": {
     "test": "cucumber-js",
-    "test:init": "cucumber-js features/init-*.feature"
+    "test:init": "cucumber-js features/init-*.feature",
+    "test:working": "cucumber-js features/init-actual-behavior.feature",
+    "test:actual": "cucumber-js features/init-actual-behavior.feature --format progress"
   },
   "keywords": [],
   "author": "",

@@ -1,20 +1,20 @@
 [
   {
-    "description": "  As a developer\n  I want to test the actual current behavior of rfh init\n  So that I can validate what currently works",
+    "description": "  As a developer\n  I want to initialize a new RuleStack project in an empty directory\n  So that I can start creating and managing rule packages",
     "elements": [
       {
         "description": "",
-        "id": "rfh-init---actual-current-behavior;verify-available-flags-match-help-output",
+        "id": "initialize-rfh-project-in-empty-directory;basic-initialization-works-correctly",
         "keyword": "Scenario",
-        "line": 33,
-        "name": "Verify available flags match help output",
+        "line": 10,
+        "name": "Basic initialization works correctly",
         "steps": [
           {
             "keyword": "Before",
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 600099
+              "duration": 639799
             }
           },
           {
@@ -27,7 +27,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 790300
+              "duration": 1016800
             }
           },
           {
@@ -40,55 +40,733 @@
             },
             "result": {
               "status": "passed",
-              "duration": 305900
+              "duration": 331700
             }
           },
           {
             "arguments": [],
             "keyword": "When ",
-            "line": 34,
+            "line": 11,
+            "name": "I run \"rfh init\"",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:17"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 56937099
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 12,
+            "name": "I should see \"Initialized RuleStack project\"",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:32"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 532600
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 13,
+            "name": "a file \"rulestack.json\" should be created",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:62"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 300700
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 14,
+            "name": "the default package name should be \"example-rules\"",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:91"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 704600
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 15,
+            "name": "a directory \".rulestack\" should be created",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:72"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 361899
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 16,
+            "name": "a file \"CLAUDE.md\" should be created",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:62"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 183699
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 17,
+            "name": "core rules should be downloaded to \".rulestack/core.v1.0.0\"",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:130"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 228099
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 2136500
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 131100
+            }
+          }
+        ],
+        "tags": [],
+        "type": "scenario"
+      },
+      {
+        "description": "",
+        "id": "initialize-rfh-project-in-empty-directory;verify-manifest-structure",
+        "keyword": "Scenario",
+        "line": 19,
+        "name": "Verify manifest structure",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 21500
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 7,
+            "name": "I am in an empty directory",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:6"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 367899
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 8,
+            "name": "RFH is installed and accessible",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:10"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 117000
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 20,
+            "name": "I run \"rfh init\"",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:17"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 51419000
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 21,
+            "name": "the \"rulestack.json\" file should be valid JSON",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:109"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 740899
+            }
+          },
+          {
+            "arguments": [
+              {
+                "rows": [
+                  {
+                    "cells": [
+                      "field",
+                      "value"
+                    ]
+                  },
+                  {
+                    "cells": [
+                      "name",
+                      "example-rules"
+                    ]
+                  },
+                  {
+                    "cells": [
+                      "version",
+                      "0.1.0"
+                    ]
+                  },
+                  {
+                    "cells": [
+                      "description",
+                      "Example AI ruleset"
+                    ]
+                  }
+                ]
+              }
+            ],
+            "keyword": "And ",
+            "line": 22,
+            "name": "the manifest should contain:",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:114"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 402800
+            }
+          },
+          {
+            "arguments": [
+              {
+                "content": "{\n  \"name\": \"example-rules\",\n  \"version\": \"0.1.0\",\n  \"description\": \"Example AI ruleset\",\n  \"targets\": [\"cursor\"],\n  \"tags\": [\"example\", \"starter\"],\n  \"files\": [\"*.md\"],\n  \"license\": \"MIT\"\n}",
+                "line": 28
+              }
+            ],
+            "keyword": "And ",
+            "line": 27,
+            "name": "the manifest should have the following structure:",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:202"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 320299
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 1465000
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 41999
+            }
+          }
+        ],
+        "tags": [],
+        "type": "scenario"
+      },
+      {
+        "description": "",
+        "id": "initialize-rfh-project-in-empty-directory;verify-directory-structure-after-init",
+        "keyword": "Scenario",
+        "line": 40,
+        "name": "Verify directory structure after init",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 18699
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 7,
+            "name": "I am in an empty directory",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:6"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 365299
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 8,
+            "name": "RFH is installed and accessible",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:10"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 117200
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 41,
+            "name": "I run \"rfh init\"",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:17"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 50887500
+            }
+          },
+          {
+            "arguments": [
+              {
+                "rows": [
+                  {
+                    "cells": [
+                      "path",
+                      "type"
+                    ]
+                  },
+                  {
+                    "cells": [
+                      "rulestack.json",
+                      "file"
+                    ]
+                  },
+                  {
+                    "cells": [
+                      "CLAUDE.md",
+                      "file"
+                    ]
+                  },
+                  {
+                    "cells": [
+                      ".rulestack/",
+                      "directory"
+                    ]
+                  },
+                  {
+                    "cells": [
+                      ".rulestack/core.v1.0.0/",
+                      "directory"
+                    ]
+                  },
+                  {
+                    "cells": [
+                      ".rulestack/core.v1.0.0/core_rules.md",
+                      "file"
+                    ]
+                  }
+                ]
+              }
+            ],
+            "keyword": "Then ",
+            "line": 42,
+            "name": "the following files and directories should exist:",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:172"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 423000
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 1488400
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 43499
+            }
+          }
+        ],
+        "tags": [],
+        "type": "scenario"
+      },
+      {
+        "description": "",
+        "id": "initialize-rfh-project-in-empty-directory;verify-command-help-output",
+        "keyword": "Scenario",
+        "line": 50,
+        "name": "Verify command help output",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 13599
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 7,
+            "name": "I am in an empty directory",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:6"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 283099
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 8,
+            "name": "RFH is installed and accessible",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:10"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 105100
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 51,
             "name": "I run \"rfh init --help\"",
             "match": {
               "location": "features\\step_definitions\\init_steps.js:17"
             },
             "result": {
               "status": "passed",
-              "duration": 56667300
+              "duration": 50319800
             }
           },
           {
             "arguments": [],
             "keyword": "Then ",
-            "line": 35,
+            "line": 52,
             "name": "I should see \"force\"",
             "match": {
               "location": "features\\step_definitions\\init_steps.js:32"
             },
             "result": {
               "status": "passed",
-              "duration": 543099
+              "duration": 129000
             }
           },
           {
             "arguments": [],
             "keyword": "And ",
-            "line": 36,
+            "line": 53,
             "name": "I should see \"help\"",
             "match": {
               "location": "features\\step_definitions\\init_steps.js:32"
             },
             "result": {
               "status": "passed",
-              "duration": 97499
+              "duration": 72699
             }
           },
           {
             "arguments": [],
             "keyword": "And ",
-            "line": 37,
+            "line": 54,
             "name": "I should not see \"name\"",
             "match": {
               "location": "features\\step_definitions\\init_steps.js:37"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 103500
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 55,
+            "name": "I should not see \"migrate\"",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:37"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 100799
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 572199
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 35799
+            }
+          }
+        ],
+        "tags": [],
+        "type": "scenario"
+      },
+      {
+        "description": "",
+        "id": "initialize-rfh-project-in-empty-directory;verify-success-message-format",
+        "keyword": "Scenario",
+        "line": 57,
+        "name": "Verify success message format",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 12200
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 7,
+            "name": "I am in an empty directory",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:6"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 384199
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 8,
+            "name": "RFH is installed and accessible",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:10"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 107399
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 58,
+            "name": "I run \"rfh init\"",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:17"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 52909499
+            }
+          },
+          {
+            "arguments": [
+              {
+                "rows": [
+                  {
+                    "cells": [
+                      "message"
+                    ]
+                  },
+                  {
+                    "cells": [
+                      "✅ Initialized RuleStack project"
+                    ]
+                  },
+                  {
+                    "cells": [
+                      "📁 Created:"
+                    ]
+                  },
+                  {
+                    "cells": [
+                      "rulestack.json (package manifest)"
+                    ]
+                  },
+                  {
+                    "cells": [
+                      "CLAUDE.md (Claude Code integration)"
+                    ]
+                  },
+                  {
+                    "cells": [
+                      ".rulestack/ (dependency directory)"
+                    ]
+                  },
+                  {
+                    "cells": [
+                      "🚀 Next steps:"
+                    ]
+                  }
+                ]
+              }
+            ],
+            "keyword": "Then ",
+            "line": 59,
+            "name": "I should see output containing:",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:165"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 330100
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 1421500
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 74099
+            }
+          }
+        ],
+        "tags": [],
+        "type": "scenario"
+      }
+    ],
+    "id": "initialize-rfh-project-in-empty-directory",
+    "line": 1,
+    "keyword": "Feature",
+    "name": "Initialize RFH project in empty directory",
+    "tags": [],
+    "uri": "features\\init-empty-directory.feature"
+  },
+  {
+    "description": "  As a developer\n  I want to understand how RFH init behaves with existing files\n  So that I can work with existing projects correctly",
+    "elements": [
+      {
+        "description": "",
+        "id": "initialize-rfh-project-with-existing-files;initialize-in-directory-with-existing-rulestack.json",
+        "keyword": "Scenario",
+        "line": 10,
+        "name": "Initialize in directory with existing rulestack.json",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 9099
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 7,
+            "name": "I am in an empty directory",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:6"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 292599
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 8,
+            "name": "RFH is installed and accessible",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:10"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 95199
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 11,
+            "name": "a file \"rulestack.json\" already exists",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:141"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 647800
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 12,
+            "name": "I run \"rfh init\"",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:17"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 47856400
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 13,
+            "name": "I should see \"RuleStack project already initialized\"",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:32"
             },
             "result": {
               "status": "passed",
@@ -98,14 +776,27 @@
           {
             "arguments": [],
             "keyword": "And ",
-            "line": 38,
-            "name": "I should not see \"migrate\"",
+            "line": 14,
+            "name": "I should see \"Use --force to reinitialize\"",
             "match": {
-              "location": "features\\step_definitions\\init_steps.js:37"
+              "location": "features\\step_definitions\\init_steps.js:32"
             },
             "result": {
               "status": "passed",
-              "duration": 66599
+              "duration": 36600
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 15,
+            "name": "the existing \"rulestack.json\" should not be overwritten",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:124"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 195600
             }
           },
           {
@@ -113,7 +804,280 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 907800
+              "duration": 716600
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 180399
+            }
+          }
+        ],
+        "tags": [],
+        "type": "scenario"
+      },
+      {
+        "description": "",
+        "id": "initialize-rfh-project-with-existing-files;force-flag-overwrites-existing-project",
+        "keyword": "Scenario",
+        "line": 17,
+        "name": "Force flag overwrites existing project",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 9800
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 7,
+            "name": "I am in an empty directory",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:6"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 303999
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 8,
+            "name": "RFH is installed and accessible",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:10"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 95100
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 18,
+            "name": "a file \"rulestack.json\" already exists",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:141"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 309799
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 19,
+            "name": "I run \"rfh init --force\"",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:17"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 52985399
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 20,
+            "name": "I should see \"Initialized RuleStack project\"",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:32"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 102099
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 21,
+            "name": "the manifest should have name \"example-rules\"",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:78"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 329100
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 22,
+            "name": "a file \"CLAUDE.md\" should be created",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:62"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 103599
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 23,
+            "name": "a directory \".rulestack\" should be created",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:72"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 132799
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 1479399
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 31100
+            }
+          }
+        ],
+        "tags": [],
+        "type": "scenario"
+      },
+      {
+        "description": "",
+        "id": "initialize-rfh-project-with-existing-files;initialize-with-existing-claude.md-file",
+        "keyword": "Scenario",
+        "line": 25,
+        "name": "Initialize with existing CLAUDE.md file",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 8400
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 7,
+            "name": "I am in an empty directory",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:6"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 276100
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 8,
+            "name": "RFH is installed and accessible",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:10"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 92800
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 26,
+            "name": "a file \"CLAUDE.md\" already exists",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:141"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 442599
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 27,
+            "name": "I run \"rfh init\"",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:17"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 52667599
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 28,
+            "name": "I should see \"Initialized RuleStack project\"",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:32"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 96999
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 29,
+            "name": "a file \"rulestack.json\" should be created",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:62"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 145399
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 30,
+            "name": "a directory \".rulestack\" should be created",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:72"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 188400
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 1051400
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 24099
             }
           }
         ],
@@ -121,11 +1085,1408 @@
         "type": "scenario"
       }
     ],
-    "id": "rfh-init---actual-current-behavior",
+    "id": "initialize-rfh-project-with-existing-files",
     "line": 1,
     "keyword": "Feature",
-    "name": "RFH Init - Actual Current Behavior",
+    "name": "Initialize RFH project with existing files",
     "tags": [],
-    "uri": "features\\init-actual-behavior.feature"
+    "uri": "features\\init-existing-project.feature"
+  },
+  {
+    "description": "  As a developer\n  I want to manage multiple registry configurations\n  So that I can work with different package repositories",
+    "elements": [
+      {
+        "description": "",
+        "id": "registry-management;add-first-registry",
+        "keyword": "Scenario",
+        "line": 10,
+        "name": "Add first registry",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 10600
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 7,
+            "name": "RFH is installed and accessible",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:10"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 152500
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 8,
+            "name": "I have a clean config file",
+            "match": {
+              "location": "features\\step_definitions\\registry_steps.js:8"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 1183599
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 11,
+            "name": "I run \"rfh registry add production https://registry.example.com\"",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:17"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 57417100
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 12,
+            "name": "I should see \"Added registry 'production'\"",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:32"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 157000
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 13,
+            "name": "I should see \"Set as active registry\"",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:32"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 48700
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 14,
+            "name": "the config should contain registry \"production\" with URL \"https://registry.example.com\"",
+            "match": {
+              "location": "features\\step_definitions\\registry_steps.js:35"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 419999
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 15,
+            "name": "\"production\" should be the current active registry",
+            "match": {
+              "location": "features\\step_definitions\\registry_steps.js:51"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 225800
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 24600
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 355300
+            }
+          }
+        ],
+        "tags": [],
+        "type": "scenario"
+      },
+      {
+        "description": "",
+        "id": "registry-management;add-additional-registry",
+        "keyword": "Scenario",
+        "line": 17,
+        "name": "Add additional registry",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 147099
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 7,
+            "name": "RFH is installed and accessible",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:10"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 190700
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 8,
+            "name": "I have a clean config file",
+            "match": {
+              "location": "features\\step_definitions\\registry_steps.js:8"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 820600
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 18,
+            "name": "I have a registry \"production\" configured at \"https://registry.example.com\"",
+            "match": {
+              "location": "features\\step_definitions\\registry_steps.js:21"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 53451500
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 19,
+            "name": "I run \"rfh registry add staging https://staging.example.com\"",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:17"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 57365999
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 20,
+            "name": "I should see \"Added registry 'staging'\"",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:32"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 115499
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 21,
+            "name": "the config should contain both registries",
+            "match": {
+              "location": "features\\step_definitions\\registry_steps.js:56"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 384500
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 22,
+            "name": "\"production\" should remain the active registry",
+            "match": {
+              "location": "features\\step_definitions\\registry_steps.js:61"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 251700
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 19700
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 282500
+            }
+          }
+        ],
+        "tags": [],
+        "type": "scenario"
+      },
+      {
+        "description": "",
+        "id": "registry-management;add-registry-with-token",
+        "keyword": "Scenario",
+        "line": 24,
+        "name": "Add registry with token",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 11200
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 7,
+            "name": "RFH is installed and accessible",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:10"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 104100
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 8,
+            "name": "I have a clean config file",
+            "match": {
+              "location": "features\\step_definitions\\registry_steps.js:8"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 1140800
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 25,
+            "name": "I run \"rfh registry add private https://private.example.com my-secret-token\"",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:17"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 55485500
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 26,
+            "name": "I should see \"Added registry 'private'\"",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:32"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 154499
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 27,
+            "name": "the config should contain registry \"private\" with URL \"https://private.example.com\"",
+            "match": {
+              "location": "features\\step_definitions\\registry_steps.js:35"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 407700
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 28,
+            "name": "the config should store the token for \"private\"",
+            "match": {
+              "location": "features\\step_definitions\\registry_steps.js:45"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 277300
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 20600
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 363699
+            }
+          }
+        ],
+        "tags": [],
+        "type": "scenario"
+      },
+      {
+        "description": "",
+        "id": "registry-management;list-registries-when-none-configured",
+        "keyword": "Scenario",
+        "line": 30,
+        "name": "List registries when none configured",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 13800
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 7,
+            "name": "RFH is installed and accessible",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:10"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 149199
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 8,
+            "name": "I have a clean config file",
+            "match": {
+              "location": "features\\step_definitions\\registry_steps.js:8"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 735099
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 31,
+            "name": "I run \"rfh registry list\"",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:17"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 55141900
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 32,
+            "name": "I should see \"No registries configured\"",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:32"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 93999
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 25900
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 448200
+            }
+          }
+        ],
+        "tags": [],
+        "type": "scenario"
+      },
+      {
+        "description": "",
+        "id": "registry-management;list-single-registry",
+        "keyword": "Scenario",
+        "line": 34,
+        "name": "List single registry",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 10800
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 7,
+            "name": "RFH is installed and accessible",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:10"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 111800
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 8,
+            "name": "I have a clean config file",
+            "match": {
+              "location": "features\\step_definitions\\registry_steps.js:8"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 781400
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 35,
+            "name": "I have a registry \"production\" configured at \"https://registry.example.com\"",
+            "match": {
+              "location": "features\\step_definitions\\registry_steps.js:21"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 51122700
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 36,
+            "name": "I run \"rfh registry list\"",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:17"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 50749100
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 37,
+            "name": "I should see \"production\" in the registry list",
+            "match": {
+              "location": "features\\step_definitions\\registry_steps.js:77"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 183999
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 38,
+            "name": "I should see \"https://registry.example.com\" in the registry list",
+            "match": {
+              "location": "features\\step_definitions\\registry_steps.js:77"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 38999
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 39,
+            "name": "I should see \"production\" marked as active",
+            "match": {
+              "location": "features\\step_definitions\\registry_steps.js:82"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 117999
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 36399
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 469699
+            }
+          }
+        ],
+        "tags": [],
+        "type": "scenario"
+      },
+      {
+        "description": "",
+        "id": "registry-management;list-multiple-registries",
+        "keyword": "Scenario",
+        "line": 41,
+        "name": "List multiple registries",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 10199
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 7,
+            "name": "RFH is installed and accessible",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:10"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 108400
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 8,
+            "name": "I have a clean config file",
+            "match": {
+              "location": "features\\step_definitions\\registry_steps.js:8"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 785200
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 42,
+            "name": "I have a registry \"production\" configured at \"https://registry.example.com\"",
+            "match": {
+              "location": "features\\step_definitions\\registry_steps.js:21"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 52226599
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 43,
+            "name": "I have a registry \"staging\" configured at \"https://staging.example.com\"",
+            "match": {
+              "location": "features\\step_definitions\\registry_steps.js:21"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 54272099
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 44,
+            "name": "\"staging\" is the active registry",
+            "match": {
+              "location": "features\\step_definitions\\registry_steps.js:30"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 53522699
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 45,
+            "name": "I run \"rfh registry list\"",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:17"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 49731099
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 46,
+            "name": "I should see both registries in the list",
+            "match": {
+              "location": "features\\step_definitions\\registry_steps.js:93"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 125400
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 47,
+            "name": "I should see \"staging\" marked as active",
+            "match": {
+              "location": "features\\step_definitions\\registry_steps.js:82"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 97800
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 48,
+            "name": "I should not see \"production\" marked as active",
+            "match": {
+              "location": "features\\step_definitions\\registry_steps.js:88"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 79899
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 27499
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 377499
+            }
+          }
+        ],
+        "tags": [],
+        "type": "scenario"
+      },
+      {
+        "description": "",
+        "id": "registry-management;switch-active-registry",
+        "keyword": "Scenario",
+        "line": 50,
+        "name": "Switch active registry",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 6700
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 7,
+            "name": "RFH is installed and accessible",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:10"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 98300
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 8,
+            "name": "I have a clean config file",
+            "match": {
+              "location": "features\\step_definitions\\registry_steps.js:8"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 805799
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 51,
+            "name": "I have a registry \"production\" configured at \"https://registry.example.com\"",
+            "match": {
+              "location": "features\\step_definitions\\registry_steps.js:21"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 49052899
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 52,
+            "name": "I have a registry \"staging\" configured at \"https://staging.example.com\"",
+            "match": {
+              "location": "features\\step_definitions\\registry_steps.js:21"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 55254200
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 53,
+            "name": "\"production\" is the active registry",
+            "match": {
+              "location": "features\\step_definitions\\registry_steps.js:30"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 51733199
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 54,
+            "name": "I run \"rfh registry use staging\"",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:17"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 52554200
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 55,
+            "name": "I should see \"Set 'staging' as active registry\"",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:32"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 97599
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 56,
+            "name": "\"staging\" should be the current active registry",
+            "match": {
+              "location": "features\\step_definitions\\registry_steps.js:51"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 310299
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 23799
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 319900
+            }
+          }
+        ],
+        "tags": [],
+        "type": "scenario"
+      },
+      {
+        "description": "",
+        "id": "registry-management;remove-non-active-registry",
+        "keyword": "Scenario",
+        "line": 58,
+        "name": "Remove non-active registry",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 6799
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 7,
+            "name": "RFH is installed and accessible",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:10"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 93499
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 8,
+            "name": "I have a clean config file",
+            "match": {
+              "location": "features\\step_definitions\\registry_steps.js:8"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 711900
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 59,
+            "name": "I have a registry \"production\" configured at \"https://registry.example.com\"",
+            "match": {
+              "location": "features\\step_definitions\\registry_steps.js:21"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 49102799
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 60,
+            "name": "I have a registry \"staging\" configured at \"https://staging.example.com\"",
+            "match": {
+              "location": "features\\step_definitions\\registry_steps.js:21"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 47043799
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 61,
+            "name": "\"staging\" is the active registry",
+            "match": {
+              "location": "features\\step_definitions\\registry_steps.js:30"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 48391100
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 62,
+            "name": "I run \"rfh registry remove production\"",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:17"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 53085699
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 63,
+            "name": "I should see \"Removed registry 'production'\"",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:32"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 135199
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 64,
+            "name": "\"staging\" should remain the active registry",
+            "match": {
+              "location": "features\\step_definitions\\registry_steps.js:61"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 261799
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 65,
+            "name": "the config should not contain registry \"production\"",
+            "match": {
+              "location": "features\\step_definitions\\registry_steps.js:71"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 345400
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 24299
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 326000
+            }
+          }
+        ],
+        "tags": [],
+        "type": "scenario"
+      },
+      {
+        "description": "",
+        "id": "registry-management;remove-active-registry",
+        "keyword": "Scenario",
+        "line": 67,
+        "name": "Remove active registry",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 9000
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 7,
+            "name": "RFH is installed and accessible",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:10"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 99600
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 8,
+            "name": "I have a clean config file",
+            "match": {
+              "location": "features\\step_definitions\\registry_steps.js:8"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 702399
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 68,
+            "name": "I have a registry \"production\" configured at \"https://registry.example.com\"",
+            "match": {
+              "location": "features\\step_definitions\\registry_steps.js:21"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 53068800
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 69,
+            "name": "I have a registry \"staging\" configured at \"https://staging.example.com\"",
+            "match": {
+              "location": "features\\step_definitions\\registry_steps.js:21"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 48116299
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 70,
+            "name": "\"staging\" is the active registry",
+            "match": {
+              "location": "features\\step_definitions\\registry_steps.js:30"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 51122000
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 71,
+            "name": "I run \"rfh registry remove staging\"",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:17"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 56992299
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 72,
+            "name": "I should see \"Removed active registry\"",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:32"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 95600
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 73,
+            "name": "I should see a warning about setting a new active registry",
+            "match": {
+              "location": "features\\step_definitions\\registry_steps.js:106"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 127300
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 74,
+            "name": "no registry should be active",
+            "match": {
+              "location": "features\\step_definitions\\registry_steps.js:66"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 278099
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 24999
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 370499
+            }
+          }
+        ],
+        "tags": [],
+        "type": "scenario"
+      },
+      {
+        "description": "",
+        "id": "registry-management;handle-invalid-registry-operations",
+        "keyword": "Scenario",
+        "line": 76,
+        "name": "Handle invalid registry operations",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 13500
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 7,
+            "name": "RFH is installed and accessible",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:10"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 145499
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 8,
+            "name": "I have a clean config file",
+            "match": {
+              "location": "features\\step_definitions\\registry_steps.js:8"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 2289799
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 77,
+            "name": "I run \"rfh registry use nonexistent\"",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:17"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 54612000
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 78,
+            "name": "I should see an error about registry not found",
+            "match": {
+              "location": "features\\step_definitions\\registry_steps.js:101"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 135899
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 79,
+            "name": "the command should exit with non-zero status",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:57"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 43400
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 23200
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 433700
+            }
+          }
+        ],
+        "tags": [],
+        "type": "scenario"
+      },
+      {
+        "description": "",
+        "id": "registry-management;handle-duplicate-registry-name",
+        "keyword": "Scenario",
+        "line": 81,
+        "name": "Handle duplicate registry name",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 9500
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 7,
+            "name": "RFH is installed and accessible",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:10"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 107400
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 8,
+            "name": "I have a clean config file",
+            "match": {
+              "location": "features\\step_definitions\\registry_steps.js:8"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 993699
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 82,
+            "name": "I have a registry \"production\" configured at \"https://registry.example.com\"",
+            "match": {
+              "location": "features\\step_definitions\\registry_steps.js:21"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 52382200
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 83,
+            "name": "I run \"rfh registry add production https://different.example.com\"",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:17"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 56882000
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 84,
+            "name": "I should see \"Added registry 'production'\"",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:32"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 100699
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 85,
+            "name": "the config should contain registry \"production\" with URL \"https://different.example.com\"",
+            "match": {
+              "location": "features\\step_definitions\\registry_steps.js:35"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 459800
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 27500
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 288700
+            }
+          }
+        ],
+        "tags": [],
+        "type": "scenario"
+      }
+    ],
+    "id": "registry-management",
+    "line": 1,
+    "keyword": "Feature",
+    "name": "Registry Management",
+    "tags": [],
+    "uri": "features\\registry-management.feature"
   }
 ]

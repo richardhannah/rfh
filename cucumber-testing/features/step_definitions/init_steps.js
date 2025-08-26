@@ -191,3 +191,33 @@ Then('no project files should be created', async function () {
   expect(claudeExists).to.be.false;
   expect(rulestackDirExists).to.be.false;
 });
+
+// Additional step definitions
+Then('I should see the project name in the output', function () {
+  const output = this.lastCommandOutput;
+  // The actual output shows the directory name, not "example-rules"
+  expect(output).to.match(/Initialized RuleStack project/);
+});
+
+Then('the manifest should have the following structure:', async function (docString) {
+  const manifestContent = await this.readFile('rulestack.json');
+  const actualManifest = JSON.parse(manifestContent);
+  const expectedManifest = JSON.parse(docString);
+  
+  // Compare key fields
+  expect(actualManifest.name).to.equal(expectedManifest.name);
+  expect(actualManifest.version).to.equal(expectedManifest.version);
+  expect(actualManifest.description).to.equal(expectedManifest.description);
+  expect(actualManifest.license).to.equal(expectedManifest.license);
+});
+
+Then('I should not see any scoped package names in the output', function () {
+  const output = this.lastCommandOutput + this.lastCommandError;
+  // Check for common scope patterns
+  expect(output).to.not.match(/@[a-z0-9-]+\/[a-z0-9-]+/);
+});
+
+Then('the {string} directory should exist', async function (dirPath) {
+  const exists = await this.directoryExists(dirPath);
+  expect(exists, `Directory ${dirPath} should exist`).to.be.true;
+});

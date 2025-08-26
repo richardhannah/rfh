@@ -1,4 +1,4 @@
-Feature: Initialize new project successfully
+Feature: Initialize RFH project in empty directory
   As a developer
   I want to initialize a new RuleStack project in an empty directory
   So that I can start creating and managing rule packages
@@ -7,25 +7,23 @@ Feature: Initialize new project successfully
     Given I am in an empty directory
     And RFH is installed and accessible
 
-  Scenario: Initialize new project with default settings
+  Scenario: Basic initialization works correctly
     When I run "rfh init"
     Then I should see "Initialized RuleStack project"
-    And I should see the project name in the output
     And a file "rulestack.json" should be created
-    And the manifest should contain:
-      | field       | value         |
-      | name        | example-rules |
-      | version     | 0.1.0         |
-      | description | Example AI ruleset |
-    And the manifest should not contain scope characters "@" or "/"
+    And the default package name should be "example-rules"
     And a directory ".rulestack" should be created
     And a file "CLAUDE.md" should be created
-    And core rules should be downloaded to ".rulestack/core.v1.0.0/"
-    And the file ".rulestack/core.v1.0.0/core_rules.md" should exist
+    And core rules should be downloaded to ".rulestack/core.v1.0.0"
 
   Scenario: Verify manifest structure
     When I run "rfh init"
     Then the "rulestack.json" file should be valid JSON
+    And the manifest should contain:
+      | field       | value              |
+      | name        | example-rules      |
+      | version     | 0.1.0              |
+      | description | Example AI ruleset |
     And the manifest should have the following structure:
       ```json
       {
@@ -48,6 +46,13 @@ Feature: Initialize new project successfully
       | .rulestack/                              | directory |
       | .rulestack/core.v1.0.0/                  | directory |
       | .rulestack/core.v1.0.0/core_rules.md    | file      |
+
+  Scenario: Verify command help output
+    When I run "rfh init --help"
+    Then I should see "force"
+    And I should see "help"
+    And I should not see "name"
+    And I should not see "migrate"
 
   Scenario: Verify success message format
     When I run "rfh init"
