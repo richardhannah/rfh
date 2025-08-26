@@ -18,10 +18,10 @@ A secure package manager for AI rulesets, making it easy to share and discover A
 # 1. Start the development environment
 docker-compose up -d
 
-# 2. Run the full system test
-powershell -File test-api-cli.ps1
+# 2. Run the comprehensive test suite
+powershell -File run-tests.ps1
 # OR on Linux/Mac: 
-# bash test-api-cli.sh
+# bash run-tests.sh
 
 # 3. If the test passes, you're ready to develop! 🎉
 ```
@@ -29,11 +29,11 @@ powershell -File test-api-cli.ps1
 **What this does:**
 - Starts PostgreSQL database with migrations
 - Builds and runs the API server  
-- Runs comprehensive end-to-end tests including:
-  - Package creation, publishing, and installation
-  - Security validation
-  - Claude Code integration
-  - Registry management
+- Runs comprehensive BDD (Behavior Driven Development) tests including:
+  - Package creation (rfh init), packing (rfh pack), and publishing (rfh publish)
+  - Registry management (rfh registry add/list/use/remove)
+  - User authentication (rfh auth login/register)
+  - Complete end-to-end workflows with real CLI commands
 
 **If the test script passes, your development environment is working correctly.**
 
@@ -188,7 +188,9 @@ rulestack/
 ├── migrations/        # Database schema
 ├── scripts/           # Development scripts
 ├── storage/           # File storage
-├── test-api-cli.ps1   # End-to-end test script (NEW)
+├── cucumber-testing/  # BDD test suite with Cucumber scenarios
+├── run-tests.ps1      # BDD test runner (PowerShell)
+├── run-tests.sh       # BDD test runner (Bash)
 └── planning/          # Design documents
 ```
 
@@ -254,13 +256,17 @@ go test ./... -cover
 # Run linting
 golangci-lint run
 
-# Run comprehensive end-to-end tests
-powershell -File test-api-cli.ps1
-# OR: bash test-api-cli.sh
-
-# Test security validation specifically
-powershell -File test-security-simple.ps1
+# Run comprehensive BDD test suite (recommended)
+powershell -File run-tests.ps1
+# OR: bash run-tests.sh
 ```
+
+**BDD Test Coverage:**
+- ✅ **52 scenarios** covering all CLI functionality
+- ✅ **383 test steps** with real command execution  
+- ✅ **Complete workflows**: init → pack → publish → registry management
+- ✅ **Error handling**: Authentication, validation, network issues
+- ✅ **Cross-platform**: Windows PowerShell and Unix Bash runners
 
 **The test scripts validate:**
 - Package creation, publishing, and installation
@@ -379,21 +385,29 @@ We welcome and **strongly encourage** contributions! This project embraces the *
 ### 🎯 **Our Philosophy**
 - **Behavior over Beauty**: We prioritize working features over perfect code style
 - **Vibe Coding Encouraged**: If it works and improves the project, we want it
-- **End-to-End Testing**: We prefer tests that validate complete user workflows
+- **BDD Testing Preferred**: We use Cucumber BDD tests that validate complete user workflows
 - **Real-World Focus**: Tests should examine the system as users actually use it
+- **Scenario-Based Testing**: Write tests as user stories with Given/When/Then scenarios
 
 ### 📝 **Contribution Guidelines**
 
 1. **Fork** the repository
 2. **Create** a feature branch (`git checkout -b feature/amazing-feature`)
 3. **Build something that works** - don't worry about perfection
-4. **Write behavior tests** that validate the complete user experience:
+4. **Write BDD tests** for new features using Cucumber scenarios:
    ```bash
-   # We LOVE these kinds of tests - they test the whole system:
-   powershell -File test-api-cli.ps1
+   # Run the full BDD test suite:
+   powershell -File run-tests.ps1
    
-   # Add your own behavior test scripts for new features
-   powershell -File test-my-feature.ps1
+   # Add new scenarios to existing feature files:
+   # cucumber-testing/features/your-feature.feature
+   
+   # Example Cucumber scenario:
+   # Scenario: User can create a new package
+   #   Given I have a clean project directory
+   #   When I run "rfh init --name my-package"
+   #   Then I should see "Initialized RuleStack project"
+   #   And a file "rulestack.json" should be created
    ```
 5. **Ensure basic quality**:
    ```bash
@@ -422,10 +436,16 @@ We welcome and **strongly encourage** contributions! This project embraces the *
 
 ### 🚀 **CI Requirements**
 All Pull Requests must pass:
-- ✅ **End-to-End Tests**: `test-api-cli.ps1` must pass
+- ✅ **BDD Test Suite**: `run-tests.ps1` must pass (all 52 scenarios)
 - ✅ **Build**: Both CLI and API must compile successfully  
 - ✅ **Core Tests**: Security and critical unit tests must pass
-- 📝 **Behavior Tests**: Include behavior test scripts for new features
+- 📝 **New Feature Tests**: Include Cucumber scenarios for new features
+
+**BDD Testing Guidelines:**
+- Add scenarios to existing `.feature` files when extending functionality
+- Create new `.feature` files for entirely new commands or workflows  
+- Use Given/When/Then format with clear, user-focused language
+- Test both success paths and error conditions
 
 **We're more interested in working software than perfect lint scores.** If your code works and has good behavior test coverage, we'll help you with any style issues during review.
 

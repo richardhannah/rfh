@@ -15,8 +15,8 @@ cd rulestack
 docker-compose up -d
 
 # 3. Test that it works
-powershell -File test-api-cli.ps1
-# OR on Linux/Mac: bash test-api-cli.sh
+powershell -File run-tests.ps1
+# OR on Linux/Mac: bash run-tests.sh
 
 # 4. Success? You're ready to develop! 🎉
 ```
@@ -25,26 +25,29 @@ powershell -File test-api-cli.ps1
 
 ## 🧪 **Testing Philosophy**
 
-RuleStack strongly emphasizes **behavior testing** - tests that validate the system as a real user would experience it.
+RuleStack uses **Behavior Driven Development (BDD)** with Cucumber to create comprehensive, user-focused tests.
 
 ### What We Love ❤️
 
 ```bash
-# End-to-end tests that start from scratch
-docker-compose up -d
-powershell -File test-api-cli.ps1
+# BDD tests that validate complete user workflows
+powershell -File run-tests.ps1
 
-# Tests that validate complete user workflows
-test-security-validation.ps1
-test-new-feature.ps1
-test-edge-cases.ps1
+# Cucumber scenarios in plain English:
+# Scenario: User publishes a package
+#   Given I have a valid rulestack project
+#   When I run "rfh pack"
+#   And I run "rfh publish"
+#   Then I should see "Successfully published"
 ```
 
-**These tests are valuable because they:**
-- Catch integration bugs that unit tests miss
-- Validate the actual user experience
-- Test security, performance, and reliability together
-- Ensure the system works in real conditions
+**BDD tests are valuable because they:**
+- Test the system exactly as users interact with it
+- Are written in plain English that anyone can understand
+- Catch integration bugs across the entire CLI workflow
+- Validate real command execution, not mocked interfaces
+- Cover both happy paths and error conditions
+- Currently provide **52 scenarios** with **383 test steps**
 
 ### What We Like 👍
 
@@ -71,8 +74,8 @@ Edit code, add features, fix bugs - whatever you're working on.
 go build ./cmd/cli
 go build ./cmd/api
 
-# Full system test
-powershell -File test-api-cli.ps1
+# Full BDD test suite
+powershell -File run-tests.ps1
 ```
 
 ### 3. Add Behavior Tests
@@ -212,11 +215,11 @@ Write the test script that validates your feature working end-to-end:
 
 ### 4. Validate
 ```bash
-# Your behavior test should pass
-powershell -File test-my-feature.ps1
+# Add BDD scenarios for your feature to existing .feature files
+# OR create new .feature file in cucumber-testing/features/
 
-# Existing tests should still pass  
-powershell -File test-api-cli.ps1
+# All existing tests should still pass  
+powershell -File run-tests.ps1
 go test ./...
 ```
 
@@ -249,8 +252,8 @@ docker-compose up -d
 # Rebuild CLI after changes
 go build -o dist/rfh.exe cmd/cli/main.go
 
-# Full system test
-powershell -File test-api-cli.ps1
+# Full BDD test suite
+powershell -File run-tests.ps1
 
 # Security validation test
 powershell -File test-security-simple.ps1
