@@ -1,20 +1,20 @@
 [
   {
-    "description": "  As a developer\n  I want to register a new user account\n  So that I can authenticate and publish packages",
+    "description": "  As a developer\n  I want to login to my user account\n  So that I can authenticate and access protected functionality",
     "elements": [
       {
         "description": "",
-        "id": "user-registration-command;registration-command-availability",
+        "id": "user-login;login-command-availability",
         "keyword": "Scenario",
         "line": 10,
-        "name": "Registration command availability",
+        "name": "Login command availability",
         "steps": [
           {
             "keyword": "Before",
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 625799
+              "duration": 644499
             }
           },
           {
@@ -27,7 +27,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 21790399
+              "duration": 442100
             }
           },
           {
@@ -40,7 +40,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 1974899
+              "duration": 3007499
             }
           },
           {
@@ -53,7 +53,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 97098099
+              "duration": 57159799
             }
           },
           {
@@ -66,33 +66,33 @@
             },
             "result": {
               "status": "passed",
-              "duration": 54618799
+              "duration": 53345600
             }
           },
           {
             "arguments": [],
             "keyword": "When ",
             "line": 13,
-            "name": "I register with username \"testuser\", email \"test@example.com\", and password \"password123\"",
+            "name": "I attempt to login interactively",
             "match": {
-              "location": "features\\step_definitions\\auth_steps.js:10"
+              "location": "features\\step_definitions\\auth_steps.js:37"
             },
             "result": {
               "status": "passed",
-              "duration": 44398899
+              "duration": 45094000
             }
           },
           {
             "arguments": [],
             "keyword": "Then ",
             "line": 14,
-            "name": "I should see \"Registering new account at http://localhost:8080\"",
+            "name": "I should see \"Logging in to http://localhost:8080\"",
             "match": {
               "location": "features\\step_definitions\\init_steps.js:32"
             },
             "result": {
               "status": "passed",
-              "duration": 511100
+              "duration": 474199
             }
           },
           {
@@ -105,7 +105,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 94800
+              "duration": 205500
             }
           },
           {
@@ -113,7 +113,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 133300
+              "duration": 108899
             }
           },
           {
@@ -121,7 +121,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 788099
+              "duration": 709699
             }
           }
         ],
@@ -130,17 +130,17 @@
       },
       {
         "description": "",
-        "id": "user-registration-command;registration-with-no-active-registry",
+        "id": "user-login;login-with-no-active-registry",
         "keyword": "Scenario",
         "line": 17,
-        "name": "Registration with no active registry",
+        "name": "Login with no active registry",
         "steps": [
           {
             "keyword": "Before",
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 84399
+              "duration": 72900
             }
           },
           {
@@ -153,7 +153,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 132799
+              "duration": 137600
             }
           },
           {
@@ -166,7 +166,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 885400
+              "duration": 757299
             }
           },
           {
@@ -175,24 +175,24 @@
             "line": 18,
             "name": "I have a clean config file with no registries",
             "match": {
-              "location": "features\\step_definitions\\auth_steps.js:68"
+              "location": "features\\step_definitions\\auth_steps.js:87"
             },
             "result": {
               "status": "passed",
-              "duration": 575699
+              "duration": 458099
             }
           },
           {
             "arguments": [],
             "keyword": "When ",
             "line": 19,
-            "name": "I register with username \"testuser\", email \"test@example.com\", and password \"password123\"",
+            "name": "I login with username \"testuser\" and password \"password123\"",
             "match": {
-              "location": "features\\step_definitions\\auth_steps.js:10"
+              "location": "features\\step_definitions\\auth_steps.js:27"
             },
             "result": {
               "status": "passed",
-              "duration": 44474600
+              "duration": 47281799
             }
           },
           {
@@ -205,7 +205,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 146600
+              "duration": 193899
             }
           },
           {
@@ -218,7 +218,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 121700
+              "duration": 110599
             }
           },
           {
@@ -226,7 +226,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 92399
+              "duration": 97499
             }
           },
           {
@@ -234,7 +234,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 510100
+              "duration": 559399
             }
           }
         ],
@@ -243,17 +243,17 @@
       },
       {
         "description": "",
-        "id": "user-registration-command;registration-when-active-registry-not-found",
+        "id": "user-login;login-when-active-registry-not-found",
         "keyword": "Scenario",
         "line": 23,
-        "name": "Registration when active registry not found",
+        "name": "Login when active registry not found",
         "steps": [
           {
             "keyword": "Before",
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 25600
+              "duration": 26000
             }
           },
           {
@@ -266,7 +266,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 125900
+              "duration": 122400
             }
           },
           {
@@ -279,7 +279,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 1212699
+              "duration": 733000
             }
           },
           {
@@ -288,24 +288,24 @@
             "line": 24,
             "name": "I have a config with current registry \"missing-registry\"",
             "match": {
-              "location": "features\\step_definitions\\auth_steps.js:75"
+              "location": "features\\step_definitions\\auth_steps.js:94"
             },
             "result": {
               "status": "passed",
-              "duration": 756100
+              "duration": 511900
             }
           },
           {
             "arguments": [],
             "keyword": "When ",
             "line": 25,
-            "name": "I register with username \"testuser\", email \"test@example.com\", and password \"password123\"",
+            "name": "I login with username \"testuser\" and password \"password123\"",
             "match": {
-              "location": "features\\step_definitions\\auth_steps.js:10"
+              "location": "features\\step_definitions\\auth_steps.js:27"
             },
             "result": {
               "status": "passed",
-              "duration": 45201400
+              "duration": 43295300
             }
           },
           {
@@ -326,7 +326,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 56500
+              "duration": 49700
             }
           },
           {
@@ -334,7 +334,909 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 450299
+              "duration": 432299
+            }
+          }
+        ],
+        "tags": [],
+        "type": "scenario"
+      },
+      {
+        "description": "",
+        "id": "user-login;auth-login-help-text",
+        "keyword": "Scenario",
+        "line": 28,
+        "name": "Auth login help text",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 54399
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 7,
+            "name": "RFH is installed and accessible",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:10"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 151299
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 8,
+            "name": "I have a clean config file",
+            "match": {
+              "location": "features\\step_definitions\\registry_steps.js:8"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 1238499
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 29,
+            "name": "I run \"rfh auth login --help\"",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:17"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 52751100
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 30,
+            "name": "I should see \"Login to your user account with username and password\"",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:32"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 132500
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 31,
+            "name": "I should see \"Your JWT token will be saved locally for future API calls\"",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:32"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 50199
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 95400
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 444399
+            }
+          }
+        ],
+        "tags": [],
+        "type": "scenario"
+      },
+      {
+        "description": "",
+        "id": "user-login;login-command-validation",
+        "keyword": "Scenario",
+        "line": 33,
+        "name": "Login command validation",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 72000
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 7,
+            "name": "RFH is installed and accessible",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:10"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 160200
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 8,
+            "name": "I have a clean config file",
+            "match": {
+              "location": "features\\step_definitions\\registry_steps.js:8"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 699500
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 34,
+            "name": "I run \"rfh auth --help\"",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:17"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 52047399
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 35,
+            "name": "I should see \"login       Login to your user account\"",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:32"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 104899
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 41900
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 498600
+            }
+          }
+        ],
+        "tags": [],
+        "type": "scenario"
+      },
+      {
+        "description": "",
+        "id": "user-login;login-with-registry-connection-failure",
+        "keyword": "Scenario",
+        "line": 37,
+        "name": "Login with registry connection failure",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 28000
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 7,
+            "name": "RFH is installed and accessible",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:10"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 168299
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 8,
+            "name": "I have a clean config file",
+            "match": {
+              "location": "features\\step_definitions\\registry_steps.js:8"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 701099
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 38,
+            "name": "I have a registry \"offline-registry\" configured at \"http://localhost:9999\"",
+            "match": {
+              "location": "features\\step_definitions\\registry_steps.js:21"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 54885599
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 39,
+            "name": "\"offline-registry\" is the active registry",
+            "match": {
+              "location": "features\\step_definitions\\registry_steps.js:30"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 53754400
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 40,
+            "name": "I login with username \"testuser\" and password \"password123\"",
+            "match": {
+              "location": "features\\step_definitions\\auth_steps.js:27"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 52692499
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 41,
+            "name": "I should see \"Logging in to http://localhost:9999\"",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:32"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 157299
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 41500
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 454200
+            }
+          }
+        ],
+        "tags": [],
+        "type": "scenario"
+      },
+      {
+        "description": "",
+        "id": "user-login;successful-non-interactive-login-with-valid-credentials",
+        "keyword": "Scenario",
+        "line": 43,
+        "name": "Successful non-interactive login with valid credentials",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 16300
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 7,
+            "name": "RFH is installed and accessible",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:10"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 136799
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 8,
+            "name": "I have a clean config file",
+            "match": {
+              "location": "features\\step_definitions\\registry_steps.js:8"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 683899
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 44,
+            "name": "I have a registry \"test-registry\" configured at \"http://localhost:8080\"",
+            "match": {
+              "location": "features\\step_definitions\\registry_steps.js:21"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 52626399
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 45,
+            "name": "\"test-registry\" is the active registry",
+            "match": {
+              "location": "features\\step_definitions\\registry_steps.js:30"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 51774099
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 46,
+            "name": "I login with username \"validuser\" and password \"validpass\"",
+            "match": {
+              "location": "features\\step_definitions\\auth_steps.js:27"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 58925299
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 47,
+            "name": "I should see \"Using provided credentials for validuser\"",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:32"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 120200
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 48,
+            "name": "I should see \"Logging in to http://localhost:8080\"",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:32"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 46700
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 36699
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 954999
+            }
+          }
+        ],
+        "tags": [],
+        "type": "scenario"
+      },
+      {
+        "description": "",
+        "id": "user-login;non-interactive-login-with-invalid-credentials",
+        "keyword": "Scenario",
+        "line": 50,
+        "name": "Non-interactive login with invalid credentials",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 37799
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 7,
+            "name": "RFH is installed and accessible",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:10"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 128799
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 8,
+            "name": "I have a clean config file",
+            "match": {
+              "location": "features\\step_definitions\\registry_steps.js:8"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 1195200
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 51,
+            "name": "I have a registry \"test-registry\" configured at \"http://localhost:8080\"",
+            "match": {
+              "location": "features\\step_definitions\\registry_steps.js:21"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 51410399
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 52,
+            "name": "\"test-registry\" is the active registry",
+            "match": {
+              "location": "features\\step_definitions\\registry_steps.js:30"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 52523900
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 53,
+            "name": "I login with username \"invaliduser\" and password \"wrongpass\"",
+            "match": {
+              "location": "features\\step_definitions\\auth_steps.js:27"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 54748399
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 54,
+            "name": "I should see \"Using provided credentials for invaliduser\"",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:32"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 120599
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 55,
+            "name": "I should see \"login failed\"",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:32"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 39100
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 40399
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 575999
+            }
+          }
+        ],
+        "tags": [],
+        "type": "scenario"
+      }
+    ],
+    "id": "user-login",
+    "line": 1,
+    "keyword": "Feature",
+    "name": "User Login",
+    "tags": [],
+    "uri": "features\\auth-login.feature"
+  },
+  {
+    "description": "  As a developer\n  I want to register a new user account\n  So that I can authenticate and publish packages",
+    "elements": [
+      {
+        "description": "",
+        "id": "user-registration-command;registration-command-availability",
+        "keyword": "Scenario",
+        "line": 10,
+        "name": "Registration command availability",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 18000
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 7,
+            "name": "RFH is installed and accessible",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:10"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 124199
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 8,
+            "name": "I have a clean config file",
+            "match": {
+              "location": "features\\step_definitions\\registry_steps.js:8"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 1161900
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 11,
+            "name": "I have a registry \"test-registry\" configured at \"http://localhost:8080\"",
+            "match": {
+              "location": "features\\step_definitions\\registry_steps.js:21"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 50867899
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 12,
+            "name": "\"test-registry\" is the active registry",
+            "match": {
+              "location": "features\\step_definitions\\registry_steps.js:30"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 50508199
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 13,
+            "name": "I attempt to register interactively",
+            "match": {
+              "location": "features\\step_definitions\\auth_steps.js:41"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 45119799
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 14,
+            "name": "I should see \"Registering new account at http://localhost:8080\"",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:32"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 217600
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 15,
+            "name": "I should see \"Username:\"",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:32"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 44300
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 32900
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 441000
+            }
+          }
+        ],
+        "tags": [],
+        "type": "scenario"
+      },
+      {
+        "description": "",
+        "id": "user-registration-command;registration-with-no-active-registry",
+        "keyword": "Scenario",
+        "line": 17,
+        "name": "Registration with no active registry",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 17299
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 7,
+            "name": "RFH is installed and accessible",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:10"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 126100
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 8,
+            "name": "I have a clean config file",
+            "match": {
+              "location": "features\\step_definitions\\registry_steps.js:8"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 867499
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 18,
+            "name": "I have a clean config file with no registries",
+            "match": {
+              "location": "features\\step_definitions\\auth_steps.js:87"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 406199
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 19,
+            "name": "I register with username \"testuser\", email \"test@example.com\", and password \"password123\"",
+            "match": {
+              "location": "features\\step_definitions\\auth_steps.js:10"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 43704400
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 20,
+            "name": "I should see \"no active registry configured\"",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:32"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 110300
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 21,
+            "name": "I should see \"Use 'rfh registry add' to add one\"",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:32"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 39100
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 29699
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 345299
+            }
+          }
+        ],
+        "tags": [],
+        "type": "scenario"
+      },
+      {
+        "description": "",
+        "id": "user-registration-command;registration-when-active-registry-not-found",
+        "keyword": "Scenario",
+        "line": 23,
+        "name": "Registration when active registry not found",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 12600
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 7,
+            "name": "RFH is installed and accessible",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:10"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 104500
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 8,
+            "name": "I have a clean config file",
+            "match": {
+              "location": "features\\step_definitions\\registry_steps.js:8"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 676899
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 24,
+            "name": "I have a config with current registry \"missing-registry\"",
+            "match": {
+              "location": "features\\step_definitions\\auth_steps.js:94"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 393499
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 25,
+            "name": "I register with username \"testuser\", email \"test@example.com\", and password \"password123\"",
+            "match": {
+              "location": "features\\step_definitions\\auth_steps.js:10"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 46991500
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 26,
+            "name": "I should see \"active registry 'missing-registry' not found\"",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:32"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 125999
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 34499
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 417999
             }
           }
         ],
@@ -353,7 +1255,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 22799
+              "duration": 14200
             }
           },
           {
@@ -366,7 +1268,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 193300
+              "duration": 117199
             }
           },
           {
@@ -379,7 +1281,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 873400
+              "duration": 692700
             }
           },
           {
@@ -392,7 +1294,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 52164300
+              "duration": 53552999
             }
           },
           {
@@ -405,7 +1307,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 120499
+              "duration": 118800
             }
           },
           {
@@ -418,7 +1320,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 103499
+              "duration": 46199
             }
           },
           {
@@ -426,7 +1328,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 43700
+              "duration": 29700
             }
           },
           {
@@ -434,7 +1336,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 579700
+              "duration": 404399
             }
           }
         ],
@@ -453,7 +1355,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 31399
+              "duration": 12200
             }
           },
           {
@@ -466,7 +1368,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 179699
+              "duration": 108300
             }
           },
           {
@@ -479,7 +1381,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 634500
+              "duration": 815200
             }
           },
           {
@@ -492,7 +1394,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 54917400
+              "duration": 48210199
             }
           },
           {
@@ -505,7 +1407,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 110000
+              "duration": 110500
             }
           },
           {
@@ -518,7 +1420,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 47299
+              "duration": 34499
             }
           },
           {
@@ -531,7 +1433,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 76000
+              "duration": 101100
             }
           },
           {
@@ -544,7 +1446,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 38999
+              "duration": 31500
             }
           },
           {
@@ -557,7 +1459,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 30699
+              "duration": 21500
             }
           },
           {
@@ -565,7 +1467,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 42699
+              "duration": 28399
             }
           },
           {
@@ -573,7 +1475,259 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 456900
+              "duration": 473100
+            }
+          }
+        ],
+        "tags": [],
+        "type": "scenario"
+      },
+      {
+        "description": "",
+        "id": "user-registration-command;successful-non-interactive-registration",
+        "keyword": "Scenario",
+        "line": 41,
+        "name": "Successful non-interactive registration",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 13999
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 7,
+            "name": "RFH is installed and accessible",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:10"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 112800
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 8,
+            "name": "I have a clean config file",
+            "match": {
+              "location": "features\\step_definitions\\registry_steps.js:8"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 718800
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 42,
+            "name": "I have a registry \"test-registry\" configured at \"http://localhost:8080\"",
+            "match": {
+              "location": "features\\step_definitions\\registry_steps.js:21"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 51648500
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 43,
+            "name": "\"test-registry\" is the active registry",
+            "match": {
+              "location": "features\\step_definitions\\registry_steps.js:30"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 51045099
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 44,
+            "name": "I register with username \"newuser\", email \"newuser@example.com\", and password \"password123\" using flags",
+            "match": {
+              "location": "features\\step_definitions\\auth_steps.js:32"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 95675399
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 45,
+            "name": "I should see \"Using provided credentials for newuser\"",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:32"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 102899
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 46,
+            "name": "I should see \"Registering new account at http://localhost:8080\"",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:32"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 32000
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 34000
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 438800
+            }
+          }
+        ],
+        "tags": [],
+        "type": "scenario"
+      },
+      {
+        "description": "",
+        "id": "user-registration-command;non-interactive-registration-with-validation",
+        "keyword": "Scenario",
+        "line": 48,
+        "name": "Non-interactive registration with validation",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 12500
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 7,
+            "name": "RFH is installed and accessible",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:10"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 110900
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 8,
+            "name": "I have a clean config file",
+            "match": {
+              "location": "features\\step_definitions\\registry_steps.js:8"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 1090300
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 49,
+            "name": "I have a registry \"test-registry\" configured at \"http://localhost:8080\"",
+            "match": {
+              "location": "features\\step_definitions\\registry_steps.js:21"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 52150700
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 50,
+            "name": "\"test-registry\" is the active registry",
+            "match": {
+              "location": "features\\step_definitions\\registry_steps.js:30"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 50457599
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 51,
+            "name": "I register with username \"testuser\", email \"test@domain.com\", and password \"securepass\" using flags",
+            "match": {
+              "location": "features\\step_definitions\\auth_steps.js:32"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 92539899
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 52,
+            "name": "I should see \"Using provided credentials for testuser (test@domain.com)\"",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:32"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 94200
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 53,
+            "name": "I should see \"Registering new account at http://localhost:8080\"",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:32"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 29899
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 30600
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 477200
             }
           }
         ],
@@ -603,7 +1757,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 15299
+              "duration": 10300
             }
           },
           {
@@ -616,7 +1770,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 510199
+              "duration": 521199
             }
           },
           {
@@ -629,7 +1783,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 107200
+              "duration": 120799
             }
           },
           {
@@ -642,7 +1796,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 53712700
+              "duration": 54754500
             }
           },
           {
@@ -655,7 +1809,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 146299
+              "duration": 137799
             }
           },
           {
@@ -668,7 +1822,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 877299
+              "duration": 253400
             }
           },
           {
@@ -681,7 +1835,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 350699
+              "duration": 336199
             }
           },
           {
@@ -694,7 +1848,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 270099
+              "duration": 203899
             }
           },
           {
@@ -707,7 +1861,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 133600
+              "duration": 93100
             }
           },
           {
@@ -720,7 +1874,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 154700
+              "duration": 125900
             }
           },
           {
@@ -728,7 +1882,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 1599100
+              "duration": 1318999
             }
           },
           {
@@ -736,7 +1890,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 31799
+              "duration": 24699
             }
           }
         ],
@@ -755,7 +1909,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 9999
+              "duration": 6699
             }
           },
           {
@@ -768,7 +1922,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 301100
+              "duration": 314100
             }
           },
           {
@@ -781,7 +1935,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 131499
+              "duration": 89300
             }
           },
           {
@@ -794,7 +1948,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 51511999
+              "duration": 51631600
             }
           },
           {
@@ -807,7 +1961,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 601099
+              "duration": 537899
             }
           },
           {
@@ -849,7 +2003,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 354000
+              "duration": 321699
             }
           },
           {
@@ -867,7 +2021,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 257500
+              "duration": 193999
             }
           },
           {
@@ -875,7 +2029,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 1358800
+              "duration": 1192999
             }
           },
           {
@@ -883,7 +2037,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 23200
+              "duration": 24700
             }
           }
         ],
@@ -902,7 +2056,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 7000
+              "duration": 7399
             }
           },
           {
@@ -915,7 +2069,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 250800
+              "duration": 257900
             }
           },
           {
@@ -928,7 +2082,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 85800
+              "duration": 89399
             }
           },
           {
@@ -941,7 +2095,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 51533400
+              "duration": 65396799
             }
           },
           {
@@ -995,7 +2149,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 462199
+              "duration": 450400
             }
           },
           {
@@ -1003,7 +2157,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 1254099
+              "duration": 1280400
             }
           },
           {
@@ -1011,7 +2165,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 26099
+              "duration": 26999
             }
           }
         ],
@@ -1030,7 +2184,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 7699
+              "duration": 6799
             }
           },
           {
@@ -1043,7 +2197,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 310599
+              "duration": 277199
             }
           },
           {
@@ -1056,7 +2210,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 94900
+              "duration": 94699
             }
           },
           {
@@ -1069,7 +2223,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 52602899
+              "duration": 55657299
             }
           },
           {
@@ -1082,7 +2236,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 115699
+              "duration": 125099
             }
           },
           {
@@ -1095,7 +2249,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 35499
+              "duration": 47399
             }
           },
           {
@@ -1108,7 +2262,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 89600
+              "duration": 111399
             }
           },
           {
@@ -1121,7 +2275,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 31600
+              "duration": 42999
             }
           },
           {
@@ -1129,7 +2283,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 453799
+              "duration": 488699
             }
           },
           {
@@ -1137,7 +2291,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 28300
+              "duration": 32000
             }
           }
         ],
@@ -1156,7 +2310,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 54700
+              "duration": 7399
             }
           },
           {
@@ -1169,7 +2323,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 272699
+              "duration": 470699
             }
           },
           {
@@ -1182,7 +2336,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 106400
+              "duration": 105399
             }
           },
           {
@@ -1195,7 +2349,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 52109099
+              "duration": 53053199
             }
           },
           {
@@ -1248,7 +2402,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 390699
+              "duration": 227499
             }
           },
           {
@@ -1256,7 +2410,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 1499600
+              "duration": 1496000
             }
           },
           {
@@ -1264,7 +2418,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 26299
+              "duration": 30700
             }
           }
         ],
@@ -1294,7 +2448,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 7300
+              "duration": 7299
             }
           },
           {
@@ -1307,7 +2461,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 288900
+              "duration": 329799
             }
           },
           {
@@ -1320,7 +2474,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 83799
+              "duration": 94900
             }
           },
           {
@@ -1333,7 +2487,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 335000
+              "duration": 433300
             }
           },
           {
@@ -1346,7 +2500,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 50863100
+              "duration": 62110799
             }
           },
           {
@@ -1359,7 +2513,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 103799
+              "duration": 138099
             }
           },
           {
@@ -1372,7 +2526,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 32999
+              "duration": 37100
             }
           },
           {
@@ -1385,7 +2539,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 187200
+              "duration": 226500
             }
           },
           {
@@ -1393,7 +2547,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 667199
+              "duration": 686899
             }
           },
           {
@@ -1401,7 +2555,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 38900
+              "duration": 38299
             }
           }
         ],
@@ -1433,7 +2587,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 285099
+              "duration": 245900
             }
           },
           {
@@ -1446,7 +2600,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 95500
+              "duration": 90799
             }
           },
           {
@@ -1459,7 +2613,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 307999
+              "duration": 298400
             }
           },
           {
@@ -1472,7 +2626,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 55783400
+              "duration": 53404000
             }
           },
           {
@@ -1485,7 +2639,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 104399
+              "duration": 108200
             }
           },
           {
@@ -1498,7 +2652,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 333499
+              "duration": 309799
             }
           },
           {
@@ -1511,7 +2665,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 123499
+              "duration": 102300
             }
           },
           {
@@ -1524,7 +2678,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 146500
+              "duration": 103600
             }
           },
           {
@@ -1532,7 +2686,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 1222099
+              "duration": 1269299
             }
           },
           {
@@ -1540,7 +2694,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 22500
+              "duration": 25200
             }
           }
         ],
@@ -1559,7 +2713,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 6100
+              "duration": 6899
             }
           },
           {
@@ -1572,7 +2726,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 270500
+              "duration": 263500
             }
           },
           {
@@ -1585,7 +2739,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 84999
+              "duration": 100600
             }
           },
           {
@@ -1598,7 +2752,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 330499
+              "duration": 371900
             }
           },
           {
@@ -1611,7 +2765,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 52450700
+              "duration": 53138899
             }
           },
           {
@@ -1624,7 +2778,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 98900
+              "duration": 104700
             }
           },
           {
@@ -1637,7 +2791,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 190200
+              "duration": 137899
             }
           },
           {
@@ -1650,7 +2804,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 162000
+              "duration": 148999
             }
           },
           {
@@ -1658,7 +2812,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 1203800
+              "duration": 1086600
             }
           },
           {
@@ -1666,7 +2820,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 23400
+              "duration": 22699
             }
           }
         ],
@@ -1709,7 +2863,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 115399
+              "duration": 99900
             }
           },
           {
@@ -1722,7 +2876,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 524499
+              "duration": 570799
             }
           },
           {
@@ -1735,7 +2889,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 55555700
+              "duration": 54851000
             }
           },
           {
@@ -1748,7 +2902,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 110300
+              "duration": 111300
             }
           },
           {
@@ -1761,7 +2915,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 30900
+              "duration": 32299
             }
           },
           {
@@ -1774,7 +2928,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 24099
+              "duration": 26099
             }
           },
           {
@@ -1787,7 +2941,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 436400
+              "duration": 459300
             }
           },
           {
@@ -1800,7 +2954,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 427599
+              "duration": 236100
             }
           },
           {
@@ -1808,7 +2962,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 28700
+              "duration": 23300
             }
           },
           {
@@ -1816,7 +2970,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 349600
+              "duration": 359599
             }
           }
         ],
@@ -1835,7 +2989,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 11299
+              "duration": 12799
             }
           },
           {
@@ -1848,7 +3002,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 105900
+              "duration": 94500
             }
           },
           {
@@ -1861,7 +3015,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 684600
+              "duration": 762799
             }
           },
           {
@@ -1874,7 +3028,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 50450299
+              "duration": 50901899
             }
           },
           {
@@ -1887,7 +3041,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 53776399
+              "duration": 55138899
             }
           },
           {
@@ -1900,7 +3054,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 121399
+              "duration": 111799
             }
           },
           {
@@ -1913,7 +3067,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 536800
+              "duration": 342300
             }
           },
           {
@@ -1926,7 +3080,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 279499
+              "duration": 195299
             }
           },
           {
@@ -1934,7 +3088,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 23900
+              "duration": 19099
             }
           },
           {
@@ -1942,7 +3096,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 382600
+              "duration": 283000
             }
           }
         ],
@@ -1961,7 +3115,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 11099
+              "duration": 11500
             }
           },
           {
@@ -1974,7 +3128,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 106800
+              "duration": 104800
             }
           },
           {
@@ -1987,7 +3141,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 883299
+              "duration": 1032600
             }
           },
           {
@@ -2000,7 +3154,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 52283100
+              "duration": 55230900
             }
           },
           {
@@ -2013,7 +3167,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 97400
+              "duration": 110299
             }
           },
           {
@@ -2021,7 +3175,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 25999
+              "duration": 31899
             }
           },
           {
@@ -2029,7 +3183,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 386799
+              "duration": 514400
             }
           }
         ],
@@ -2042,727 +3196,6 @@
         "keyword": "Scenario",
         "line": 30,
         "name": "List single registry",
-        "steps": [
-          {
-            "keyword": "Before",
-            "hidden": true,
-            "result": {
-              "status": "passed",
-              "duration": 9000
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "Given ",
-            "line": 7,
-            "name": "RFH is installed and accessible",
-            "match": {
-              "location": "features\\step_definitions\\init_steps.js:10"
-            },
-            "result": {
-              "status": "passed",
-              "duration": 106299
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "And ",
-            "line": 8,
-            "name": "I have a clean config file",
-            "match": {
-              "location": "features\\step_definitions\\registry_steps.js:8"
-            },
-            "result": {
-              "status": "passed",
-              "duration": 816600
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "Given ",
-            "line": 31,
-            "name": "I have a registry \"production\" configured at \"https://registry.example.com\"",
-            "match": {
-              "location": "features\\step_definitions\\registry_steps.js:21"
-            },
-            "result": {
-              "status": "passed",
-              "duration": 50884699
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "When ",
-            "line": 32,
-            "name": "I run \"rfh registry list\"",
-            "match": {
-              "location": "features\\step_definitions\\init_steps.js:17"
-            },
-            "result": {
-              "status": "passed",
-              "duration": 51250700
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "Then ",
-            "line": 33,
-            "name": "I should see \"production\" in the registry list",
-            "match": {
-              "location": "features\\step_definitions\\registry_steps.js:73"
-            },
-            "result": {
-              "status": "passed",
-              "duration": 176600
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "And ",
-            "line": 34,
-            "name": "I should see \"https://registry.example.com\" in the registry list",
-            "match": {
-              "location": "features\\step_definitions\\registry_steps.js:73"
-            },
-            "result": {
-              "status": "passed",
-              "duration": 35800
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "And ",
-            "line": 35,
-            "name": "I should see \"production\" marked as active",
-            "match": {
-              "location": "features\\step_definitions\\registry_steps.js:78"
-            },
-            "result": {
-              "status": "passed",
-              "duration": 115600
-            }
-          },
-          {
-            "keyword": "After",
-            "hidden": true,
-            "result": {
-              "status": "passed",
-              "duration": 35599
-            }
-          },
-          {
-            "keyword": "After",
-            "hidden": true,
-            "result": {
-              "status": "passed",
-              "duration": 469399
-            }
-          }
-        ],
-        "tags": [],
-        "type": "scenario"
-      },
-      {
-        "description": "",
-        "id": "registry-management;list-multiple-registries",
-        "keyword": "Scenario",
-        "line": 37,
-        "name": "List multiple registries",
-        "steps": [
-          {
-            "keyword": "Before",
-            "hidden": true,
-            "result": {
-              "status": "passed",
-              "duration": 8699
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "Given ",
-            "line": 7,
-            "name": "RFH is installed and accessible",
-            "match": {
-              "location": "features\\step_definitions\\init_steps.js:10"
-            },
-            "result": {
-              "status": "passed",
-              "duration": 104100
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "And ",
-            "line": 8,
-            "name": "I have a clean config file",
-            "match": {
-              "location": "features\\step_definitions\\registry_steps.js:8"
-            },
-            "result": {
-              "status": "passed",
-              "duration": 754899
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "Given ",
-            "line": 38,
-            "name": "I have a registry \"production\" configured at \"https://registry.example.com\"",
-            "match": {
-              "location": "features\\step_definitions\\registry_steps.js:21"
-            },
-            "result": {
-              "status": "passed",
-              "duration": 52900799
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "And ",
-            "line": 39,
-            "name": "I have a registry \"staging\" configured at \"https://staging.example.com\"",
-            "match": {
-              "location": "features\\step_definitions\\registry_steps.js:21"
-            },
-            "result": {
-              "status": "passed",
-              "duration": 52022100
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "And ",
-            "line": 40,
-            "name": "\"staging\" is the active registry",
-            "match": {
-              "location": "features\\step_definitions\\registry_steps.js:30"
-            },
-            "result": {
-              "status": "passed",
-              "duration": 53990099
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "When ",
-            "line": 41,
-            "name": "I run \"rfh registry list\"",
-            "match": {
-              "location": "features\\step_definitions\\init_steps.js:17"
-            },
-            "result": {
-              "status": "passed",
-              "duration": 52766500
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "Then ",
-            "line": 42,
-            "name": "I should see both registries in the list",
-            "match": {
-              "location": "features\\step_definitions\\registry_steps.js:89"
-            },
-            "result": {
-              "status": "passed",
-              "duration": 139200
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "And ",
-            "line": 43,
-            "name": "I should see \"staging\" marked as active",
-            "match": {
-              "location": "features\\step_definitions\\registry_steps.js:78"
-            },
-            "result": {
-              "status": "passed",
-              "duration": 102399
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "And ",
-            "line": 44,
-            "name": "I should not see \"production\" marked as active",
-            "match": {
-              "location": "features\\step_definitions\\registry_steps.js:84"
-            },
-            "result": {
-              "status": "passed",
-              "duration": 76099
-            }
-          },
-          {
-            "keyword": "After",
-            "hidden": true,
-            "result": {
-              "status": "passed",
-              "duration": 31799
-            }
-          },
-          {
-            "keyword": "After",
-            "hidden": true,
-            "result": {
-              "status": "passed",
-              "duration": 390000
-            }
-          }
-        ],
-        "tags": [],
-        "type": "scenario"
-      },
-      {
-        "description": "",
-        "id": "registry-management;switch-active-registry",
-        "keyword": "Scenario",
-        "line": 46,
-        "name": "Switch active registry",
-        "steps": [
-          {
-            "keyword": "Before",
-            "hidden": true,
-            "result": {
-              "status": "passed",
-              "duration": 12900
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "Given ",
-            "line": 7,
-            "name": "RFH is installed and accessible",
-            "match": {
-              "location": "features\\step_definitions\\init_steps.js:10"
-            },
-            "result": {
-              "status": "passed",
-              "duration": 109399
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "And ",
-            "line": 8,
-            "name": "I have a clean config file",
-            "match": {
-              "location": "features\\step_definitions\\registry_steps.js:8"
-            },
-            "result": {
-              "status": "passed",
-              "duration": 730099
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "Given ",
-            "line": 47,
-            "name": "I have a registry \"production\" configured at \"https://registry.example.com\"",
-            "match": {
-              "location": "features\\step_definitions\\registry_steps.js:21"
-            },
-            "result": {
-              "status": "passed",
-              "duration": 53242400
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "And ",
-            "line": 48,
-            "name": "I have a registry \"staging\" configured at \"https://staging.example.com\"",
-            "match": {
-              "location": "features\\step_definitions\\registry_steps.js:21"
-            },
-            "result": {
-              "status": "passed",
-              "duration": 52259099
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "And ",
-            "line": 49,
-            "name": "\"production\" is the active registry",
-            "match": {
-              "location": "features\\step_definitions\\registry_steps.js:30"
-            },
-            "result": {
-              "status": "passed",
-              "duration": 52448599
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "When ",
-            "line": 50,
-            "name": "I run \"rfh registry use staging\"",
-            "match": {
-              "location": "features\\step_definitions\\init_steps.js:17"
-            },
-            "result": {
-              "status": "passed",
-              "duration": 50918699
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "Then ",
-            "line": 51,
-            "name": "I should see \"Set 'staging' as active registry\"",
-            "match": {
-              "location": "features\\step_definitions\\init_steps.js:32"
-            },
-            "result": {
-              "status": "passed",
-              "duration": 114399
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "And ",
-            "line": 52,
-            "name": "\"staging\" should be the current active registry",
-            "match": {
-              "location": "features\\step_definitions\\registry_steps.js:47"
-            },
-            "result": {
-              "status": "passed",
-              "duration": 363799
-            }
-          },
-          {
-            "keyword": "After",
-            "hidden": true,
-            "result": {
-              "status": "passed",
-              "duration": 25899
-            }
-          },
-          {
-            "keyword": "After",
-            "hidden": true,
-            "result": {
-              "status": "passed",
-              "duration": 302300
-            }
-          }
-        ],
-        "tags": [],
-        "type": "scenario"
-      },
-      {
-        "description": "",
-        "id": "registry-management;remove-non-active-registry",
-        "keyword": "Scenario",
-        "line": 54,
-        "name": "Remove non-active registry",
-        "steps": [
-          {
-            "keyword": "Before",
-            "hidden": true,
-            "result": {
-              "status": "passed",
-              "duration": 11899
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "Given ",
-            "line": 7,
-            "name": "RFH is installed and accessible",
-            "match": {
-              "location": "features\\step_definitions\\init_steps.js:10"
-            },
-            "result": {
-              "status": "passed",
-              "duration": 100400
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "And ",
-            "line": 8,
-            "name": "I have a clean config file",
-            "match": {
-              "location": "features\\step_definitions\\registry_steps.js:8"
-            },
-            "result": {
-              "status": "passed",
-              "duration": 708699
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "Given ",
-            "line": 55,
-            "name": "I have a registry \"production\" configured at \"https://registry.example.com\"",
-            "match": {
-              "location": "features\\step_definitions\\registry_steps.js:21"
-            },
-            "result": {
-              "status": "passed",
-              "duration": 52202499
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "And ",
-            "line": 56,
-            "name": "I have a registry \"staging\" configured at \"https://staging.example.com\"",
-            "match": {
-              "location": "features\\step_definitions\\registry_steps.js:21"
-            },
-            "result": {
-              "status": "passed",
-              "duration": 51165199
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "And ",
-            "line": 57,
-            "name": "\"staging\" is the active registry",
-            "match": {
-              "location": "features\\step_definitions\\registry_steps.js:30"
-            },
-            "result": {
-              "status": "passed",
-              "duration": 52802499
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "When ",
-            "line": 58,
-            "name": "I run \"rfh registry remove production\"",
-            "match": {
-              "location": "features\\step_definitions\\init_steps.js:17"
-            },
-            "result": {
-              "status": "passed",
-              "duration": 54594500
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "Then ",
-            "line": 59,
-            "name": "I should see \"Removed registry 'production'\"",
-            "match": {
-              "location": "features\\step_definitions\\init_steps.js:32"
-            },
-            "result": {
-              "status": "passed",
-              "duration": 113199
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "And ",
-            "line": 60,
-            "name": "\"staging\" should remain the active registry",
-            "match": {
-              "location": "features\\step_definitions\\registry_steps.js:57"
-            },
-            "result": {
-              "status": "passed",
-              "duration": 290700
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "And ",
-            "line": 61,
-            "name": "the config should not contain registry \"production\"",
-            "match": {
-              "location": "features\\step_definitions\\registry_steps.js:67"
-            },
-            "result": {
-              "status": "passed",
-              "duration": 257799
-            }
-          },
-          {
-            "keyword": "After",
-            "hidden": true,
-            "result": {
-              "status": "passed",
-              "duration": 19400
-            }
-          },
-          {
-            "keyword": "After",
-            "hidden": true,
-            "result": {
-              "status": "passed",
-              "duration": 334299
-            }
-          }
-        ],
-        "tags": [],
-        "type": "scenario"
-      },
-      {
-        "description": "",
-        "id": "registry-management;remove-active-registry",
-        "keyword": "Scenario",
-        "line": 63,
-        "name": "Remove active registry",
-        "steps": [
-          {
-            "keyword": "Before",
-            "hidden": true,
-            "result": {
-              "status": "passed",
-              "duration": 9900
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "Given ",
-            "line": 7,
-            "name": "RFH is installed and accessible",
-            "match": {
-              "location": "features\\step_definitions\\init_steps.js:10"
-            },
-            "result": {
-              "status": "passed",
-              "duration": 90799
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "And ",
-            "line": 8,
-            "name": "I have a clean config file",
-            "match": {
-              "location": "features\\step_definitions\\registry_steps.js:8"
-            },
-            "result": {
-              "status": "passed",
-              "duration": 850799
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "Given ",
-            "line": 64,
-            "name": "I have a registry \"production\" configured at \"https://registry.example.com\"",
-            "match": {
-              "location": "features\\step_definitions\\registry_steps.js:21"
-            },
-            "result": {
-              "status": "passed",
-              "duration": 53107299
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "And ",
-            "line": 65,
-            "name": "I have a registry \"staging\" configured at \"https://staging.example.com\"",
-            "match": {
-              "location": "features\\step_definitions\\registry_steps.js:21"
-            },
-            "result": {
-              "status": "passed",
-              "duration": 51239900
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "And ",
-            "line": 66,
-            "name": "\"staging\" is the active registry",
-            "match": {
-              "location": "features\\step_definitions\\registry_steps.js:30"
-            },
-            "result": {
-              "status": "passed",
-              "duration": 50121399
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "When ",
-            "line": 67,
-            "name": "I run \"rfh registry remove staging\"",
-            "match": {
-              "location": "features\\step_definitions\\init_steps.js:17"
-            },
-            "result": {
-              "status": "passed",
-              "duration": 54092499
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "Then ",
-            "line": 68,
-            "name": "I should see \"Removed active registry\"",
-            "match": {
-              "location": "features\\step_definitions\\init_steps.js:32"
-            },
-            "result": {
-              "status": "passed",
-              "duration": 108699
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "And ",
-            "line": 69,
-            "name": "I should see a warning about setting a new active registry",
-            "match": {
-              "location": "features\\step_definitions\\registry_steps.js:102"
-            },
-            "result": {
-              "status": "passed",
-              "duration": 131400
-            }
-          },
-          {
-            "arguments": [],
-            "keyword": "And ",
-            "line": 70,
-            "name": "no registry should be active",
-            "match": {
-              "location": "features\\step_definitions\\registry_steps.js:62"
-            },
-            "result": {
-              "status": "passed",
-              "duration": 816499
-            }
-          },
-          {
-            "keyword": "After",
-            "hidden": true,
-            "result": {
-              "status": "passed",
-              "duration": 26299
-            }
-          },
-          {
-            "keyword": "After",
-            "hidden": true,
-            "result": {
-              "status": "passed",
-              "duration": 389200
-            }
-          }
-        ],
-        "tags": [],
-        "type": "scenario"
-      },
-      {
-        "description": "",
-        "id": "registry-management;handle-invalid-registry-operations",
-        "keyword": "Scenario",
-        "line": 72,
-        "name": "Handle invalid registry operations",
         "steps": [
           {
             "keyword": "Before",
@@ -2782,7 +3215,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 102300
+              "duration": 107300
             }
           },
           {
@@ -2795,7 +3228,728 @@
             },
             "result": {
               "status": "passed",
-              "duration": 818999
+              "duration": 1030799
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 31,
+            "name": "I have a registry \"production\" configured at \"https://registry.example.com\"",
+            "match": {
+              "location": "features\\step_definitions\\registry_steps.js:21"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 53749900
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 32,
+            "name": "I run \"rfh registry list\"",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:17"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 51695400
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 33,
+            "name": "I should see \"production\" in the registry list",
+            "match": {
+              "location": "features\\step_definitions\\registry_steps.js:73"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 145700
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 34,
+            "name": "I should see \"https://registry.example.com\" in the registry list",
+            "match": {
+              "location": "features\\step_definitions\\registry_steps.js:73"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 32200
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 35,
+            "name": "I should see \"production\" marked as active",
+            "match": {
+              "location": "features\\step_definitions\\registry_steps.js:78"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 111300
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 33600
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 417300
+            }
+          }
+        ],
+        "tags": [],
+        "type": "scenario"
+      },
+      {
+        "description": "",
+        "id": "registry-management;list-multiple-registries",
+        "keyword": "Scenario",
+        "line": 37,
+        "name": "List multiple registries",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 17500
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 7,
+            "name": "RFH is installed and accessible",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:10"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 109000
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 8,
+            "name": "I have a clean config file",
+            "match": {
+              "location": "features\\step_definitions\\registry_steps.js:8"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 814200
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 38,
+            "name": "I have a registry \"production\" configured at \"https://registry.example.com\"",
+            "match": {
+              "location": "features\\step_definitions\\registry_steps.js:21"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 51084199
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 39,
+            "name": "I have a registry \"staging\" configured at \"https://staging.example.com\"",
+            "match": {
+              "location": "features\\step_definitions\\registry_steps.js:21"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 51272800
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 40,
+            "name": "\"staging\" is the active registry",
+            "match": {
+              "location": "features\\step_definitions\\registry_steps.js:30"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 54890700
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 41,
+            "name": "I run \"rfh registry list\"",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:17"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 51644399
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 42,
+            "name": "I should see both registries in the list",
+            "match": {
+              "location": "features\\step_definitions\\registry_steps.js:89"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 138100
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 43,
+            "name": "I should see \"staging\" marked as active",
+            "match": {
+              "location": "features\\step_definitions\\registry_steps.js:78"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 97200
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 44,
+            "name": "I should not see \"production\" marked as active",
+            "match": {
+              "location": "features\\step_definitions\\registry_steps.js:84"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 74299
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 31300
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 401899
+            }
+          }
+        ],
+        "tags": [],
+        "type": "scenario"
+      },
+      {
+        "description": "",
+        "id": "registry-management;switch-active-registry",
+        "keyword": "Scenario",
+        "line": 46,
+        "name": "Switch active registry",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 12099
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 7,
+            "name": "RFH is installed and accessible",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:10"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 102900
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 8,
+            "name": "I have a clean config file",
+            "match": {
+              "location": "features\\step_definitions\\registry_steps.js:8"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 839500
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 47,
+            "name": "I have a registry \"production\" configured at \"https://registry.example.com\"",
+            "match": {
+              "location": "features\\step_definitions\\registry_steps.js:21"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 53152100
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 48,
+            "name": "I have a registry \"staging\" configured at \"https://staging.example.com\"",
+            "match": {
+              "location": "features\\step_definitions\\registry_steps.js:21"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 50857500
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 49,
+            "name": "\"production\" is the active registry",
+            "match": {
+              "location": "features\\step_definitions\\registry_steps.js:30"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 55432099
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 50,
+            "name": "I run \"rfh registry use staging\"",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:17"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 50861599
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 51,
+            "name": "I should see \"Set 'staging' as active registry\"",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:32"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 111100
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 52,
+            "name": "\"staging\" should be the current active registry",
+            "match": {
+              "location": "features\\step_definitions\\registry_steps.js:47"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 247200
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 19700
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 331299
+            }
+          }
+        ],
+        "tags": [],
+        "type": "scenario"
+      },
+      {
+        "description": "",
+        "id": "registry-management;remove-non-active-registry",
+        "keyword": "Scenario",
+        "line": 54,
+        "name": "Remove non-active registry",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 10700
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 7,
+            "name": "RFH is installed and accessible",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:10"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 103300
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 8,
+            "name": "I have a clean config file",
+            "match": {
+              "location": "features\\step_definitions\\registry_steps.js:8"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 1446299
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 55,
+            "name": "I have a registry \"production\" configured at \"https://registry.example.com\"",
+            "match": {
+              "location": "features\\step_definitions\\registry_steps.js:21"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 52652799
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 56,
+            "name": "I have a registry \"staging\" configured at \"https://staging.example.com\"",
+            "match": {
+              "location": "features\\step_definitions\\registry_steps.js:21"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 51599899
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 57,
+            "name": "\"staging\" is the active registry",
+            "match": {
+              "location": "features\\step_definitions\\registry_steps.js:30"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 53413700
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 58,
+            "name": "I run \"rfh registry remove production\"",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:17"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 54029799
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 59,
+            "name": "I should see \"Removed registry 'production'\"",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:32"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 109300
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 60,
+            "name": "\"staging\" should remain the active registry",
+            "match": {
+              "location": "features\\step_definitions\\registry_steps.js:57"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 897699
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 61,
+            "name": "the config should not contain registry \"production\"",
+            "match": {
+              "location": "features\\step_definitions\\registry_steps.js:67"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 232100
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 19299
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 284900
+            }
+          }
+        ],
+        "tags": [],
+        "type": "scenario"
+      },
+      {
+        "description": "",
+        "id": "registry-management;remove-active-registry",
+        "keyword": "Scenario",
+        "line": 63,
+        "name": "Remove active registry",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 19800
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 7,
+            "name": "RFH is installed and accessible",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:10"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 98100
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 8,
+            "name": "I have a clean config file",
+            "match": {
+              "location": "features\\step_definitions\\registry_steps.js:8"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 613899
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 64,
+            "name": "I have a registry \"production\" configured at \"https://registry.example.com\"",
+            "match": {
+              "location": "features\\step_definitions\\registry_steps.js:21"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 52890199
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 65,
+            "name": "I have a registry \"staging\" configured at \"https://staging.example.com\"",
+            "match": {
+              "location": "features\\step_definitions\\registry_steps.js:21"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 50826999
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 66,
+            "name": "\"staging\" is the active registry",
+            "match": {
+              "location": "features\\step_definitions\\registry_steps.js:30"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 51606200
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 67,
+            "name": "I run \"rfh registry remove staging\"",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:17"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 53504199
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 68,
+            "name": "I should see \"Removed active registry\"",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:32"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 94399
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 69,
+            "name": "I should see a warning about setting a new active registry",
+            "match": {
+              "location": "features\\step_definitions\\registry_steps.js:102"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 122800
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 70,
+            "name": "no registry should be active",
+            "match": {
+              "location": "features\\step_definitions\\registry_steps.js:62"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 325499
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 26600
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 540699
+            }
+          }
+        ],
+        "tags": [],
+        "type": "scenario"
+      },
+      {
+        "description": "",
+        "id": "registry-management;handle-invalid-registry-operations",
+        "keyword": "Scenario",
+        "line": 72,
+        "name": "Handle invalid registry operations",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 9799
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 7,
+            "name": "RFH is installed and accessible",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:10"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 98199
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 8,
+            "name": "I have a clean config file",
+            "match": {
+              "location": "features\\step_definitions\\registry_steps.js:8"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 690200
             }
           },
           {
@@ -2808,7 +3962,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 52475599
+              "duration": 55341599
             }
           },
           {
@@ -2821,7 +3975,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 155600
+              "duration": 175700
             }
           },
           {
@@ -2834,7 +3988,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 46599
+              "duration": 47900
             }
           },
           {
@@ -2842,7 +3996,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 28700
+              "duration": 27999
             }
           },
           {
@@ -2850,7 +4004,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 438899
+              "duration": 435300
             }
           }
         ],
@@ -2882,7 +4036,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 106099
+              "duration": 103100
             }
           },
           {
@@ -2895,7 +4049,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 965200
+              "duration": 777000
             }
           },
           {
@@ -2908,7 +4062,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 51647300
+              "duration": 49884500
             }
           },
           {
@@ -2921,7 +4075,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 53847200
+              "duration": 55421299
             }
           },
           {
@@ -2934,7 +4088,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 100899
+              "duration": 106200
             }
           },
           {
@@ -2947,7 +4101,7 @@
             },
             "result": {
               "status": "passed",
-              "duration": 412800
+              "duration": 355700
             }
           },
           {
@@ -2955,7 +4109,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 26800
+              "duration": 30600
             }
           },
           {
@@ -2963,7 +4117,7 @@
             "hidden": true,
             "result": {
               "status": "passed",
-              "duration": 355900
+              "duration": 306100
             }
           }
         ],

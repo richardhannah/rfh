@@ -10,7 +10,7 @@ Feature: User Registration Command
   Scenario: Registration command availability
     Given I have a registry "test-registry" configured at "http://localhost:8080"
     And "test-registry" is the active registry  
-    When I register with username "testuser", email "test@example.com", and password "password123"
+    When I attempt to register interactively
     Then I should see "Registering new account at http://localhost:8080"
     And I should see "Username:"
 
@@ -37,3 +37,17 @@ Feature: User Registration Command
     And I should see "login       Login to your user account" 
     And I should see "logout      Logout from your user account"
     And I should see "whoami      Show current user information"
+
+  Scenario: Successful non-interactive registration
+    Given I have a registry "test-registry" configured at "http://localhost:8080"
+    And "test-registry" is the active registry
+    When I register with username "newuser", email "newuser@example.com", and password "password123" using flags
+    Then I should see "Using provided credentials for newuser"
+    And I should see "Registering new account at http://localhost:8080"
+
+  Scenario: Non-interactive registration with validation
+    Given I have a registry "test-registry" configured at "http://localhost:8080"  
+    And "test-registry" is the active registry
+    When I register with username "testuser", email "test@domain.com", and password "securepass" using flags
+    Then I should see "Using provided credentials for testuser (test@domain.com)"
+    And I should see "Registering new account at http://localhost:8080"

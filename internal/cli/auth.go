@@ -13,6 +13,13 @@ import (
 	"rulestack/internal/config"
 )
 
+// Command line flags for non-interactive auth
+var (
+	authUsername string
+	authPassword string
+	authEmail    string
+)
+
 // authCmd represents the auth command group
 var authCmd = &cobra.Command{
 	Use:   "auth",
@@ -84,43 +91,54 @@ func runRegister() error {
 		return fmt.Errorf("active registry '%s' not found", cfg.Current)
 	}
 
-	fmt.Printf("📝 Registering new account at %s\n\n", registry.URL)
+	fmt.Printf("📝 Registering new account at %s\n", registry.URL)
 
-	// Get user input
-	reader := bufio.NewReader(os.Stdin)
+	var username, email, password string
 
-	fmt.Print("Username: ")
-	username, err := reader.ReadString('\n')
-	if err != nil {
-		return fmt.Errorf("failed to read username: %w", err)
-	}
-	username = strings.TrimSpace(username)
+	// Check if non-interactive flags are provided
+	if authUsername != "" && authEmail != "" && authPassword != "" {
+		username = authUsername
+		email = authEmail
+		password = authPassword
+		fmt.Printf("Using provided credentials for %s (%s)\n", username, email)
+	} else {
+		// Interactive mode
+		fmt.Println()
+		reader := bufio.NewReader(os.Stdin)
 
-	fmt.Print("Email: ")
-	email, err := reader.ReadString('\n')
-	if err != nil {
-		return fmt.Errorf("failed to read email: %w", err)
-	}
-	email = strings.TrimSpace(email)
+		fmt.Print("Username: ")
+		usernameInput, err := reader.ReadString('\n')
+		if err != nil {
+			return fmt.Errorf("failed to read username: %w", err)
+		}
+		username = strings.TrimSpace(usernameInput)
 
-	fmt.Print("Password: ")
-	passwordBytes, err := term.ReadPassword(int(syscall.Stdin))
-	if err != nil {
-		return fmt.Errorf("failed to read password: %w", err)
-	}
-	password := string(passwordBytes)
-	fmt.Println() // New line after password input
+		fmt.Print("Email: ")
+		emailInput, err := reader.ReadString('\n')
+		if err != nil {
+			return fmt.Errorf("failed to read email: %w", err)
+		}
+		email = strings.TrimSpace(emailInput)
 
-	fmt.Print("Confirm password: ")
-	confirmBytes, err := term.ReadPassword(int(syscall.Stdin))
-	if err != nil {
-		return fmt.Errorf("failed to read password confirmation: %w", err)
-	}
-	confirm := string(confirmBytes)
-	fmt.Println() // New line after password input
+		fmt.Print("Password: ")
+		passwordBytes, err := term.ReadPassword(int(syscall.Stdin))
+		if err != nil {
+			return fmt.Errorf("failed to read password: %w", err)
+		}
+		password = string(passwordBytes)
+		fmt.Println() // New line after password input
 
-	if password != confirm {
-		return fmt.Errorf("passwords do not match")
+		fmt.Print("Confirm password: ")
+		confirmBytes, err := term.ReadPassword(int(syscall.Stdin))
+		if err != nil {
+			return fmt.Errorf("failed to read password confirmation: %w", err)
+		}
+		confirm := string(confirmBytes)
+		fmt.Println() // New line after password input
+
+		if password != confirm {
+			return fmt.Errorf("passwords do not match")
+		}
 	}
 
 	// Validate input
@@ -184,25 +202,35 @@ func runLogin() error {
 		return fmt.Errorf("active registry '%s' not found", cfg.Current)
 	}
 
-	fmt.Printf("🔑 Logging in to %s\n\n", registry.URL)
+	fmt.Printf("🔑 Logging in to %s\n", registry.URL)
 
-	// Get user input
-	reader := bufio.NewReader(os.Stdin)
+	var username, password string
 
-	fmt.Print("Username: ")
-	username, err := reader.ReadString('\n')
-	if err != nil {
-		return fmt.Errorf("failed to read username: %w", err)
+	// Check if non-interactive flags are provided
+	if authUsername != "" && authPassword != "" {
+		username = authUsername
+		password = authPassword
+		fmt.Printf("Using provided credentials for %s\n", username)
+	} else {
+		// Interactive mode
+		fmt.Println()
+		reader := bufio.NewReader(os.Stdin)
+
+		fmt.Print("Username: ")
+		usernameInput, err := reader.ReadString('\n')
+		if err != nil {
+			return fmt.Errorf("failed to read username: %w", err)
+		}
+		username = strings.TrimSpace(usernameInput)
+
+		fmt.Print("Password: ")
+		passwordBytes, err := term.ReadPassword(int(syscall.Stdin))
+		if err != nil {
+			return fmt.Errorf("failed to read password: %w", err)
+		}
+		password = string(passwordBytes)
+		fmt.Println() // New line after password input
 	}
-	username = strings.TrimSpace(username)
-
-	fmt.Print("Password: ")
-	passwordBytes, err := term.ReadPassword(int(syscall.Stdin))
-	if err != nil {
-		return fmt.Errorf("failed to read password: %w", err)
-	}
-	password := string(passwordBytes)
-	fmt.Println() // New line after password input
 
 	// Validate input
 	if username == "" {
@@ -364,4 +392,12 @@ func init() {
 	authCmd.AddCommand(loginCmd)
 	authCmd.AddCommand(logoutCmd)
 	authCmd.AddCommand(whoamiCmd)
+	
+	// Add flags for non-interactive authentication
+	registerCmd.Flags().StringVar(&authUsername, "username", "", "username for registration (non-interactive)")
+	registerCmd.Flags().StringVar(&authEmail, "email", "", "email for registration (non-interactive)")
+	registerCmd.Flags().StringVar(&authPassword, "password", "", "password for registration (non-interactive)")
+	
+	loginCmd.Flags().StringVar(&authUsername, "username", "", "username for login (non-interactive)")
+	loginCmd.Flags().StringVar(&authPassword, "password", "", "password for login (non-interactive)")
 }
