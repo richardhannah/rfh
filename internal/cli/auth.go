@@ -259,9 +259,6 @@ func runLogout() error {
 		if registry, exists := cfg.Registries[cfg.Current]; exists && registry.Username != "" {
 			username = registry.Username
 			tokenToLogout = registry.JWTToken
-			if tokenToLogout == "" {
-				tokenToLogout = registry.Token // fallback to legacy token
-			}
 		}
 	}
 
@@ -323,9 +320,6 @@ func runWhoami() error {
 		if registry, exists := cfg.Registries[cfg.Current]; exists && registry.Username != "" {
 			username = registry.Username
 			token = registry.JWTToken
-			if token == "" {
-				token = registry.Token // fallback to legacy token
-			}
 		}
 	}
 

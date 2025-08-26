@@ -6,7 +6,7 @@ import (
 )
 
 // getEffectiveToken returns the token to use for API calls
-// Priority: 1) --token flag, 2) registry JWT token, 3) registry legacy token, 4) global JWT token (deprecated)
+// Priority: 1) --token flag, 2) registry JWT token, 3) global JWT token (deprecated)
 func getEffectiveToken(cfg config.CLIConfig, registry config.Registry) (string, error) {
 	// 1. Check command line flag (highest priority)
 	if token != "" {
@@ -16,7 +16,7 @@ func getEffectiveToken(cfg config.CLIConfig, registry config.Registry) (string, 
 		return token, nil
 	}
 
-	// 2. Check registry-specific JWT token (preferred)
+	// 2. Check registry-specific JWT token
 	if registry.JWTToken != "" {
 		if verbose {
 			fmt.Printf("🔍 Using JWT token from registry config (length: %d chars)\n", len(registry.JWTToken))
@@ -24,15 +24,7 @@ func getEffectiveToken(cfg config.CLIConfig, registry config.Registry) (string, 
 		return registry.JWTToken, nil
 	}
 
-	// 3. Check registry-specific legacy token
-	if registry.Token != "" {
-		if verbose {
-			fmt.Printf("🔍 Using legacy token from registry config (length: %d chars)\n", len(registry.Token))
-		}
-		return registry.Token, nil
-	}
-
-	// 4. Check global JWT token from user authentication (deprecated, for backward compatibility)
+	// 3. Check global JWT token from user authentication (deprecated, for backward compatibility)
 	if cfg.User != nil && cfg.User.Token != "" {
 		if verbose {
 			fmt.Printf("🔍 Using global JWT token (DEPRECATED) (length: %d chars)\n", len(cfg.User.Token))
@@ -40,7 +32,7 @@ func getEffectiveToken(cfg config.CLIConfig, registry config.Registry) (string, 
 		return cfg.User.Token, nil
 	}
 
-	return "", fmt.Errorf("no authentication token available. Use 'rfh auth login' to authenticate or configure a registry token")
+	return "", fmt.Errorf("no authentication token available. Use 'rfh auth login' to authenticate or configure a registry JWT token")
 }
 
 // getCurrentRegistry returns the current active registry

@@ -22,37 +22,14 @@ func main() {
 	}
 	defer database.Close()
 
-	// Create a test token
-	tokenValue := "dev-token-12345"
-	tokenHash := db.HashToken(tokenValue, cfg.TokenSalt)
-
-	// Check if token already exists
-	var exists bool
-	err = database.Get(&exists, "SELECT EXISTS(SELECT 1 FROM tokens WHERE token_hash = $1)", tokenHash)
-	if err != nil {
-		log.Fatal("Failed to check token:", err)
-	}
-
-	if !exists {
-		// Insert test token
-		name := "Development Token"
-		_, err = database.CreateToken(tokenHash, &name)
-		if err != nil {
-			log.Fatal("Failed to create token:", err)
-		}
-
-		fmt.Printf("✅ Created development token\n")
-		fmt.Printf("🔑 Token: %s\n", tokenValue)
-		fmt.Printf("⚠️  Save this token - you'll need it for publishing\n\n")
-	} else {
-		fmt.Printf("✅ Development token already exists\n")
-		fmt.Printf("🔑 Token: %s\n", tokenValue)
-	}
+	fmt.Printf("✅ Database connection established\n")
 
 	// Show setup instructions
 	fmt.Printf("🚀 Setup complete! Next steps:\n")
 	fmt.Printf("   1. Start API: go run ./cmd/api\n")
-	fmt.Printf("   2. Add registry: ./rfh registry add local http://localhost:8080 %s\n", tokenValue)
-	fmt.Printf("   3. Initialize package: ./rfh init\n")
-	fmt.Printf("   4. Pack and publish: ./rfh pack && ./rfh publish\n")
+	fmt.Printf("   2. Add registry: ./rfh registry add local http://localhost:8080\n")
+	fmt.Printf("   3. Authenticate: ./rfh auth login\n")
+	fmt.Printf("   4. Initialize package: ./rfh init\n")
+	fmt.Printf("   5. Pack and publish: ./rfh pack && ./rfh publish\n")
+	fmt.Printf("\n💡 Authentication now uses JWT tokens via 'rfh auth login'\n")
 }

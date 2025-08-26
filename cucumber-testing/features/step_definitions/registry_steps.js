@@ -42,11 +42,7 @@ Then('the config should contain registry {string} with URL {string}', async func
   expect(configContent).to.include(`url = '${url}'`);
 });
 
-Then('the config should store the token for {string}', async function (name) {
-  const configContent = await fs.readFile(this.configPath, 'utf8');
-  expect(configContent).to.include(`[registries.${name}]`);
-  expect(configContent).to.include('token = ');
-});
+// Token storage step removed - JWT tokens are obtained via 'rfh auth login'
 
 Then('{string} should be the current active registry', async function (name) {
   const configContent = await fs.readFile(this.configPath, 'utf8');

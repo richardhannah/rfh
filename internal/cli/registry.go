@@ -20,24 +20,22 @@ configure multiple registries including public and private ones.`,
 
 // registryAddCmd adds a new registry
 var registryAddCmd = &cobra.Command{
-	Use:   "add <name> <url> [token]",
+	Use:   "add <name> <url>",
 	Short: "Add a new registry",
 	Long: `Add a new registry configuration.
 
 Examples:
   rfh registry add public https://registry.rulestack.dev
-  rfh registry add company https://rulestack.company.com my-token
-  rfh registry add local http://localhost:8080 dev-token`,
-	Args: cobra.RangeArgs(2, 3),
+  rfh registry add company https://rulestack.company.com
+  rfh registry add local http://localhost:8080
+
+Authentication tokens are obtained via 'rfh auth login'.`,
+	Args: cobra.ExactArgs(2),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		name := args[0]
 		url := args[1]
-		token := ""
-		if len(args) > 2 {
-			token = args[2]
-		}
 
-		return runRegistryAdd(name, url, token)
+		return runRegistryAdd(name, url)
 	},
 }
 
@@ -64,7 +62,7 @@ The active registry is used when no --registry flag is specified.`,
 	},
 }
 
-func runRegistryAdd(name, url, token string) error {
+func runRegistryAdd(name, url string) error {
 	cfg, err := config.LoadCLI()
 	if err != nil {
 		return fmt.Errorf("failed to load config: %w", err)
@@ -72,8 +70,7 @@ func runRegistryAdd(name, url, token string) error {
 
 	// Add registry
 	cfg.Registries[name] = config.Registry{
-		URL:   url,
-		Token: token,
+		URL: url,
 	}
 
 	// Set as current if it's the first one
@@ -88,13 +85,12 @@ func runRegistryAdd(name, url, token string) error {
 
 	fmt.Printf("✅ Added registry '%s'\n", name)
 	fmt.Printf("🌐 URL: %s\n", url)
-	if token != "" {
-		fmt.Printf("🔑 Token: [configured]\n")
-	}
 
 	if cfg.Current == name {
 		fmt.Printf("⭐ Set as active registry\n")
 	}
+
+	fmt.Printf("💡 Use 'rfh auth login' to authenticate with this registry\n")
 
 	return nil
 }
@@ -120,8 +116,8 @@ func runRegistryList() error {
 
 		fmt.Printf("%s%s\n", marker, name)
 		fmt.Printf("    URL: %s\n", reg.URL)
-		if reg.Token != "" {
-			fmt.Printf("    Token: [configured]\n")
+		if reg.JWTToken != "" {
+			fmt.Printf("    JWT Token: [configured]\n")
 		}
 		fmt.Printf("\n")
 	}

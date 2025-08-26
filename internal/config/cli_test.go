@@ -84,7 +84,7 @@ func TestLoadCLI(t *testing.T) {
 
 [registries.local]
 url = "http://localhost:8080"
-token = "test-token"
+jwt_token = "test-jwt-token"
 
 [registries.public]
 url = "https://registry.example.com"
@@ -114,8 +114,8 @@ url = "https://registry.example.com"
 			if localReg.URL != "http://localhost:8080" {
 				t.Errorf("expected local URL 'http://localhost:8080', got %q", localReg.URL)
 			}
-			if localReg.Token != "test-token" {
-				t.Errorf("expected local token 'test-token', got %q", localReg.Token)
+			if localReg.JWTToken != "test-jwt-token" {
+				t.Errorf("expected local JWT token 'test-jwt-token', got %q", localReg.JWTToken)
 			}
 		}
 
@@ -126,8 +126,8 @@ url = "https://registry.example.com"
 			if publicReg.URL != "https://registry.example.com" {
 				t.Errorf("expected public URL 'https://registry.example.com', got %q", publicReg.URL)
 			}
-			if publicReg.Token != "" {
-				t.Errorf("expected empty public token, got %q", publicReg.Token)
+			if publicReg.JWTToken != "" {
+				t.Errorf("expected empty public JWT token, got %q", publicReg.JWTToken)
 			}
 		}
 	})
@@ -173,8 +173,8 @@ func TestSaveCLI(t *testing.T) {
 			Current: "test",
 			Registries: map[string]Registry{
 				"test": {
-					URL:   "https://test.example.com",
-					Token: "secret-token",
+					URL:      "https://test.example.com",
+					JWTToken: "secret-jwt-token",
 				},
 				"public": {
 					URL: "https://public.example.com",
@@ -218,8 +218,8 @@ func TestSaveCLI(t *testing.T) {
 				t.Errorf("registry %q URL mismatch: expected %q, got %q", name, expectedReg.URL, loadedReg.URL)
 			}
 
-			if loadedReg.Token != expectedReg.Token {
-				t.Errorf("registry %q token mismatch: expected %q, got %q", name, expectedReg.Token, loadedReg.Token)
+			if loadedReg.JWTToken != expectedReg.JWTToken {
+				t.Errorf("registry %q JWT token mismatch: expected %q, got %q", name, expectedReg.JWTToken, loadedReg.JWTToken)
 			}
 		}
 	})

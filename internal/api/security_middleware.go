@@ -92,7 +92,6 @@ func (s *Server) enhancedAuthMiddleware(registry *RouteRegistry) func(http.Handl
 
 			var user *db.User
 			var session *db.UserSession
-			var legacyToken *db.Token
 
 			// Try JWT authentication first
 			if claims, err := jwtManager.ValidateToken(token); err == nil {
@@ -112,25 +111,9 @@ func (s *Server) enhancedAuthMiddleware(registry *RouteRegistry) func(http.Handl
 					return
 				}
 			} else {
-				fmt.Fprintf(os.Stderr, "DEBUG AUTH: JWT validation failed: %v, trying legacy token\n", err)
-				
-				// Try legacy token authentication
-				tokenHash := db.HashToken(token, s.Config.TokenSalt)
-				if legToken, err := s.DB.ValidateToken(tokenHash); err == nil {
-					legacyToken = legToken
-					fmt.Fprintf(os.Stderr, "DEBUG AUTH: Legacy token found and valid\n")
-					// For legacy tokens, we'll allow publisher permissions for backward compatibility
-					// This ensures existing systems continue to work
-					user = &db.User{
-						ID:       0,
-						Username: "legacy-token",
-						Role:     db.RolePublisher, // Grant publisher access to maintain compatibility
-					}
-				} else {
-					fmt.Fprintf(os.Stderr, "DEBUG AUTH: Both JWT and legacy token validation failed\n")
-					writeError(w, http.StatusUnauthorized, "Invalid token")
-					return
-				}
+				fmt.Fprintf(os.Stderr, "DEBUG AUTH: JWT validation failed: %v\n", err)
+				writeError(w, http.StatusUnauthorized, "Invalid token")
+				return
 			}
 
 			// Check role-based access
@@ -163,9 +146,6 @@ func (s *Server) enhancedAuthMiddleware(registry *RouteRegistry) func(http.Handl
 			}
 			if session != nil {
 				ctx = context.WithValue(ctx, sessionContextKey, session)
-			}
-			if legacyToken != nil {
-				ctx = context.WithValue(ctx, tokenContextKey, legacyToken)
 			}
 
 			next.ServeHTTP(w, r.WithContext(ctx))

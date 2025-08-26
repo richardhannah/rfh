@@ -11,6 +11,7 @@ Feature: Registry Management
     When I run "rfh registry add production https://registry.example.com"
     Then I should see "Added registry 'production'"
     And I should see "Set as active registry"
+    And I should see "Use 'rfh auth login' to authenticate"
     And the config should contain registry "production" with URL "https://registry.example.com"
     And "production" should be the current active registry
 
@@ -21,11 +22,6 @@ Feature: Registry Management
     And the config should contain both registries
     And "production" should remain the active registry
 
-  Scenario: Add registry with token
-    When I run "rfh registry add private https://private.example.com my-secret-token"
-    Then I should see "Added registry 'private'"
-    And the config should contain registry "private" with URL "https://private.example.com"
-    And the config should store the token for "private"
 
   Scenario: List registries when none configured
     When I run "rfh registry list"

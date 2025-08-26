@@ -9,7 +9,6 @@ import (
 
 type Registry struct {
 	URL      string `toml:"url"`
-	Token    string `toml:"token,omitempty"`    // Legacy token or API key
 	Username string `toml:"username,omitempty"` // Username for this registry
 	JWTToken string `toml:"jwt_token,omitempty"` // JWT token for this registry
 }

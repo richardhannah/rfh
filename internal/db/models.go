@@ -27,13 +27,6 @@ type PackageVersion struct {
 	CreatedAt   time.Time      `db:"created_at" json:"created_at"`
 }
 
-// Token represents an API authentication token
-type Token struct {
-	ID        int       `db:"id" json:"id"`
-	TokenHash string    `db:"token_hash" json:"token_hash"`
-	Name      *string   `db:"name" json:"name"`
-	CreatedAt time.Time `db:"created_at" json:"created_at"`
-}
 
 // PackageInfo combines package and version info for API responses
 type PackageInfo struct {
