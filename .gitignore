@@ -58,5 +58,12 @@ rfh.lock
 # Distribution folder
 dist/
 
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+
 .idea/
 .rulestack/

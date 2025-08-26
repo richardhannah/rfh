@@ -1,0 +1,61 @@
+Feature: Initialize new project successfully
+  As a developer
+  I want to initialize a new RuleStack project in an empty directory
+  So that I can start creating and managing rule packages
+
+  Background:
+    Given I am in an empty directory
+    And RFH is installed and accessible
+
+  Scenario: Initialize new project with default settings
+    When I run "rfh init"
+    Then I should see "Initialized RuleStack project"
+    And I should see the project name in the output
+    And a file "rulestack.json" should be created
+    And the manifest should contain:
+      | field       | value         |
+      | name        | example-rules |
+      | version     | 0.1.0         |
+      | description | Example AI ruleset |
+    And the manifest should not contain scope characters "@" or "/"
+    And a directory ".rulestack" should be created
+    And a file "CLAUDE.md" should be created
+    And core rules should be downloaded to ".rulestack/core.v1.0.0/"
+    And the file ".rulestack/core.v1.0.0/core_rules.md" should exist
+
+  Scenario: Verify manifest structure
+    When I run "rfh init"
+    Then the "rulestack.json" file should be valid JSON
+    And the manifest should have the following structure:
+      ```json
+      {
+        "name": "example-rules",
+        "version": "0.1.0",
+        "description": "Example AI ruleset",
+        "targets": ["cursor"],
+        "tags": ["example", "starter"],
+        "files": ["*.md"],
+        "license": "MIT"
+      }
+      ```
+
+  Scenario: Verify directory structure after init
+    When I run "rfh init"
+    Then the following files and directories should exist:
+      | path                                      | type      |
+      | rulestack.json                           | file      |
+      | CLAUDE.md                                | file      |
+      | .rulestack/                              | directory |
+      | .rulestack/core.v1.0.0/                  | directory |
+      | .rulestack/core.v1.0.0/core_rules.md    | file      |
+
+  Scenario: Verify success message format
+    When I run "rfh init"
+    Then I should see output containing:
+      | message                                    |
+      | ✅ Initialized RuleStack project          |
+      | 📁 Created:                               |
+      | rulestack.json (package manifest)         |
+      | CLAUDE.md (Claude Code integration)       |
+      | .rulestack/ (dependency directory)        |
+      | 🚀 Next steps:                            |

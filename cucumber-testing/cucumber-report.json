@@ -1,0 +1,131 @@
+[
+  {
+    "description": "  As a developer\n  I want to test the actual current behavior of rfh init\n  So that I can validate what currently works",
+    "elements": [
+      {
+        "description": "",
+        "id": "rfh-init---actual-current-behavior;verify-available-flags-match-help-output",
+        "keyword": "Scenario",
+        "line": 33,
+        "name": "Verify available flags match help output",
+        "steps": [
+          {
+            "keyword": "Before",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 600099
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Given ",
+            "line": 7,
+            "name": "I am in an empty directory",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:6"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 790300
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 8,
+            "name": "RFH is installed and accessible",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:10"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 305900
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "When ",
+            "line": 34,
+            "name": "I run \"rfh init --help\"",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:17"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 56667300
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "Then ",
+            "line": 35,
+            "name": "I should see \"force\"",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:32"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 543099
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 36,
+            "name": "I should see \"help\"",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:32"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 97499
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 37,
+            "name": "I should not see \"name\"",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:37"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 102800
+            }
+          },
+          {
+            "arguments": [],
+            "keyword": "And ",
+            "line": 38,
+            "name": "I should not see \"migrate\"",
+            "match": {
+              "location": "features\\step_definitions\\init_steps.js:37"
+            },
+            "result": {
+              "status": "passed",
+              "duration": 66599
+            }
+          },
+          {
+            "keyword": "After",
+            "hidden": true,
+            "result": {
+              "status": "passed",
+              "duration": 907800
+            }
+          }
+        ],
+        "tags": [],
+        "type": "scenario"
+      }
+    ],
+    "id": "rfh-init---actual-current-behavior",
+    "line": 1,
+    "keyword": "Feature",
+    "name": "RFH Init - Actual Current Behavior",
+    "tags": [],
+    "uri": "features\\init-actual-behavior.feature"
+  }
+]
