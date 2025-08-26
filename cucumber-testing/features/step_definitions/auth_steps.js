@@ -11,7 +11,9 @@ const { runCommand, runCommandInDirectory } = require('./helpers');
 
 // Basic test for command availability
 When('I register with username {string}, email {string}, and password {string}', async function (username, email, password) {
-  await this.runAuthRegisterTest();
+  // For scenarios testing basic registry/auth validation, use the simpler runCommand approach
+  const command = `rfh auth register --username "${username}" --email "${email}" --password "${password}" --config "${this.configPath}"`;
+  await this.runCommand(command);
 });
 
 When('I register with username {string}, email {string}, password {string}, and confirmation {string}', async function (username, email, password, confirmation) {
@@ -28,7 +30,9 @@ When('I register with username {string}, empty email, and password {string}', as
 
 // Login-specific step definitions
 When('I login with username {string} and password {string}', async function (username, password) {
-  await this.runAuthLoginWithCredentials(username, password);
+  // For scenarios testing basic registry/auth validation, use the simpler runCommand approach
+  const command = `rfh auth login --username "${username}" --password "${password}" --config "${this.configPath}"`;
+  await this.runCommand(command);
 });
 
 // Register with credentials step definitions  
@@ -88,10 +92,10 @@ Then('the command should exit with zero status', function () {
 });
 
 Given('I have a clean config file with no registries', async function () {
-  // Create an empty config file
-  const configDir = path.dirname(this.configPath);
-  await fs.ensureDir(configDir);
-  await fs.writeFile(this.configPath, '', 'utf8');
+  // Set a config path that doesn't exist - this will cause RFH to behave as if no config is present
+  this.configPath = path.join(require('os').tmpdir(), `rfh-test-no-config-${Date.now()}-${Math.random().toString(36)}`, 'nonexistent.toml');
+  
+  // Don't create the config file - let RFH handle the absence of config
 });
 
 Given('I have a config with current registry {string}', async function (registryName) {
