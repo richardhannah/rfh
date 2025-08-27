@@ -8,16 +8,15 @@ Feature: RFH Publish Command
 
   Scenario: Publish command help text
     When I run "rfh publish --help"
-    Then I should see "Publish a ruleset package to the configured registry"
-    And I should see "--archive string   path to archive file"
+    Then I should see "Publish all staged ruleset packages to the configured registry"
     And I should see "Requires authentication token to be configured in the registry"
 
   Scenario: Publish with no active registry
     Given I have a clean config file with no registries
     And I have a temporary project directory
-    And I have a rulestack.json manifest with name "no-registry" and version "1.0.0"
-    And I have a rule file "test.md" with content "# Test Rules"
-    When I run "rfh pack" in the project directory
+    And RFH is initialized in the directory
+    And I have a rule file "test.mdc" with content "# Test Rules"
+    When I run "rfh pack test.mdc --package=no-registry" in the project directory
     And I run "rfh publish" in the project directory
     Then I should see "no active registry configured"
     And I should see "Use 'rfh registry add' to add one"
@@ -28,9 +27,9 @@ Feature: RFH Publish Command
     And I have a registry "test-registry" configured at "http://localhost:8080"
     And "test-registry" is the active registry
     And I have a temporary project directory
-    And I have a rulestack.json manifest with name "unauth-test" and version "1.0.0"
-    And I have a rule file "rules.md" with content "# Unauth Test Rules"
-    When I run "rfh pack" in the project directory
+    And RFH is initialized in the directory
+    And I have a rule file "rules.mdc" with content "# Unauth Test Rules"
+    When I run "rfh pack rules.mdc --package=unauth-test" in the project directory
     And I run "rfh publish" in the project directory
     Then I should see "no authentication token available"
     And I should see "Use 'rfh auth login' to authenticate"
@@ -39,8 +38,8 @@ Feature: RFH Publish Command
   Scenario: Publish with missing manifest
     Given I have a temporary project directory
     When I run "rfh publish" in the project directory
-    Then I should see "failed to load manifest"
-    And I should see "no such file or directory"
+    Then I should see "no staged archives found"
+    And I should see "Use 'rfh pack' to create archives first"
     And the command should exit with non-zero status
 
   Scenario: Publish with missing archive file
@@ -48,21 +47,19 @@ Feature: RFH Publish Command
     And I have a registry "test-registry" configured at "http://localhost:8080"
     And "test-registry" is the active registry
     And I have a temporary project directory
-    And I have a rulestack.json manifest with name "missing-archive" and version "1.0.0"
     When I run "rfh publish" in the project directory
-    Then I should see "archive not found: missing-archive-1.0.0.tgz"
-    And I should see "Run 'rfh pack' first or specify --archive"
+    Then I should see "no staged archives found"
+    And I should see "Use 'rfh pack' to create archives first"
     And the command should exit with non-zero status
 
-  Scenario: Publish with custom missing archive file
+  Scenario: Publish with no staged archives shows guidance
     Given I have a clean config file
     And I have a registry "test-registry" configured at "http://localhost:8080"
     And "test-registry" is the active registry
     And I have a temporary project directory
-    And I have a rulestack.json manifest with name "custom-archive" and version "1.0.0"
-    When I run "rfh publish --archive nonexistent.tgz" in the project directory
-    Then I should see "archive not found: nonexistent.tgz"
-    And I should see "Run 'rfh pack' first or specify --archive"
+    When I run "rfh publish" in the project directory
+    Then I should see "no staged archives found"
+    And I should see "Use 'rfh pack' to create archives first"
     And the command should exit with non-zero status
 
   Scenario: Publish verbose output shows configuration
@@ -70,11 +67,10 @@ Feature: RFH Publish Command
     And I have a registry "test-registry" configured at "http://localhost:8080"
     And "test-registry" is the active registry
     And I have a temporary project directory
-    And I have a rulestack.json manifest with name "verbose-test" and version "1.0.0"
     When I run "rfh publish --verbose" in the project directory
     Then I should see "RFH version: 1.0.0"
     And I should see "Config file:"
-    And I should see "archive not found: verbose-test-1.0.0.tgz"
+    And I should see "no staged archives found"
     And the command should exit with non-zero status
 
   Scenario: Publish with token override flag
@@ -82,9 +78,9 @@ Feature: RFH Publish Command
     And I have a registry "test-registry" configured at "http://localhost:8080"
     And "test-registry" is the active registry
     And I have a temporary project directory
-    And I have a rulestack.json manifest with name "token-test" and version "1.0.0"
-    And I have a rule file "rules.md" with content "# Token Test Rules"
-    When I run "rfh pack" in the project directory
+    And RFH is initialized in the directory
+    And I have a rule file "rules.mdc" with content "# Token Test Rules"
+    When I run "rfh pack rules.mdc --package=token-test" in the project directory
     And I run "rfh publish --token dummy-token" in the project directory
     Then I should see either authentication error or connection error
     And the command should exit with non-zero status
@@ -94,9 +90,9 @@ Feature: RFH Publish Command
     And I have a registry "test-registry" configured at "http://localhost:8080"
     And "test-registry" is the active registry
     And I have a temporary project directory
-    And I have a rulestack.json manifest with name "override-test" and version "1.0.0"
-    And I have a rule file "rules.md" with content "# Override Test Rules"
-    When I run "rfh pack" in the project directory
+    And RFH is initialized in the directory
+    And I have a rule file "rules.mdc" with content "# Override Test Rules"
+    When I run "rfh pack rules.mdc --package=override-test" in the project directory
     And I run "rfh publish --registry http://localhost:9999 --token dummy-token" in the project directory
     Then I should see either authentication error or connection error
     And the command should exit with non-zero status
@@ -106,8 +102,7 @@ Feature: RFH Publish Command
     And I have a registry "test-registry" configured at "http://localhost:8080"
     And "test-registry" is the active registry
     And I have a temporary project directory
-    And I have a rulestack.json manifest with name "workflow-test" and version "1.0.0"
     When I run "rfh publish" in the project directory
-    Then I should see "archive not found"
-    And I should see "Run 'rfh pack' first"
+    Then I should see "no staged archives found"
+    And I should see "Use 'rfh pack' to create archives first"
     And the command should exit with non-zero status

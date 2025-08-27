@@ -77,26 +77,31 @@ Then('a directory {string} should be created', async function (dirName) {
 // Manifest validation steps
 Then('the manifest should have name {string}', async function (expectedName) {
   const manifestContent = await this.readFile('rulestack.json');
-  const manifest = JSON.parse(manifestContent);
+  const manifestArray = JSON.parse(manifestContent);
+  // Handle both array and object formats for backward compatibility
+  const manifest = Array.isArray(manifestArray) ? manifestArray[0] : manifestArray;
   expect(manifest.name).to.equal(expectedName);
 });
 
 Then('the manifest should not contain scope characters {string} or {string}', async function (char1, char2) {
   const manifestContent = await this.readFile('rulestack.json');
-  const manifest = JSON.parse(manifestContent);
+  const manifestArray = JSON.parse(manifestContent);
+  const manifest = Array.isArray(manifestArray) ? manifestArray[0] : manifestArray;
   expect(manifest.name).to.not.include(char1);
   expect(manifest.name).to.not.include(char2);
 });
 
 Then('the default package name should be {string}', async function (expectedName) {
   const manifestContent = await this.readFile('rulestack.json');
-  const manifest = JSON.parse(manifestContent);
+  const manifestArray = JSON.parse(manifestContent);
+  const manifest = Array.isArray(manifestArray) ? manifestArray[0] : manifestArray;
   expect(manifest.name).to.equal(expectedName);
 });
 
 Then('the package name should not be {string}', async function (unexpectedName) {
   const manifestContent = await this.readFile('rulestack.json');
-  const manifest = JSON.parse(manifestContent);
+  const manifestArray = JSON.parse(manifestContent);
+  const manifest = Array.isArray(manifestArray) ? manifestArray[0] : manifestArray;
   expect(manifest.name).to.not.equal(unexpectedName);
 });
 
@@ -113,7 +118,8 @@ Then('the {string} file should be valid JSON', async function (fileName) {
 
 Then('the manifest should contain:', function (dataTable) {
   return this.readFile('rulestack.json').then(content => {
-    const manifest = JSON.parse(content);
+    const manifestArray = JSON.parse(content);
+    const manifest = Array.isArray(manifestArray) ? manifestArray[0] : manifestArray;
     dataTable.hashes().forEach(row => {
       expect(manifest[row.field]).to.equal(row.value);
     });
@@ -201,7 +207,8 @@ Then('I should see the project name in the output', function () {
 
 Then('the manifest should have the following structure:', async function (docString) {
   const manifestContent = await this.readFile('rulestack.json');
-  const actualManifest = JSON.parse(manifestContent);
+  const manifestArray = JSON.parse(manifestContent);
+  const actualManifest = Array.isArray(manifestArray) ? manifestArray[0] : manifestArray;
   const expectedManifest = JSON.parse(docString);
   
   // Compare key fields

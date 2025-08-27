@@ -1,8 +1,10 @@
 package cli
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -12,46 +14,101 @@ import (
 	"rulestack/internal/manifest"
 )
 
-var (
-	archivePath string
-)
 
 // publishCmd represents the publish command
 var publishCmd = &cobra.Command{
 	Use:   "publish",
-	Short: "Publish a ruleset to the registry",
-	Long: `Publish a ruleset package to the configured registry.
+	Short: "Publish staged rulesets to the registry",
+	Long: `Publish all staged ruleset packages to the configured registry.
 
 This command will:
-1. Read the rulestack.json manifest
-2. Use the specified archive (or create one if not specified)
-3. Upload both files to the registry
-4. Validate the upload was successful
+1. Scan .rulestack/staged/ directory for archives
+2. Read associated manifest data from rulestack.json
+3. Upload each archive to the registry
+4. Clean up staged archives after successful upload
 
+Archives must be created with 'rfh pack' command first.
 Requires authentication token to be configured in the registry.`,
+	Args: cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return runPublish()
+		return runPublishStaged()
 	},
 }
 
-func runPublish() error {
-	// Load manifest
-	manifest, err := manifest.Load("rulestack.json")
+func runPublishStaged() error {
+	stagingDir := ".rulestack/staged"
+	
+	// Check if staging directory exists
+	if _, err := os.Stat(stagingDir); os.IsNotExist(err) {
+		return fmt.Errorf("no staged archives found. Use 'rfh pack' to create archives first")
+	}
+
+	// Find all .tgz files in staging directory
+	archives, err := filepath.Glob(filepath.Join(stagingDir, "*.tgz"))
+	if err != nil {
+		return fmt.Errorf("failed to scan staging directory: %w", err)
+	}
+
+	if len(archives) == 0 {
+		return fmt.Errorf("no archives found in staging directory. Use 'rfh pack' to create archives first")
+	}
+
+	// Load manifests to get package information
+	manifests, err := manifest.LoadAll("rulestack.json")
 	if err != nil {
 		return fmt.Errorf("failed to load manifest: %w", err)
 	}
 
-	// Determine archive path
-	archive := archivePath
-	if archive == "" {
-		// Generate default archive name (sanitize for filename)
-		safeName := sanitizePackageName(manifest.GetPackageName())
-		archive = fmt.Sprintf("%s-%s.tgz", safeName, manifest.Version)
+	fmt.Printf("Found %d staged archive(s) to publish:\n", len(archives))
+	for _, archivePath := range archives {
+		fmt.Printf("  - %s\n", filepath.Base(archivePath))
+	}
+
+	// Publish each archive
+	successCount := 0
+	for _, archivePath := range archives {
+		if err := publishSingleArchive(archivePath, manifests); err != nil {
+			fmt.Printf("❌ Failed to publish %s: %v\n", filepath.Base(archivePath), err)
+		} else {
+			fmt.Printf("✅ Successfully published %s\n", filepath.Base(archivePath))
+			// Remove archive after successful publish
+			os.Remove(archivePath)
+			successCount++
+		}
+	}
+
+	if successCount == len(archives) {
+		fmt.Printf("\n🎉 All %d archive(s) published successfully!\n", successCount)
+		return nil
+	} else {
+		fmt.Printf("\n⚠️  Published %d out of %d archive(s)\n", successCount, len(archives))
+		return fmt.Errorf("failed to publish %d archive(s)", len(archives)-successCount)
+	}
+}
+
+// publishSingleArchive publishes a single archive file
+func publishSingleArchive(archivePath string, manifests manifest.ManifestFile) error {
+	// Extract package name and version from archive filename
+	archiveName := filepath.Base(archivePath)
+	archiveName = strings.TrimSuffix(archiveName, ".tgz")
+	
+	// Find matching manifest entry
+	var packageManifest *manifest.Manifest
+	for _, m := range manifests {
+		expectedName := fmt.Sprintf("%s-%s", m.Name, m.Version)
+		if expectedName == archiveName {
+			packageManifest = &m
+			break
+		}
+	}
+	
+	if packageManifest == nil {
+		return fmt.Errorf("no manifest found for archive: %s", archiveName)
 	}
 
 	// Check if archive exists
-	if _, err := os.Stat(archive); os.IsNotExist(err) {
-		return fmt.Errorf("archive not found: %s. Run 'rfh pack' first or specify --archive", archive)
+	if _, err := os.Stat(archivePath); os.IsNotExist(err) {
+		return fmt.Errorf("archive not found: %s", archivePath)
 	}
 
 	// Get registry configuration
@@ -73,9 +130,9 @@ func runPublish() error {
 	}
 
 	if verbose {
-		fmt.Printf("📦 Publishing %s v%s\n", manifest.Name, manifest.Version)
+		fmt.Printf("📦 Publishing %s v%s\n", packageManifest.Name, packageManifest.Version)
 		fmt.Printf("🌐 Registry: %s (%s)\n", registryName, reg.URL)
-		fmt.Printf("📄 Archive: %s\n", archive)
+		fmt.Printf("📄 Archive: %s\n", archivePath)
 	}
 
 	// Create client
@@ -87,15 +144,21 @@ func runPublish() error {
 		return fmt.Errorf("registry health check failed: %w", err)
 	}
 
+	// Create a temporary manifest file for this specific package (as single object, not array)
+	tempManifestPath := fmt.Sprintf(".rulestack/staged/temp-manifest-%s.json", archiveName)
+	if err := createSingleManifestFile(packageManifest, tempManifestPath); err != nil {
+		return fmt.Errorf("failed to create temp manifest: %w", err)
+	}
+	defer os.Remove(tempManifestPath) // Clean up temp file
+
 	// Publish package
-	fmt.Printf("🚀 Publishing to %s...\n", reg.URL)
-	result, err := c.PublishPackage("rulestack.json", archive)
+	fmt.Printf("🚀 Publishing %s v%s to %s...\n", packageManifest.Name, packageManifest.Version, reg.URL)
+	result, err := c.PublishPackage(tempManifestPath, archivePath)
 	if err != nil {
 		return fmt.Errorf("publish failed: %w", err)
 	}
 
 	// Show success message
-	fmt.Printf("✅ Successfully published %s\n", manifest.Name)
 	if version, ok := result["version"].(string); ok {
 		fmt.Printf("📌 Version: %s\n", version)
 	}
@@ -135,6 +198,16 @@ func sanitizePackageName(name string) string {
 	return safeName
 }
 
+// createSingleManifestFile creates a temporary manifest file with a single package entry
+func createSingleManifestFile(packageManifest *manifest.Manifest, filePath string) error {
+	// Create the manifest as a single object (not array) for API compatibility
+	data, err := json.MarshalIndent(packageManifest, "", "  ")
+	if err != nil {
+		return fmt.Errorf("failed to marshal manifest: %w", err)
+	}
+
+	return os.WriteFile(filePath, data, 0o644)
+}
+
 func init() {
-	publishCmd.Flags().StringVarP(&archivePath, "archive", "a", "", "path to archive file (defaults to <name>-<version>.tgz)")
 }

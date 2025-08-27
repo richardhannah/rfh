@@ -23,36 +23,36 @@ Given('I have a temporary project directory at {string}', async function (dirPat
 });
 
 Given('I have a rulestack.json manifest with name {string} and version {string}', async function (name, version) {
-  const manifestContent = {
+  const manifestContent = [{
     "name": name,
     "version": version,
     "description": `Test package ${name}`,
     "files": ["*.md"]
-  };
+  }];
   
   const manifestPath = path.join(this.tempProjectDir, 'rulestack.json');
   await fs.writeJSON(manifestPath, manifestContent, { spaces: 2 });
 });
 
 Given('I have a rulestack.json manifest with name {string} and version {string} in {string}', async function (name, version, dirPath) {
-  const manifestContent = {
+  const manifestContent = [{
     "name": name,
     "version": version,
     "description": `Test package ${name}`,
     "files": ["*.md"]
-  };
+  }];
   
   const manifestPath = path.join(dirPath, 'rulestack.json');
   await fs.writeJSON(manifestPath, manifestContent, { spaces: 2 });
 });
 
 Given('I have a custom manifest {string} with name {string} and version {string}', async function (filename, name, version) {
-  const manifestContent = {
+  const manifestContent = [{
     "name": name,
     "version": version,
     "description": `Custom package ${name}`,
     "files": ["*.md"]
-  };
+  }];
   
   const manifestPath = path.join(this.tempProjectDir, filename);
   await fs.writeJSON(manifestPath, manifestContent, { spaces: 2 });
@@ -107,6 +107,55 @@ Then('I should see an error about missing files', function () {
                   output.includes('failed to pack files');
   expect(hasError, 'Should see an error about missing files').to.be.true;
 });
+
+// New step definitions for enhanced pack functionality
+
+Given('RFH is initialized in the directory', async function () {
+  const { execSync } = require('child_process');
+  const rfhPath = path.resolve(__dirname, '../../../rfh-final');
+  const initCommand = `"${rfhPath}" init`;
+  
+  try {
+    execSync(initCommand, { 
+      cwd: this.tempProjectDir,
+      stdio: 'pipe'
+    });
+  } catch (error) {
+    throw new Error(`Failed to initialize RFH: ${error.message}`);
+  }
+});
+
+Then('the rulestack.json should contain package {string} with version {string}', async function (packageName, version) {
+  const manifestPath = path.join(this.tempProjectDir, 'rulestack.json');
+  const manifestContent = await fs.readJSON(manifestPath);
+  
+  // Handle both array and object formats
+  const manifests = Array.isArray(manifestContent) ? manifestContent : [manifestContent];
+  
+  const foundPackage = manifests.find(m => m.name === packageName && m.version === version);
+  expect(foundPackage, `Package ${packageName} v${version} not found in manifest`).to.exist;
+});
+
+Then('the archive file {string} should not exist', async function (archivePath) {
+  const fullPath = path.join(this.tempProjectDir, archivePath);
+  const exists = await fs.pathExists(fullPath);
+  expect(exists, `Archive ${archivePath} should not exist but it does`).to.be.false;
+});
+
+Then('the directory {string} should not exist', async function (dirPath) {
+  const fullPath = path.join(this.tempProjectDir, dirPath);
+  const exists = await fs.pathExists(fullPath);
+  expect(exists, `Directory ${dirPath} should not exist but it does`).to.be.false;
+});
+
+Then('the directory {string} should exist', async function (dirPath) {
+  const fullPath = path.join(this.tempProjectDir, dirPath);
+  const exists = await fs.pathExists(fullPath);
+  expect(exists, `Directory ${dirPath} should exist but it doesn't`).to.be.true;
+});
+
+// Use the existing step definition but update it to use the new binary
+// Remove this duplicate - the step already exists at line 81
 
 // Helper functions are defined in auth_steps.js and bound via setDefinitionFunctionWrapper
 

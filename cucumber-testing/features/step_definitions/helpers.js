@@ -26,8 +26,8 @@ async function runCommand(command) {
 }
 
 async function runCommandInDirectory(command, directory) {
-  // Use absolute path to rfh.exe based on the original project directory
-  const rfhPath = path.resolve(__dirname, '../../../dist/rfh.exe');
+  // Use absolute path to the new rfh binary
+  const rfhPath = path.resolve(__dirname, '../../../rfh-final');
   
   // Replace 'rfh' with full path to executable
   const fullCommand = command.replace(/^rfh\s/, `"${rfhPath}" `);

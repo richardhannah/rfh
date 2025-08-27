@@ -266,3 +266,128 @@ func CalculateSHA256(filePath string) (string, error) {
 
 	return fmt.Sprintf("%x", hasher.Sum(nil)), nil
 }
+
+// PackFromDirectory creates a tar.gz archive from all files in a directory
+func PackFromDirectory(sourceDir string, outputPath string) (*ArchiveInfo, error) {
+	// Walk the directory and collect all files
+	var files []string
+	err := filepath.Walk(sourceDir, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		
+		// Skip directories
+		if info.IsDir() {
+			return nil
+		}
+		
+		// Skip getting relative path as we don't need it here
+		
+		files = append(files, path)
+		return nil
+	})
+	
+	if err != nil {
+		return nil, fmt.Errorf("failed to walk directory %s: %w", sourceDir, err)
+	}
+	
+	if len(files) == 0 {
+		return nil, fmt.Errorf("no files found in directory: %s", sourceDir)
+	}
+	
+	// Use the existing Pack function but we need to handle the paths differently
+	// Let's create the archive manually
+	return packFiles(files, sourceDir, outputPath)
+}
+
+// packFiles creates archive from specific files with a base directory
+func packFiles(filePaths []string, baseDir string, outputPath string) (*ArchiveInfo, error) {
+	// Create output file
+	outputFile, err := os.Create(outputPath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create output file: %w", err)
+	}
+	defer outputFile.Close()
+
+	// Create gzip writer
+	gzWriter := gzip.NewWriter(outputFile)
+	defer gzWriter.Close()
+
+	// Create tar writer
+	tarWriter := tar.NewWriter(gzWriter)
+	defer tarWriter.Close()
+
+	// Hash calculator for final SHA256
+	hasher := sha256.New()
+	multiWriter := io.MultiWriter(outputFile, hasher)
+	
+	// Reset and create new writers with hash calculation
+	outputFile.Seek(0, 0)
+	outputFile.Truncate(0)
+	
+	gzWriter = gzip.NewWriter(multiWriter)
+	defer gzWriter.Close()
+	
+	tarWriter = tar.NewWriter(gzWriter)
+	defer tarWriter.Close()
+
+	// Add files to archive
+	for _, filePath := range filePaths {
+		// Get relative path from base directory
+		relPath, err := filepath.Rel(baseDir, filePath)
+		if err != nil {
+			return nil, fmt.Errorf("failed to get relative path for %s: %w", filePath, err)
+		}
+
+		// Open file
+		file, err := os.Open(filePath)
+		if err != nil {
+			return nil, fmt.Errorf("failed to open file %s: %w", filePath, err)
+		}
+
+		// Get file info
+		fileInfo, err := file.Stat()
+		if err != nil {
+			file.Close()
+			return nil, fmt.Errorf("failed to stat file %s: %w", filePath, err)
+		}
+
+		// Create tar header
+		header := &tar.Header{
+			Name:    filepath.ToSlash(relPath), // Use forward slashes for cross-platform compatibility
+			Size:    fileInfo.Size(),
+			Mode:    int64(fileInfo.Mode()),
+			ModTime: fileInfo.ModTime(),
+		}
+
+		// Write header
+		if err := tarWriter.WriteHeader(header); err != nil {
+			file.Close()
+			return nil, fmt.Errorf("failed to write tar header for %s: %w", filePath, err)
+		}
+
+		// Copy file content
+		if _, err := io.Copy(tarWriter, file); err != nil {
+			file.Close()
+			return nil, fmt.Errorf("failed to copy file content for %s: %w", filePath, err)
+		}
+
+		file.Close()
+	}
+
+	// Close writers to flush data
+	tarWriter.Close()
+	gzWriter.Close()
+
+	// Get file size
+	stat, err := outputFile.Stat()
+	if err != nil {
+		return nil, fmt.Errorf("failed to stat output file: %w", err)
+	}
+
+	return &ArchiveInfo{
+		Path:      outputPath,
+		SHA256:    fmt.Sprintf("%x", hasher.Sum(nil)),
+		SizeBytes: stat.Size(),
+	}, nil
+}
