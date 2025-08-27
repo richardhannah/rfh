@@ -391,3 +391,45 @@ func packFiles(filePaths []string, baseDir string, outputPath string) (*ArchiveI
 		SizeBytes: stat.Size(),
 	}, nil
 }
+
+// ExtractManifest extracts only the rulestack.json manifest from an archive
+func ExtractManifest(archivePath string) ([]byte, error) {
+	file, err := os.Open(archivePath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to open archive: %w", err)
+	}
+	defer file.Close()
+
+	// Create gzip reader
+	gzReader, err := gzip.NewReader(file)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create gzip reader: %w", err)
+	}
+	defer gzReader.Close()
+
+	// Create tar reader
+	tarReader := tar.NewReader(gzReader)
+
+	// Look for rulestack.json file
+	for {
+		header, err := tarReader.Next()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			return nil, fmt.Errorf("failed to read tar header: %w", err)
+		}
+
+		// Check if this is the manifest file
+		if header.Name == "rulestack.json" || strings.HasSuffix(header.Name, "/rulestack.json") {
+			// Read the manifest content
+			manifestData, err := io.ReadAll(tarReader)
+			if err != nil {
+				return nil, fmt.Errorf("failed to read manifest from archive: %w", err)
+			}
+			return manifestData, nil
+		}
+	}
+
+	return nil, fmt.Errorf("no manifest (rulestack.json) found in archive")
+}

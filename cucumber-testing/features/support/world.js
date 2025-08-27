@@ -12,7 +12,7 @@ class CustomWorld extends World {
     this.lastCommandOutput = '';
     this.lastCommandError = '';
     this.lastExitCode = 0;
-    this.rfhBinary = path.resolve(__dirname, '../../../dist/rfh.exe');
+    this.rfhBinary = path.resolve(__dirname, '../../../dist/rfh');
   }
 
   async createTempDirectory() {
@@ -30,8 +30,8 @@ class CustomWorld extends World {
 
   async runCommand(command) {
     try {
-      // Replace 'rfh' with the actual binary path
-      const actualCommand = command.replace(/^rfh\s/, `"${this.rfhBinary}" `);
+      // Replace 'rfh' with the actual binary path (handle both 'rfh ' and 'rfh' at end of string)
+      const actualCommand = command.replace(/^rfh(\s|$)/, `"${this.rfhBinary}"$1`);
       
       this.lastCommandOutput = execSync(actualCommand, {
         cwd: this.testDir || process.cwd(),

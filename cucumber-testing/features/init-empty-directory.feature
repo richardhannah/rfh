@@ -8,7 +8,7 @@ Feature: Initialize RFH project in empty directory
     And RFH is installed and accessible
 
   Scenario: Basic initialization works correctly
-    When I run "rfh init"
+    When I run "rfh init --package"
     Then I should see "Initialized RuleStack project"
     And a file "rulestack.json" should be created
     And the default package name should be "example-rules"
@@ -17,7 +17,7 @@ Feature: Initialize RFH project in empty directory
     And core rules should be downloaded to ".rulestack/core.v1.0.0"
 
   Scenario: Verify manifest structure
-    When I run "rfh init"
+    When I run "rfh init --package"
     Then the "rulestack.json" file should be valid JSON
     And the manifest should contain:
       | field       | value              |
@@ -38,7 +38,7 @@ Feature: Initialize RFH project in empty directory
       ```
 
   Scenario: Verify directory structure after init
-    When I run "rfh init"
+    When I run "rfh init --package"
     Then the following files and directories should exist:
       | path                                      | type      |
       | rulestack.json                           | file      |
@@ -55,7 +55,7 @@ Feature: Initialize RFH project in empty directory
     And I should not see "migrate"
 
   Scenario: Verify success message format
-    When I run "rfh init"
+    When I run "rfh init --package"
     Then I should see output containing:
       | message                                    |
       | ✅ Initialized RuleStack project          |

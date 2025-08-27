@@ -12,6 +12,7 @@ import (
 
 	"rulestack/internal/client"
 	"rulestack/internal/config"
+	"rulestack/internal/manifest"
 	"rulestack/internal/pkg"
 )
 
@@ -33,13 +34,6 @@ Examples:
 type PackageRef struct {
 	Name    string
 	Version string
-}
-
-// ProjectManifest represents the rulestack.json file
-type ProjectManifest struct {
-	Version      string            `json:"version"`
-	ProjectRoot  string            `json:"projectRoot"`
-	Dependencies map[string]string `json:"dependencies"`
 }
 
 // LockManifest represents the rulestack.lock.json file
@@ -257,14 +251,14 @@ func confirmOverwrite(packageName string) bool {
 func updateManifests(projectRoot string, pkgRef *PackageRef, sha256 string) error {
 	// Update rulestack.json
 	manifestPath := filepath.Join(projectRoot, "rulestack.json")
-	manifest, err := loadOrCreateProjectManifest(manifestPath, projectRoot)
+	projectManifest, err := loadOrCreateProjectManifest(manifestPath, projectRoot)
 	if err != nil {
 		return fmt.Errorf("failed to load project manifest: %w", err)
 	}
 
-	manifest.Dependencies[pkgRef.FullName()] = pkgRef.Version
+	projectManifest.Dependencies[pkgRef.FullName()] = pkgRef.Version
 
-	if err := saveProjectManifest(manifestPath, manifest); err != nil {
+	if err := manifest.SaveProjectManifest(manifestPath, projectManifest); err != nil {
 		return fmt.Errorf("failed to save project manifest: %w", err)
 	}
 
@@ -288,43 +282,19 @@ func updateManifests(projectRoot string, pkgRef *PackageRef, sha256 string) erro
 }
 
 // loadOrCreateProjectManifest loads or creates a new project manifest
-func loadOrCreateProjectManifest(path, projectRoot string) (*ProjectManifest, error) {
+func loadOrCreateProjectManifest(path, projectRoot string) (*manifest.ProjectManifest, error) {
 	if _, err := os.Stat(path); os.IsNotExist(err) {
-		// Create new manifest
-		return &ProjectManifest{
-			Version:      "1.0.0",
-			ProjectRoot:  projectRoot,
-			Dependencies: make(map[string]string),
-		}, nil
+		// Create new manifest using centralized function
+		return manifest.CreateProjectManifest(projectRoot), nil
 	}
 
-	// Load existing manifest
-	data, err := os.ReadFile(path)
+	// Load existing manifest using centralized function
+	projectManifest, err := manifest.LoadProjectManifest(path)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to load project manifest: %w", err)
 	}
 
-	var manifest ProjectManifest
-	if err := json.Unmarshal(data, &manifest); err != nil {
-		return nil, fmt.Errorf("invalid JSON in %s: %w", path, err)
-	}
-
-	// Ensure dependencies map exists
-	if manifest.Dependencies == nil {
-		manifest.Dependencies = make(map[string]string)
-	}
-
-	return &manifest, nil
-}
-
-// saveProjectManifest saves the project manifest
-func saveProjectManifest(path string, manifest *ProjectManifest) error {
-	data, err := json.MarshalIndent(manifest, "", "  ")
-	if err != nil {
-		return err
-	}
-
-	return os.WriteFile(path, data, 0644)
+	return projectManifest, nil
 }
 
 // loadOrCreateLockManifest loads or creates a new lock manifest

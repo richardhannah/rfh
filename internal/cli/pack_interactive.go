@@ -46,27 +46,27 @@ func promptUserInput(question string) (string, error) {
 }
 
 // promptPackageSelection shows existing packages and prompts user to select one
-func promptPackageSelection(manifests manifest.ManifestFile) (int, error) {
-	if len(manifests) == 0 {
+func promptPackageSelection(packageManifests manifest.PackageManifestFile) (int, error) {
+	if len(packageManifests) == 0 {
 		return -1, fmt.Errorf("no existing packages found")
 	}
 	
 	fmt.Println("\nExisting packages:")
-	for i, m := range manifests {
+	for i, m := range packageManifests {
 		fmt.Printf("  %d) %s (v%s) - %s\n", i+1, m.Name, m.Version, m.Description)
 	}
 	
 	scanner := bufio.NewScanner(os.Stdin)
 	
 	for {
-		fmt.Printf("Select package (1-%d): ", len(manifests))
+		fmt.Printf("Select package (1-%d): ", len(packageManifests))
 		if !scanner.Scan() {
 			return -1, fmt.Errorf("failed to read input")
 		}
 		
 		choice, err := strconv.Atoi(strings.TrimSpace(scanner.Text()))
-		if err != nil || choice < 1 || choice > len(manifests) {
-			fmt.Printf("Please enter a number between 1 and %d\n", len(manifests))
+		if err != nil || choice < 1 || choice > len(packageManifests) {
+			fmt.Printf("Please enter a number between 1 and %d\n", len(packageManifests))
 			continue
 		}
 		

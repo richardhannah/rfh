@@ -59,53 +59,34 @@ Feature: Package Creation
     And I should see "📦 Archive: .rulestack/staged/security-rules-1.0.0.tgz"
     And the archive file ".rulestack/staged/security-rules-1.0.0.tgz" should exist
     And the directory ".rulestack/security-rules.1.0.0" should exist
-    And the rulestack.json should contain package "security-rules" with version "1.0.0"
     And the command should exit with zero status
 
   # Updating existing packages
   
-  Scenario: Pack command non-interactive mode - add to existing package
+  Scenario: Pack command non-interactive mode - add-to-existing no longer supported
     Given I have a temporary project directory  
     And RFH is initialized in the directory
     And I have a rule file "security-rule.mdc" with content "# Security Rule\nNever hardcode passwords."
-    And I run "rfh pack security-rule.mdc --package=security-rules" in the project directory
-    And I have a rule file "auth-rule.mdc" with content "# Auth Rule\nUse strong authentication."
-    When I run "rfh pack auth-rule.mdc --package=security-rules --version=1.0.1 --add-to-existing" in the project directory
-    Then I should see "Adding auth-rule.mdc to package: security-rules (v1.0.0 -> v1.0.1)"
-    And I should see "✅ Updated package: security-rules v1.0.0 -> v1.0.1"
-    And I should see "📁 Package directory: .rulestack/security-rules.1.0.1"
-    And I should see "📦 Archive: .rulestack/staged/security-rules-1.0.1.tgz"
-    And I should see "🗑️  Removed old archive: security-rules-1.0.0.tgz"
-    And the archive file ".rulestack/staged/security-rules-1.0.1.tgz" should exist
-    And the archive file ".rulestack/staged/security-rules-1.0.0.tgz" should not exist
-    And the directory ".rulestack/security-rules.1.0.1" should exist
-    And the directory ".rulestack/security-rules.1.0.0" should not exist
-    And the rulestack.json should contain package "security-rules" with version "1.0.1"
-    And the command should exit with zero status
+    When I run "rfh pack security-rule.mdc --package=security-rules --version=1.0.1 --add-to-existing" in the project directory
+    Then I should see "Error: --add-to-existing is not supported: pack creates new packages only"
+    And the command should exit with non-zero status
 
   # Version management
   
-  Scenario: Pack command version validation - reject downgrade
+  Scenario: Pack command version validation - reject downgrade no longer applicable
     Given I have a temporary project directory
     And RFH is initialized in the directory
     And I have a rule file "security-rule.mdc" with content "# Security Rule"
-    And I run "rfh pack security-rule.mdc --package=security-rules" in the project directory
-    And I have a rule file "auth-rule.mdc" with content "# Auth Rule"
-    And I run "rfh pack auth-rule.mdc --package=security-rules --version=1.0.1 --add-to-existing" in the project directory
-    And I have a rule file "network-rule.mdc" with content "# Network Rule"
-    When I run "rfh pack network-rule.mdc --package=security-rules --version=1.0.0 --add-to-existing" in the project directory
-    Then I should see "version validation failed"
-    And I should see "new version 1.0.0 must be greater than current version 1.0.1"
+    When I run "rfh pack security-rule.mdc --package=security-rules --version=1.0.0 --add-to-existing" in the project directory
+    Then I should see "Error: --add-to-existing is not supported: pack creates new packages only"
     And the command should exit with non-zero status
 
-  Scenario: Pack command non-interactive mode - missing version for add-to-existing
+  Scenario: Pack command non-interactive mode - missing version for add-to-existing no longer applicable
     Given I have a temporary project directory
     And RFH is initialized in the directory
     And I have a rule file "security-rule.mdc" with content "# Security Rule"
-    And I run "rfh pack security-rule.mdc --package=security-rules" in the project directory
-    And I have a rule file "auth-rule.mdc" with content "# Auth Rule"
-    When I run "rfh pack auth-rule.mdc --package=security-rules --add-to-existing" in the project directory
-    Then I should see "--version is required when using --add-to-existing"
+    When I run "rfh pack security-rule.mdc --package=security-rules --add-to-existing" in the project directory
+    Then I should see "Error: --add-to-existing is not supported: pack creates new packages only"
     And the command should exit with non-zero status
 
   # Output options
@@ -129,12 +110,11 @@ Feature: Package Creation
 
   # Error cases
   
-  Scenario: Pack with missing manifest
+  Scenario: Pack without package flag requires interactive input
     Given I have a temporary project directory
     And I have a rule file "orphan-rules.mdc" with content "# Orphan Rules"
     When I run "rfh pack orphan-rules.mdc" in the project directory
-    Then I should see "failed to load manifest"
-    And I should see a file not found error
+    Then I should see "failed to read input"
     And the command should exit with non-zero status
 
   Scenario: Pack with missing file in manifest
@@ -147,12 +127,12 @@ Feature: Package Creation
     And the archive file ".rulestack/staged/broken-rules-1.0.0.tgz" should exist
     And the command should exit with zero status
 
-  Scenario: Pack command non-interactive mode - package not found
+  Scenario: Pack command non-interactive mode - package not found no longer applicable
     Given I have a temporary project directory
     And RFH is initialized in the directory
     And I have a rule file "security-rule.mdc" with content "# Security Rule"
-    When I run "rfh pack security-rule.mdc --package=nonexistent-package --version=1.0.1 --add-to-existing" in the project directory
-    Then I should see "package 'nonexistent-package' not found in manifest"
+    When I run "rfh pack security-rule.mdc --package=nonexistent-package --add-to-existing" in the project directory
+    Then I should see "Error: --add-to-existing is not supported: pack creates new packages only"
     And the command should exit with non-zero status
 
   # Multi-package management

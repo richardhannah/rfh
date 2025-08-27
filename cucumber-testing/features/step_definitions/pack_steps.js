@@ -116,10 +116,28 @@ Then('I should see an error about missing files', function () {
 
 // New step definitions for enhanced pack functionality
 
+Given('RFH is initialized in the directory for package creation', async function () {
+  const { execSync } = require('child_process');
+  const rfhPath = path.resolve(__dirname, '../../../dist/rfh');
+  // Use package mode for pack tests since they need package manifests
+  const initCommand = `"${rfhPath}" init --package`;
+  
+  try {
+    execSync(initCommand, { 
+      cwd: this.tempProjectDir,
+      stdio: 'pipe'
+    });
+  } catch (error) {
+    throw new Error(`Failed to initialize RFH: ${error.message}`);
+  }
+});
+
+// Backward compatibility step for existing tests
 Given('RFH is initialized in the directory', async function () {
   const { execSync } = require('child_process');
-  const rfhPath = path.resolve(__dirname, '../../../dist/rfh.exe');
-  const initCommand = `"${rfhPath}" init`;
+  const rfhPath = path.resolve(__dirname, '../../../dist/rfh');
+  // Use package mode for pack tests since they need package manifests
+  const initCommand = `"${rfhPath}" init --package`;
   
   try {
     execSync(initCommand, { 

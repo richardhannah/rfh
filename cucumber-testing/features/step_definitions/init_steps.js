@@ -156,6 +156,58 @@ Then('the package name should not be {string}', async function (unexpectedName) 
   expect(manifest.name).to.not.equal(unexpectedName);
 });
 
+// New step definitions for project manifest format
+Then('the project manifest should have version {string}', async function (expectedVersion) {
+  const manifestContent = await this.readFile('rulestack.json');
+  const manifest = JSON.parse(manifestContent);
+  expect(manifest.version).to.equal(expectedVersion);
+});
+
+Then('the project manifest should have projectRoot', async function () {
+  const manifestContent = await this.readFile('rulestack.json');
+  const manifest = JSON.parse(manifestContent);
+  expect(manifest.projectRoot).to.exist;
+  expect(manifest.projectRoot).to.be.a('string');
+  expect(manifest.projectRoot.length).to.be.greaterThan(0);
+});
+
+Then('the project manifest should have empty dependencies', async function () {
+  const manifestContent = await this.readFile('rulestack.json');
+  const manifest = JSON.parse(manifestContent);
+  expect(manifest.dependencies).to.exist;
+  expect(manifest.dependencies).to.be.an('object');
+  expect(Object.keys(manifest.dependencies)).to.have.length(0);
+});
+
+Then('the project manifest should contain:', async function (dataTable) {
+  const manifestContent = await this.readFile('rulestack.json');
+  const manifest = JSON.parse(manifestContent);
+  
+  for (const row of dataTable.hashes()) {
+    const field = row.field;
+    const expectedValue = row.value;
+    
+    if (field === 'dependencies' && expectedValue === '{}') {
+      expect(manifest[field]).to.be.an('object');
+      expect(Object.keys(manifest[field])).to.have.length(0);
+    } else {
+      expect(manifest[field]).to.equal(expectedValue);
+    }
+  }
+});
+
+Then('the manifest should be a valid project manifest for add command', async function () {
+  const manifestContent = await this.readFile('rulestack.json');
+  const manifest = JSON.parse(manifestContent);
+  
+  // Verify it has the structure the add command expects
+  expect(manifest).to.have.property('version');
+  expect(manifest).to.have.property('projectRoot');
+  expect(manifest).to.have.property('dependencies');
+  expect(manifest).to.not.have.property('name'); // Should not be package manifest
+  expect(manifest).to.not.be.an('array'); // Should not be array format
+});
+
 Then('no scope characters {string} or {string} should appear in the manifest', async function (char1, char2) {
   const manifestContent = await this.readFile('rulestack.json');
   expect(manifestContent).to.not.include(char1);

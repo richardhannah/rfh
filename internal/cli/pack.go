@@ -2,11 +2,8 @@ package cli
 
 import (
 	"fmt"
-	"os"
 
 	"github.com/spf13/cobra"
-
-	"rulestack/internal/manifest"
 )
 
 var (
@@ -64,41 +61,9 @@ Examples:
 }
 
 func runInteractivePack(fileName string) error {
-	// Check if rulestack.json exists
-	manifestFile := "rulestack.json"
-	manifests, err := manifest.LoadAll(manifestFile)
-	if err != nil {
-		if os.IsNotExist(err) {
-			// No rulestack.json exists, create new package
-			return createNewPackage(fileName)
-		}
-		return fmt.Errorf("failed to load manifest: %w", err)
-	}
-
-	if len(manifests) == 0 {
-		// Empty manifest file, create new package
-		return createNewPackage(fileName)
-	}
-
-	// Ask user if they want to add to existing package
-	fmt.Printf("Found %d existing package(s).\n", len(manifests))
-	addToExisting, err := promptUserChoice("Add file to existing package?")
-	if err != nil {
-		return err
-	}
-
-	if !addToExisting {
-		// User chose to create new package
-		return createNewPackage(fileName)
-	}
-
-	// User chose to add to existing package
-	packageIndex, err := promptPackageSelection(manifests)
-	if err != nil {
-		return err
-	}
-
-	return addToExistingPackage(fileName, manifests, packageIndex)
+	// Pack is now much simpler - just create a new package
+	// No need to read existing manifests, just prompt for package details
+	return createNewPackage(fileName)
 }
 
 func init() {

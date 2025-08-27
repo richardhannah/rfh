@@ -9,7 +9,7 @@ Feature: Add Package Command
     And I have a registry "test-registry" configured at "http://localhost:8080"
     And "test-registry" is the active registry
     And I have a temporary project directory
-    And RFH is initialized in the directory for add tests
+    And RFH is initialized in the directory for dependency management
 
   # Basic functionality tests
 

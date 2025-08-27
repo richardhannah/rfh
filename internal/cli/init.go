@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 
 	"github.com/spf13/cobra"
-
+	
 	"rulestack/internal/manifest"
 )
 
@@ -25,11 +25,12 @@ Similar to 'git init', this command must be run before using other RFH commands
 in this directory. It explicitly sets the project root to the current directory.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		force, _ := cmd.Flags().GetBool("force")
-		return runInit(force)
+		packageMode, _ := cmd.Flags().GetBool("package")
+		return runInit(force, packageMode)
 	},
 }
 
-func runInit(force bool) error {
+func runInit(force bool, packageMode bool) error {
 	// Get current directory as project root
 	projectRoot, err := os.Getwd()
 	if err != nil {
@@ -49,12 +50,20 @@ func runInit(force bool) error {
 
 	fmt.Printf("Initializing RuleStack project in: %s\n", projectRoot)
 
-	// Create sample manifest
-	sample := manifest.CreateSample()
-
-	// Save manifest
-	if err := sample.Save(manifestPath); err != nil {
-		return fmt.Errorf("failed to create manifest: %w", err)
+	if packageMode {
+		// Create package manifest (array format for rule creation)
+		sample := manifest.CreateSamplePackageManifest()
+		if err := manifest.SavePackageManifest(manifestPath, sample); err != nil {
+			return fmt.Errorf("failed to create package manifest: %w", err)
+		}
+		fmt.Printf("Creating package manifest for rule creation\n")
+	} else {
+		// Create project manifest (object format for dependency management) 
+		projectManifest := manifest.CreateProjectManifest(projectRoot)
+		if err := manifest.SaveProjectManifest(manifestPath, projectManifest); err != nil {
+			return fmt.Errorf("failed to create project manifest: %w", err)
+		}
+		fmt.Printf("Creating project manifest for dependency management\n")
 	}
 
 	// Create .rulestack directory for dependency management
@@ -210,4 +219,5 @@ Which package should contain this rule? [default: project]"
 func init() {
 	// Add flags if needed
 	initCmd.Flags().BoolP("force", "f", false, "force overwrite existing files")
+	initCmd.Flags().BoolP("package", "p", false, "create package manifest for rule creation (default: project manifest for dependency management)")
 }

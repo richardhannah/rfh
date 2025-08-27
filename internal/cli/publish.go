@@ -12,6 +12,7 @@ import (
 	"rulestack/internal/client"
 	"rulestack/internal/config"
 	"rulestack/internal/manifest"
+	"rulestack/internal/pkg"
 )
 
 
@@ -23,7 +24,7 @@ var publishCmd = &cobra.Command{
 
 This command will:
 1. Scan .rulestack/staged/ directory for archives
-2. Read associated manifest data from rulestack.json
+2. Extract embedded manifest data from each archive
 3. Upload each archive to the registry
 4. Clean up staged archives after successful upload
 
@@ -53,12 +54,6 @@ func runPublishStaged() error {
 		return fmt.Errorf("no archives found in staging directory. Use 'rfh pack' to create archives first")
 	}
 
-	// Load manifests to get package information
-	manifests, err := manifest.LoadAll("rulestack.json")
-	if err != nil {
-		return fmt.Errorf("failed to load manifest: %w", err)
-	}
-
 	fmt.Printf("Found %d staged archive(s) to publish:\n", len(archives))
 	for _, archivePath := range archives {
 		fmt.Printf("  - %s\n", filepath.Base(archivePath))
@@ -67,7 +62,7 @@ func runPublishStaged() error {
 	// Publish each archive
 	successCount := 0
 	for _, archivePath := range archives {
-		if err := publishSingleArchive(archivePath, manifests); err != nil {
+		if err := publishSingleArchive(archivePath); err != nil {
 			fmt.Printf("❌ Failed to publish %s: %v\n", filepath.Base(archivePath), err)
 		} else {
 			fmt.Printf("✅ Successfully published %s\n", filepath.Base(archivePath))
@@ -87,23 +82,17 @@ func runPublishStaged() error {
 }
 
 // publishSingleArchive publishes a single archive file
-func publishSingleArchive(archivePath string, manifests manifest.ManifestFile) error {
-	// Extract package name and version from archive filename
-	archiveName := filepath.Base(archivePath)
-	archiveName = strings.TrimSuffix(archiveName, ".tgz")
-	
-	// Find matching manifest entry
-	var packageManifest *manifest.Manifest
-	for _, m := range manifests {
-		expectedName := fmt.Sprintf("%s-%s", m.Name, m.Version)
-		if expectedName == archiveName {
-			packageManifest = &m
-			break
-		}
+func publishSingleArchive(archivePath string) error {
+	// Extract manifest from archive
+	manifestData, err := pkg.ExtractManifest(archivePath)
+	if err != nil {
+		return fmt.Errorf("failed to extract manifest from archive: %w", err)
 	}
 	
-	if packageManifest == nil {
-		return fmt.Errorf("no manifest found for archive: %s", archiveName)
+	// Parse the manifest
+	var packageManifest manifest.PackageManifest
+	if err := json.Unmarshal(manifestData, &packageManifest); err != nil {
+		return fmt.Errorf("failed to parse manifest: %w", err)
 	}
 
 	// Check if archive exists
@@ -145,8 +134,9 @@ func publishSingleArchive(archivePath string, manifests manifest.ManifestFile) e
 	}
 
 	// Create a temporary manifest file for this specific package (as single object, not array)
+	archiveName := strings.TrimSuffix(filepath.Base(archivePath), ".tgz")
 	tempManifestPath := fmt.Sprintf(".rulestack/staged/temp-manifest-%s.json", archiveName)
-	if err := createSingleManifestFile(packageManifest, tempManifestPath); err != nil {
+	if err := createSingleManifestFile(&packageManifest, tempManifestPath); err != nil {
 		return fmt.Errorf("failed to create temp manifest: %w", err)
 	}
 	defer os.Remove(tempManifestPath) // Clean up temp file
@@ -199,7 +189,7 @@ func sanitizePackageName(name string) string {
 }
 
 // createSingleManifestFile creates a temporary manifest file with a single package entry
-func createSingleManifestFile(packageManifest *manifest.Manifest, filePath string) error {
+func createSingleManifestFile(packageManifest *manifest.PackageManifest, filePath string) error {
 	// Create the manifest as a single object (not array) for API compatibility
 	data, err := json.MarshalIndent(packageManifest, "", "  ")
 	if err != nil {

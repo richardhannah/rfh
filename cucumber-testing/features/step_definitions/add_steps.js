@@ -10,33 +10,21 @@ require('./helpers');
 
 // Add-specific step definitions
 
-// Override the pack step to create proper project manifest for add tests
-Given('RFH is initialized in the directory for add tests', async function () {
-  // Create a project manifest (object format) instead of package manifest (array format)
-  const projectRoot = this.tempProjectDir;
-  const manifestPath = path.join(projectRoot, 'rulestack.json');
+// Initialize RFH in project mode (for dependency management)
+Given('RFH is initialized in the directory for dependency management', async function () {
+  const { execSync } = require('child_process');
+  const rfhPath = path.resolve(__dirname, '../../../dist/rfh');
+  // Use project mode (default) for add tests since they manage dependencies
+  const initCommand = `"${rfhPath}" init`;
   
-  const projectManifest = {
-    version: "1.0.0",
-    projectRoot: projectRoot,
-    dependencies: {}
-  };
-  
-  await fs.writeFile(manifestPath, JSON.stringify(projectManifest, null, 2));
-  
-  // Create .rulestack directory for dependency management
-  await fs.ensureDir(path.join(projectRoot, '.rulestack'));
-  
-  // Create basic CLAUDE.md file
-  const claudeContent = `# CLAUDE.md
-
-This file provides guidance to Claude Code when working with code in this repository.
-
-## Active Rules (Rulestack core)
-- @.rulestack/core.v1.0.0/core_rules.md
-
-`;
-  await fs.writeFile(path.join(projectRoot, 'CLAUDE.md'), claudeContent);
+  try {
+    execSync(initCommand, { 
+      cwd: this.tempProjectDir,
+      stdio: 'pipe'
+    });
+  } catch (error) {
+    throw new Error(`Failed to initialize RFH project: ${error.message}`);
+  }
 });
 
 Given('I have already added package {string}', async function (packageSpec) {
@@ -93,7 +81,7 @@ Given('I have already added package {string}', async function (packageSpec) {
 
 // Add missing step definition
 When('I run {string} in that directory', async function (command) {
-  const rfhPath = path.resolve(__dirname, '../../../dist/rfh.exe');
+  const rfhPath = path.resolve(__dirname, '../../../dist/rfh');
   const args = command.split(' ').slice(1); // Remove 'rfh' from the command
   
   const { execSync } = require('child_process');
@@ -187,7 +175,7 @@ Given('I have a truly clean config with no registries', async function () {
 
 // Command execution with input
 When('I run {string} with input {string} in the project directory', async function (command, input) {
-  const rfhPath = path.resolve(__dirname, '../../../dist/rfh.exe');
+  const rfhPath = path.resolve(__dirname, '../../../dist/rfh');
   const args = command.split(' ').slice(1); // Remove 'rfh' from the command
   
   return new Promise((resolve) => {
