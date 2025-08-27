@@ -31,17 +31,68 @@ When('I respond {string}', function (response) {
 // Output verification steps
 Then('I should see {string}', function (expectedText) {
   const output = this.lastCommandOutput + this.lastCommandError;
-  expect(output).to.include(expectedText);
+  
+  // Normalize path separators for cross-platform compatibility
+  // If the expected text contains forward slashes and looks like a path,
+  // also check for the Windows version with backslashes
+  let found = output.includes(expectedText);
+  
+  if (!found && expectedText.includes('/')) {
+    // Try with backslashes for Windows paths
+    const windowsPath = expectedText.replace(/\//g, '\\');
+    found = output.includes(windowsPath);
+  }
+  
+  if (!found) {
+    // Provide detailed error message with full actual output
+    const message = `
+Expected text not found in output.
+
+EXPECTED TO FIND: "${expectedText}"
+
+ACTUAL OUTPUT (full):
+----------------------------------------
+${output}
+----------------------------------------
+`;
+    throw new Error(message);
+  }
 });
 
 Then('I should not see {string}', function (unexpectedText) {
   const output = this.lastCommandOutput + this.lastCommandError;
-  expect(output).to.not.include(unexpectedText);
+  if (output.includes(unexpectedText)) {
+    // Provide detailed error message with full actual output
+    const message = `
+Unexpected text found in output.
+
+DID NOT EXPECT TO FIND: "${unexpectedText}"
+
+ACTUAL OUTPUT (full):
+----------------------------------------
+${output}
+----------------------------------------
+`;
+    throw new Error(message);
+  }
 });
 
 Then('I should not see {string} anywhere in the output', function (unexpectedText) {
   const output = this.lastCommandOutput + this.lastCommandError;
-  expect(output).to.not.include(unexpectedText);
+  if (output.includes(unexpectedText)) {
+    // Provide detailed error message with full actual output
+    const message = `
+Unexpected text found in output.
+
+DID NOT EXPECT TO FIND: "${unexpectedText}"
+
+ACTUAL OUTPUT (full):
+----------------------------------------
+${output}
+----------------------------------------
+`;
+    throw new Error(message);
+  }
 });
 
 Then('I should see a warning about existing project', function () {

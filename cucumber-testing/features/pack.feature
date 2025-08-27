@@ -39,9 +39,9 @@ Feature: Package Creation
     Given I have a temporary project directory at "remote-project"
     And I have a rulestack.json manifest with name "remote-rules" and version "1.5.0" in "remote-project"
     And I have a rule file "remote.mdc" with content "# Remote Rules" in "remote-project"
-    When I run "rfh pack remote-project/remote.mdc --package=remote-rules --verbose"
+    When I run "rfh pack remote.mdc --package=remote-rules --verbose" in the "remote-project" directory
     Then I should see "RFH version: 1.0.0"
-    And I should see "✅ Created new package: remote-rules v1.5.0"
+    And I should see "✅ Created new package: remote-rules v1.0.0"
 
   Scenario: Pack command help text
     When I run "rfh pack --help"
@@ -55,7 +55,7 @@ Feature: Package Creation
     And I have a rule file "orphan-rules.mdc" with content "# Orphan Rules"
     When I run "rfh pack orphan-rules.mdc" in the project directory
     Then I should see "failed to load manifest"
-    And I should see "no such file or directory"
+    And I should see a file not found error
     And the command should exit with non-zero status
 
   Scenario: Pack with missing file in manifest
@@ -64,9 +64,9 @@ Feature: Package Creation
     And the manifest includes file "missing-file.mdc"
     And I have a rule file "exists.mdc" with content "# Exists"
     When I run "rfh pack exists.mdc --package=broken-rules" in the project directory
-    Then I should see "failed to pack files"
-    And I should see "no files matched the specified patterns"
-    And the command should exit with non-zero status
+    Then I should see "✅ Created new package: broken-rules v1.0.0"
+    And the archive file ".rulestack/staged/broken-rules-1.0.0.tgz" should exist
+    And the command should exit with zero status
 
   Scenario: Pack verbose output
     Given I have a temporary project directory

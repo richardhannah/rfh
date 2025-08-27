@@ -82,6 +82,12 @@ When('I run {string} in the project directory', async function (command) {
   await this.runCommandInDirectory(command, this.tempProjectDir);
 });
 
+When('I run {string} in the {string} directory', async function (command, dirName) {
+  // The directory was created as a relative path from CWD
+  const targetDir = path.resolve(dirName);
+  await this.runCommandInDirectory(command, targetDir);
+});
+
 Then('the archive file {string} should exist', async function (filename) {
   // Check both in temp directory and as absolute path
   let archivePath = path.join(this.tempProjectDir, filename);
@@ -112,7 +118,7 @@ Then('I should see an error about missing files', function () {
 
 Given('RFH is initialized in the directory', async function () {
   const { execSync } = require('child_process');
-  const rfhPath = path.resolve(__dirname, '../../../rfh-final');
+  const rfhPath = path.resolve(__dirname, '../../../dist/rfh.exe');
   const initCommand = `"${rfhPath}" init`;
   
   try {
@@ -158,6 +164,28 @@ Then('the directory {string} should exist', async function (dirPath) {
 // Remove this duplicate - the step already exists at line 81
 
 // Helper functions are defined in auth_steps.js and bound via setDefinitionFunctionWrapper
+
+// OS-agnostic error message checks
+Then('I should see a file not found error', function () {
+  const output = this.lastCommandOutput + this.lastCommandError;
+  // Check for both Linux/Mac and Windows error messages
+  const hasFileNotFoundError = 
+    output.includes('no such file or directory') || 
+    output.includes('The system cannot find the file specified') ||
+    output.includes('cannot find the path specified');
+  
+  if (!hasFileNotFoundError) {
+    const message = `
+Expected a file not found error message.
+
+ACTUAL OUTPUT (full):
+----------------------------------------
+${output}
+----------------------------------------
+`;
+    throw new Error(message);
+  }
+});
 
 // Cleanup hook for temporary directories and attach helper functions
 const { After, Before } = require('@cucumber/cucumber');

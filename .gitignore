@@ -68,4 +68,7 @@ yarn-error.log*
 package-lock.json
 
 .idea/
-.rulestack/
+
+# RuleStack - ignore most content but keep project rules
+.rulestack/*
+!.rulestack/project/

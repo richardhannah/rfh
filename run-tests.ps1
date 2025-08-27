@@ -12,6 +12,45 @@ if (-not (Test-Path "go.mod") -or -not (Test-Path "cucumber-testing")) {
     exit 1
 }
 
+# Check if Docker is available and handle API server
+$dockerAvailable = $false
+try {
+    docker info *> $null
+    if ($LASTEXITCODE -eq 0) {
+        $dockerAvailable = $true
+        Write-Host "Docker is available - managing test infrastructure..." -ForegroundColor Cyan
+        
+        # Rebuild and restart docker containers for tests
+        Write-Host "Building and starting test API server..." -ForegroundColor Yellow
+        docker-compose down *> $null
+        docker-compose up --build -d *> $null
+        
+        # Wait for API to be healthy
+        Write-Host -NoNewline "Waiting for API to be ready"
+        $apiReady = $false
+        for ($i = 0; $i -lt 30; $i++) {
+            try {
+                $response = Invoke-WebRequest -Uri "http://localhost:8080/v1/health" -Method Get -ErrorAction SilentlyContinue
+                if ($response.StatusCode -eq 200) {
+                    $apiReady = $true
+                    Write-Host " OK" -ForegroundColor Green
+                    break
+                }
+            } catch {}
+            Write-Host -NoNewline "."
+            Start-Sleep -Seconds 1
+        }
+        
+        if (-not $apiReady) {
+            Write-Host ""
+            Write-Host "Warning: API server not responding - some tests may fail" -ForegroundColor Yellow
+        }
+    }
+} catch {
+    Write-Host "Docker not found or not running - skipping API server setup" -ForegroundColor Yellow
+    Write-Host "Some registry/auth tests may fail without the API server" -ForegroundColor Yellow
+}
+
 # Build RFH binary
 Write-Host "Building RFH binary..." -ForegroundColor Yellow
 go build -o dist/rfh.exe ./cmd/cli
@@ -66,5 +105,13 @@ Set-Location ..
 
 Write-Host "Test execution completed!" -ForegroundColor Green
 Write-Host "Check output above for results"
+
+# Show Docker cleanup hint if Docker was used
+if ($dockerAvailable) {
+    Write-Host ""
+    Write-Host "Docker containers are still running for debugging" -ForegroundColor Cyan
+    Write-Host "  - View logs: docker-compose logs" -ForegroundColor Gray
+    Write-Host "  - Stop containers: docker-compose down" -ForegroundColor Gray
+}
 
 exit $TestExitCode
