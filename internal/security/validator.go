@@ -34,7 +34,7 @@ type SecurityConfig struct {
 // DefaultSecurityConfig returns the default security configuration
 func DefaultSecurityConfig() *SecurityConfig {
 	return &SecurityConfig{
-		AllowedExtensions: []string{".md", ".txt", ".json"},
+		AllowedExtensions: []string{".md", ".txt", ".json", ".mdc"},
 		MaxFileSize:       MaxFileSize,
 		MaxTotalSize:      MaxTotalSize,
 		MaxFiles:          MaxFilesPerArchive,
@@ -308,7 +308,7 @@ func (v *PackageValidator) validateMarkdownContent(content []byte) error {
 // isTextFile determines if a file should be treated as text based on extension
 func isTextFile(filename string) bool {
 	ext := strings.ToLower(filepath.Ext(filename))
-	textExts := []string{".md", ".txt", ".json", ".yaml", ".yml", ".toml", ".ini"}
+	textExts := []string{".md", ".txt", ".json", ".yaml", ".yml", ".toml", ".ini", ".mdc"}
 	
 	for _, textExt := range textExts {
 		if ext == textExt {

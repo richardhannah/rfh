@@ -16,6 +16,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ### Active Rules (Rulestack core)
 - @.rulestack/core.v1.0.0/core_rules.md
 
+- @.rulestack/golang-standard.1.0.0/golang-rules.mdc
 ### Project-Specific Rules
 - @.rulestack/project/test-runner-parity.md
 - @.rulestack/project/cross-platform-test-paths.md

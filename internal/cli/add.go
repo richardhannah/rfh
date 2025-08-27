@@ -528,8 +528,8 @@ func findRuleFiles(packageDir string) ([]string, error) {
 			return err
 		}
 		
-		// Only consider .md files
-		if !info.IsDir() && strings.HasSuffix(strings.ToLower(info.Name()), ".md") {
+		// Only consider .md and .mdc files
+		if !info.IsDir() && (strings.HasSuffix(strings.ToLower(info.Name()), ".md") || strings.HasSuffix(strings.ToLower(info.Name()), ".mdc")) {
 			// Get relative path from package directory
 			relPath, err := filepath.Rel(packageDir, path)
 			if err != nil {

@@ -2,6 +2,10 @@
   "version": "1.0.0",
   "projectRoot": "D:\\projects\\render.com\\rfh",
   "packages": {
+    "golang-standard": {
+      "version": "1.0.0",
+      "sha256": "05136ac9d16c009d30f09efad652fe03e1f6fd589a81b780300ed0c23b2bb535"
+    },
     "monty-python-quotes": {
       "version": "1.0.0",
       "sha256": "ce375d1427b73340be3133057709ff3e8b3823d9d81993b0a0a1ad0dd4313ebf"

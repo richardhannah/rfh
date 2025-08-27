@@ -1,18 +1,7 @@
-[
-  {
-    "name": "example-rules",
-    "version": "0.1.0",
-    "description": "Example AI ruleset",
-    "targets": [
-      "cursor"
-    ],
-    "tags": [
-      "example",
-      "starter"
-    ],
-    "files": [
-      "*.md"
-    ],
-    "license": "MIT"
+{
+  "version": "1.0.0",
+  "projectRoot": "/Users/richard_h/development/rfh",
+  "dependencies": {
+    "golang-standard": "1.0.0"
   }
-]
+}
