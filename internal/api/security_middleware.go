@@ -25,7 +25,6 @@ type contextKey string
 const (
 	userContextKey    contextKey = "user"
 	sessionContextKey contextKey = "session"
-	tokenContextKey   contextKey = "token" // Keep for backward compatibility
 )
 
 // Enhanced auth middleware with JWT and role-based access support
@@ -431,12 +430,4 @@ func getUserSessionFromContext(ctx context.Context) *db.UserSession {
 		return nil
 	}
 	return session
-}
-
-func getTokenFromContext(ctx context.Context) *db.Token {
-	token, ok := ctx.Value(tokenContextKey).(*db.Token)
-	if !ok {
-		return nil
-	}
-	return token
 }

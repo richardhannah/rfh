@@ -26,6 +26,41 @@ if ! command -v npm &> /dev/null; then
     exit 1
 fi
 
+# Check if Docker is available and running
+if command -v docker &> /dev/null; then
+    if docker info &> /dev/null; then
+        echo "🐳 Docker is available - managing test infrastructure..."
+        
+        # Rebuild and restart docker containers for tests
+        echo "   Building and starting test API server..."
+        docker-compose down &> /dev/null || true
+        docker-compose up --build -d &> /dev/null
+        
+        # Wait for API to be healthy
+        echo -n "   Waiting for API to be ready"
+        for i in {1..30}; do
+            if curl -s http://localhost:8080/v1/health &> /dev/null; then
+                echo " ✅"
+                break
+            fi
+            echo -n "."
+            sleep 1
+        done
+        
+        # Check if API is responding
+        if ! curl -s http://localhost:8080/v1/health &> /dev/null; then
+            echo ""
+            echo "   ⚠️  Warning: API server not responding - some tests may fail"
+        fi
+    else
+        echo "⚠️  Docker is installed but not running - skipping API server setup"
+        echo "   Some registry/auth tests may fail without the API server"
+    fi
+else
+    echo "⚠️  Docker not found - skipping API server setup"
+    echo "   Some registry/auth tests may fail without the API server"
+fi
+
 # Navigate to cucumber testing directory
 cd cucumber-testing
 
@@ -85,6 +120,9 @@ else
     npm test
 fi
 
+# Store exit code immediately after tests
+TEST_EXIT_CODE=$?
+
 echo ""
 echo "✅ Test execution completed!"
 echo ""
@@ -96,3 +134,13 @@ echo "💡 Tips:"
 echo "   - Run './run-tests.sh actual' for only working scenarios"
 echo "   - Run './run-tests.sh init' for all init-related tests"
 echo "   - Failed tests may indicate missing RFH features"
+
+# Optional cleanup
+if command -v docker &> /dev/null && docker info &> /dev/null; then
+    echo ""
+    echo "🐳 Docker containers are still running for debugging"
+    echo "   - View logs: docker-compose logs"
+    echo "   - Stop containers: docker-compose down"
+fi
+
+exit $TEST_EXIT_CODE
