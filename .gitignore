@@ -46,6 +46,8 @@ rulestack-api
 # Test files
 test-*.tgz
 rfh.lock
+cucumber-testing/cucumber-report.json
+cucumber-testing/*.tgz
 
 # Editor directories
 .cursor
