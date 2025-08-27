@@ -8,16 +8,23 @@ if [ ! -d "dist" ]; then
     mkdir -p dist
 fi
 
+# Determine the executable name based on the OS
+if [[ "$OSTYPE" == "msys" ]] || [[ "$OSTYPE" == "cygwin" ]] || [[ "$OSTYPE" == "win32" ]]; then
+    EXEC_NAME="rfh.exe"
+else
+    EXEC_NAME="rfh"
+fi
+
 # Build the CLI executable
 echo "Building CLI executable..."
-go build -o dist/rfh.exe cmd/cli/main.go
+go build -o "dist/$EXEC_NAME" cmd/cli/main.go
 
 if [ $? -ne 0 ]; then
     echo "Failed to build CLI executable"
     exit 1
 fi
 
-echo "CLI executable built successfully at dist/rfh.exe"
+echo "CLI executable built successfully at dist/$EXEC_NAME"
 
 # Get the full path to the dist directory
 DIST_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/dist"
@@ -28,10 +35,12 @@ if [[ ":$PATH:" == *":$DIST_PATH:"* ]]; then
 else
     echo "Adding dist folder to PATH..."
     
-    # Determine which shell profile to update
-    if [ -n "$ZSH_VERSION" ]; then
+    # Determine which shell profile to update based on default shell
+    DEFAULT_SHELL=$(basename "$SHELL")
+    
+    if [ "$DEFAULT_SHELL" = "zsh" ]; then
         PROFILE_FILE="$HOME/.zshrc"
-    elif [ -n "$BASH_VERSION" ]; then
+    elif [ "$DEFAULT_SHELL" = "bash" ]; then
         if [ -f "$HOME/.bashrc" ]; then
             PROFILE_FILE="$HOME/.bashrc"
         else
@@ -40,6 +49,9 @@ else
     else
         PROFILE_FILE="$HOME/.profile"
     fi
+    
+    echo "Detected shell: $DEFAULT_SHELL"
+    echo "Will update: $PROFILE_FILE"
     
     # Add to profile file if not already present
     if ! grep -q "export PATH.*$DIST_PATH" "$PROFILE_FILE" 2>/dev/null; then
