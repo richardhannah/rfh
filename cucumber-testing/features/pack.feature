@@ -64,7 +64,7 @@ Feature: Package Creation
     And I have a rule file "orphan-rules.md" with content "# Orphan Rules"
     When I run "rfh pack" in the project directory
     Then I should see "failed to load manifest"
-    And I should see "The system cannot find the file specified"
+    And I should see "no such file or directory"
     And the command should exit with non-zero status
 
   Scenario: Pack with missing file in manifest

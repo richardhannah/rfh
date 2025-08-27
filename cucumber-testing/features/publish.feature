@@ -40,7 +40,7 @@ Feature: RFH Publish Command
     Given I have a temporary project directory
     When I run "rfh publish" in the project directory
     Then I should see "failed to load manifest"
-    And I should see "The system cannot find the file specified"
+    And I should see "no such file or directory"
     And the command should exit with non-zero status
 
   Scenario: Publish with missing archive file

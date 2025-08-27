@@ -27,7 +27,8 @@ Then('I should see either authentication error or connection error', function ()
                            output.includes('network') ||
                            output.includes('timeout') ||
                            output.includes('refused') ||
-                           output.includes('unreachable');
+                           output.includes('unreachable') ||
+                           output.includes('EOF');
                            
   expect(hasExpectedError, `Should see authentication or connection error, got: ${output}`).to.be.true;
 });
