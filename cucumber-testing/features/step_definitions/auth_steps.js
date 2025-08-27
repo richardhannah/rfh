@@ -12,7 +12,7 @@ const { runCommand, runCommandInDirectory } = require('./helpers');
 // Basic test for command availability
 When('I register with username {string}, email {string}, and password {string}', async function (username, email, password) {
   // For scenarios testing basic registry/auth validation, use the simpler runCommand approach
-  const command = `rfh auth register --username "${username}" --email "${email}" --password "${password}" --config "${this.configPath}"`;
+  const command = `rfh auth register --username "${username}" --email "${email}" --password "${password}"`;
   await this.runCommand(command);
 });
 
@@ -31,7 +31,7 @@ When('I register with username {string}, empty email, and password {string}', as
 // Login-specific step definitions
 When('I login with username {string} and password {string}', async function (username, password) {
   // For scenarios testing basic registry/auth validation, use the simpler runCommand approach
-  const command = `rfh auth login --username "${username}" --password "${password}" --config "${this.configPath}"`;
+  const command = `rfh auth login --username "${username}" --password "${password}"`;
   await this.runCommand(command);
 });
 
@@ -115,7 +115,7 @@ async function runAuthRegisterTest() {
   const configPath = this.configPath;
   
   return new Promise((resolve) => {
-    const child = spawn(rfhPath, ['auth', 'register', '--config', configPath], {
+    const child = spawn(rfhPath, ['auth', 'register'], {
       stdio: ['pipe', 'pipe', 'pipe'],
       cwd: path.dirname(configPath)
     });
@@ -164,7 +164,7 @@ async function runAuthLoginTest() {
   const configPath = this.configPath;
   
   return new Promise((resolve) => {
-    const child = spawn(rfhPath, ['auth', 'login', '--config', configPath], {
+    const child = spawn(rfhPath, ['auth', 'login'], {
       stdio: ['pipe', 'pipe', 'pipe'],
       cwd: path.dirname(configPath)
     });
@@ -215,7 +215,6 @@ async function runAuthLoginWithCredentials(username, password) {
   return new Promise((resolve) => {
     const child = spawn(rfhPath, [
       'auth', 'login',
-      '--config', configPath,
       '--username', username,
       '--password', password
     ], {
@@ -266,7 +265,6 @@ async function runAuthRegisterWithCredentials(username, email, password) {
   return new Promise((resolve) => {
     const child = spawn(rfhPath, [
       'auth', 'register',
-      '--config', configPath,
       '--username', username,
       '--email', email,
       '--password', password

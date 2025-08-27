@@ -58,7 +58,7 @@ Feature: RFH Publish Command
     And I should see "Use 'rfh auth login' to authenticate"
     And the command should exit with non-zero status
 
-  Scenario: Publish with token override flag
+  Scenario: Publish with no authentication configured
     Given I have a clean config file
     And I have a registry "test-registry" configured at "http://localhost:8080"
     And "test-registry" is the active registry
@@ -66,7 +66,7 @@ Feature: RFH Publish Command
     And RFH is initialized in the directory
     And I have a rule file "rules.mdc" with content "# Token Test Rules"
     When I run "rfh pack rules.mdc --package=token-test" in the project directory
-    And I run "rfh publish --token dummy-token" in the project directory
+    And I run "rfh publish" in the project directory
     Then I should see either authentication error or connection error
     And the command should exit with non-zero status
 
@@ -90,15 +90,15 @@ Feature: RFH Publish Command
 
   # Registry override scenarios
   
-  Scenario: Publish with registry URL override
+  Scenario: Publish with invalid registry configuration  
     Given I have a clean config file
-    And I have a registry "test-registry" configured at "http://localhost:8080"
+    And I have a registry "test-registry" configured at "http://localhost:9999"
     And "test-registry" is the active registry
     And I have a temporary project directory
     And RFH is initialized in the directory
     And I have a rule file "rules.mdc" with content "# Override Test Rules"
     When I run "rfh pack rules.mdc --package=override-test" in the project directory
-    And I run "rfh publish --registry http://localhost:9999 --token dummy-token" in the project directory
+    And I run "rfh publish" in the project directory
     Then I should see either authentication error or connection error
     And the command should exit with non-zero status
 
@@ -111,7 +111,6 @@ Feature: RFH Publish Command
     And I have a temporary project directory
     When I run "rfh publish --verbose" in the project directory
     Then I should see "RFH version: 1.0.0"
-    And I should see "Config file:"
     And I should see "no staged archives found"
     And the command should exit with non-zero status
 

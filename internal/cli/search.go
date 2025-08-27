@@ -43,11 +43,8 @@ func runSearch(query string) error {
 		return fmt.Errorf("failed to load config: %w", err)
 	}
 
-	// Determine which registry to use
+	// Use current registry (no overrides)
 	registryName := cfg.Current
-	if registry != "" {
-		registryName = registry
-	}
 
 	if registryName == "" {
 		return fmt.Errorf("no registry configured. Use 'rfh registry add' to add a registry")

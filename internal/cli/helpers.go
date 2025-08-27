@@ -6,17 +6,9 @@ import (
 )
 
 // getEffectiveToken returns the token to use for API calls
-// Priority: 1) --token flag, 2) registry JWT token, 3) global JWT token (deprecated)
+// Priority: 1) registry JWT token, 2) global JWT token (deprecated)
 func getEffectiveToken(cfg config.CLIConfig, registry config.Registry) (string, error) {
-	// 1. Check command line flag (highest priority)
-	if token != "" {
-		if verbose {
-			fmt.Printf("🔍 Using token from --token flag (length: %d chars)\n", len(token))
-		}
-		return token, nil
-	}
-
-	// 2. Check registry-specific JWT token
+	// 1. Check registry-specific JWT token
 	if registry.JWTToken != "" {
 		if verbose {
 			fmt.Printf("🔍 Using JWT token from registry config (length: %d chars)\n", len(registry.JWTToken))
@@ -24,7 +16,7 @@ func getEffectiveToken(cfg config.CLIConfig, registry config.Registry) (string, 
 		return registry.JWTToken, nil
 	}
 
-	// 3. Check global JWT token from user authentication (deprecated, for backward compatibility)
+	// 2. Check global JWT token from user authentication (deprecated, for backward compatibility)
 	if cfg.User != nil && cfg.User.Token != "" {
 		if verbose {
 			fmt.Printf("🔍 Using global JWT token (DEPRECATED) (length: %d chars)\n", len(cfg.User.Token))
@@ -39,16 +31,6 @@ func getEffectiveToken(cfg config.CLIConfig, registry config.Registry) (string, 
 func getCurrentRegistry(cfg config.CLIConfig) (string, config.Registry, error) {
 	registryName := cfg.Current
 
-	// Allow registry override from flag
-	if registry != "" {
-		// If registry flag is provided, we need to find it or use it as URL
-		if reg, exists := cfg.Registries[registry]; exists {
-			return registry, reg, nil
-		}
-		// Treat registry flag as URL if not found in config
-		return "override", config.Registry{URL: registry}, nil
-	}
-
 	if registryName == "" {
 		return "", config.Registry{}, fmt.Errorf("no active registry configured. Use 'rfh registry add' to add one")
 	}
@@ -59,4 +41,18 @@ func getCurrentRegistry(cfg config.CLIConfig) (string, config.Registry, error) {
 	}
 
 	return registryName, reg, nil
+}
+
+// getDefaultToken returns the default token for a registry (no command line overrides)
+func getDefaultToken(registry config.Registry) string {
+	// Use registry-specific JWT token
+	if registry.JWTToken != "" {
+		if verbose {
+			fmt.Printf("🔍 Using JWT token from registry config (length: %d chars)\n", len(registry.JWTToken))
+		}
+		return registry.JWTToken
+	}
+
+	// No token available - return empty string (will cause auth error)
+	return ""
 }

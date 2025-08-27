@@ -88,18 +88,14 @@ func runAdd(packageSpec string) error {
 		}
 	}
 
-	// Get registry configuration
+	// Get registry configuration (use default config only)
 	cfg, err := config.LoadCLI()
 	if err != nil {
 		return fmt.Errorf("failed to load config: %w", err)
 	}
 
-	// Determine which registry to use
+	// Use current registry (no overrides)
 	registryName := cfg.Current
-	if registry != "" {
-		registryName = registry
-	}
-
 	if registryName == "" {
 		return fmt.Errorf("no registry configured. Use 'rfh registry add' to add a registry")
 	}
@@ -109,11 +105,8 @@ func runAdd(packageSpec string) error {
 		return fmt.Errorf("registry '%s' not found. Use 'rfh registry list' to see available registries", registryName)
 	}
 
-	// Get effective token (flag, registry token, or JWT token)
-	authToken, err := getEffectiveToken(cfg, reg)
-	if err != nil {
-		return err
-	}
+	// Use default token (no overrides)
+	authToken := getDefaultToken(reg)
 
 	// Create client
 	c := client.NewClient(reg.URL, authToken)

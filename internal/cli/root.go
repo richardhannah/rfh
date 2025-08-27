@@ -10,9 +10,6 @@ import (
 )
 
 var (
-	cfgFile  string
-	registry string
-	token    string
 	verbose  bool
 )
 
@@ -30,7 +27,6 @@ Registry for Humans - making AI rulesets accessible and shareable.`,
 
 		if verbose {
 			fmt.Printf("RFH version: 1.0.0\n")
-			fmt.Printf("Config file: %s\n", cfgFile)
 		}
 	},
 }
@@ -45,9 +41,6 @@ func init() {
 	cobra.OnInitialize(initConfig)
 
 	// Global flags
-	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is ~/.rfh/config.toml)")
-	rootCmd.PersistentFlags().StringVar(&registry, "registry", "", "registry URL override")
-	rootCmd.PersistentFlags().StringVar(&token, "token", "", "auth token override")
 	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "verbose output")
 
 	// Add subcommands
@@ -62,10 +55,7 @@ func init() {
 
 // initConfig reads in config file and ENV variables if set.
 func initConfig() {
-	if cfgFile != "" {
-		// Use config file from the flag if provided
-		// (Implementation would go here if needed)
-	}
+	// No custom config file support - use defaults
 }
 
 // Helper function to handle errors

@@ -125,7 +125,6 @@ Feature: Package Creation
     And I have a rule file "verbose-rules.mdc" with content "# Verbose Rules"
     When I run "rfh pack verbose-rules.mdc --package=verbose-test --verbose" in the project directory
     Then I should see "RFH version: 1.0.0"
-    And I should see "Config file:"
     And I should see "✅ Created new package: verbose-test v1.0.0"
 
   # Error cases
