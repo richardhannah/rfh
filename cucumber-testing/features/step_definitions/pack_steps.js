@@ -118,7 +118,8 @@ Then('I should see an error about missing files', function () {
 
 Given('RFH is initialized in the directory for package creation', async function () {
   const { execSync } = require('child_process');
-  const rfhPath = path.resolve(__dirname, '../../../dist/rfh');
+  const binaryName = process.platform === 'win32' ? 'rfh.exe' : 'rfh';
+  const rfhPath = path.resolve(__dirname, '../../../dist', binaryName);
   // Use package mode for pack tests since they need package manifests
   const initCommand = `"${rfhPath}" init --package`;
   
@@ -135,7 +136,8 @@ Given('RFH is initialized in the directory for package creation', async function
 // Backward compatibility step for existing tests
 Given('RFH is initialized in the directory', async function () {
   const { execSync } = require('child_process');
-  const rfhPath = path.resolve(__dirname, '../../../dist/rfh');
+  const binaryName = process.platform === 'win32' ? 'rfh.exe' : 'rfh';
+  const rfhPath = path.resolve(__dirname, '../../../dist', binaryName);
   // Use package mode for pack tests since they need package manifests
   const initCommand = `"${rfhPath}" init --package`;
   

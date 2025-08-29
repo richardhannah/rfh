@@ -13,7 +13,8 @@ require('./helpers');
 // Initialize RFH in project mode (for dependency management)
 Given('RFH is initialized in the directory for dependency management', async function () {
   const { execSync } = require('child_process');
-  const rfhPath = path.resolve(__dirname, '../../../dist/rfh');
+  const binaryName = process.platform === 'win32' ? 'rfh.exe' : 'rfh';
+  const rfhPath = path.resolve(__dirname, '../../../dist', binaryName);
   // Use project mode (default) for add tests since they manage dependencies
   const initCommand = `"${rfhPath}" init`;
   
@@ -81,7 +82,8 @@ Given('I have already added package {string}', async function (packageSpec) {
 
 // Add missing step definition
 When('I run {string} in that directory', async function (command) {
-  const rfhPath = path.resolve(__dirname, '../../../dist/rfh');
+  const binaryName = process.platform === 'win32' ? 'rfh.exe' : 'rfh';
+  const rfhPath = path.resolve(__dirname, '../../../dist', binaryName);
   const args = command.split(' ').slice(1); // Remove 'rfh' from the command
   
   const { execSync } = require('child_process');
@@ -175,7 +177,8 @@ Given('I have a truly clean config with no registries', async function () {
 
 // Command execution with input
 When('I run {string} with input {string} in the project directory', async function (command, input) {
-  const rfhPath = path.resolve(__dirname, '../../../dist/rfh');
+  const binaryName = process.platform === 'win32' ? 'rfh.exe' : 'rfh';
+  const rfhPath = path.resolve(__dirname, '../../../dist', binaryName);
   const args = command.split(' ').slice(1); // Remove 'rfh' from the command
   
   return new Promise((resolve) => {

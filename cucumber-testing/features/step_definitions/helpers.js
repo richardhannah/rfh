@@ -4,7 +4,8 @@ const path = require('path');
 // Shared helper functions for all step definitions
 async function runCommand(command) {
   // Use absolute path to rfh based on the original project directory
-  const rfhPath = path.resolve(__dirname, '../../../dist/rfh');
+  const binaryName = process.platform === 'win32' ? 'rfh.exe' : 'rfh';
+  const rfhPath = path.resolve(__dirname, '../../../dist', binaryName);
   
   // Replace 'rfh' with full path to executable
   const fullCommand = command.replace(/^rfh\s/, `"${rfhPath}" `);
@@ -27,7 +28,8 @@ async function runCommand(command) {
 
 async function runCommandInDirectory(command, directory) {
   // Use absolute path to the new rfh binary
-  const rfhPath = path.resolve(__dirname, '../../../dist/rfh');
+  const binaryName = process.platform === 'win32' ? 'rfh.exe' : 'rfh';
+  const rfhPath = path.resolve(__dirname, '../../../dist', binaryName);
   
   // Replace 'rfh' with full path to executable
   const fullCommand = command.replace(/^rfh\s/, `"${rfhPath}" `);

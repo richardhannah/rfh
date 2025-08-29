@@ -10,7 +10,26 @@ Given('I am in an empty directory', async function () {
 Given('RFH is installed and accessible', function () {
   // Verify RFH binary exists
   const fs = require('fs');
-  expect(fs.existsSync(this.rfhBinary), `RFH binary not found at ${this.rfhBinary}`).to.be.true;
+  const path = require('path');
+  
+  // Check if the binary exists
+  if (!fs.existsSync(this.rfhBinary)) {
+    // Provide helpful error message with OS-specific binary name
+    const binaryName = process.platform === 'win32' ? 'rfh.exe' : 'rfh';
+    const distDir = path.resolve(__dirname, '../../../dist');
+    const message = `
+RFH binary not found at: ${this.rfhBinary}
+
+Expected binary name: ${binaryName}
+Platform: ${process.platform}
+Dist directory: ${distDir}
+
+Please ensure you have built the RFH binary by running:
+  - On Windows: go build -o dist/rfh.exe
+  - On Unix/Mac: go build -o dist/rfh
+`;
+    throw new Error(message);
+  }
 });
 
 // Command execution steps

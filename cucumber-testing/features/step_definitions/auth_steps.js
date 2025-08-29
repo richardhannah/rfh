@@ -111,7 +111,8 @@ Given('I have a config with current registry {string}', async function (registry
 
 // Simple test helper that focuses on error cases that don't require interactive input
 async function runAuthRegisterTest() {
-  const rfhPath = path.resolve(__dirname, '../../../dist/rfh');
+  const binaryName = process.platform === 'win32' ? 'rfh.exe' : 'rfh';
+  const rfhPath = path.resolve(__dirname, '../../../dist', binaryName);
   const configPath = this.configPath;
   
   return new Promise((resolve) => {
@@ -160,7 +161,8 @@ async function runAuthRegisterTest() {
 
 // Simple test helper for auth login command 
 async function runAuthLoginTest() {
-  const rfhPath = path.resolve(__dirname, '../../../dist/rfh');
+  const binaryName = process.platform === 'win32' ? 'rfh.exe' : 'rfh';
+  const rfhPath = path.resolve(__dirname, '../../../dist', binaryName);
   const configPath = this.configPath;
   
   return new Promise((resolve) => {
@@ -209,7 +211,8 @@ async function runAuthLoginTest() {
 
 // Helper function for non-interactive auth login with credentials
 async function runAuthLoginWithCredentials(username, password) {
-  const rfhPath = path.resolve(__dirname, '../../../dist/rfh');
+  const binaryName = process.platform === 'win32' ? 'rfh.exe' : 'rfh';
+  const rfhPath = path.resolve(__dirname, '../../../dist', binaryName);
   const configPath = this.configPath;
   
   return new Promise((resolve) => {
@@ -259,7 +262,8 @@ async function runAuthLoginWithCredentials(username, password) {
 
 // Helper function for non-interactive auth register with credentials
 async function runAuthRegisterWithCredentials(username, email, password) {
-  const rfhPath = path.resolve(__dirname, '../../../dist/rfh');
+  const binaryName = process.platform === 'win32' ? 'rfh.exe' : 'rfh';
+  const rfhPath = path.resolve(__dirname, '../../../dist', binaryName);
   const configPath = this.configPath;
   
   return new Promise((resolve) => {

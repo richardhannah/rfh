@@ -12,7 +12,9 @@ class CustomWorld extends World {
     this.lastCommandOutput = '';
     this.lastCommandError = '';
     this.lastExitCode = 0;
-    this.rfhBinary = path.resolve(__dirname, '../../../dist/rfh');
+    // OS-specific binary name: rfh.exe on Windows, rfh on Unix/Mac
+    const binaryName = process.platform === 'win32' ? 'rfh.exe' : 'rfh';
+    this.rfhBinary = path.resolve(__dirname, '../../../dist', binaryName);
   }
 
   async createTempDirectory() {
