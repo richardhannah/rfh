@@ -47,7 +47,7 @@ Feature: RFH Publish Command
   
   Scenario: Publish without authentication token
     Given I have a clean config file
-    And I have a registry "test-registry" configured at "http://localhost:8080"
+    And I have a registry "test-registry" configured at "http://localhost:8081"
     And "test-registry" is the active registry
     And I have a temporary project directory
     And RFH is initialized in the directory
@@ -60,7 +60,7 @@ Feature: RFH Publish Command
 
   Scenario: Publish with no authentication configured
     Given I have a clean config file
-    And I have a registry "test-registry" configured at "http://localhost:8080"
+    And I have a registry "test-registry" configured at "http://localhost:8081"
     And "test-registry" is the active registry
     And I have a temporary project directory
     And RFH is initialized in the directory
@@ -76,7 +76,7 @@ Feature: RFH Publish Command
     Given I have a temporary project directory
     And RFH is initialized in the directory
     And I have a clean config file
-    And I have a registry "test-registry" configured at "http://localhost:8080"
+    And I have a registry "test-registry" configured at "http://localhost:8081"
     And "test-registry" is the active registry
     And I have a rule file "security-rule.mdc" with content "# Security Rule"
     And I run "rfh pack security-rule.mdc --package=security-rules" in the project directory
@@ -106,7 +106,7 @@ Feature: RFH Publish Command
   
   Scenario: Publish verbose output shows configuration
     Given I have a clean config file
-    And I have a registry "test-registry" configured at "http://localhost:8080"
+    And I have a registry "test-registry" configured at "http://localhost:8081"
     And "test-registry" is the active registry
     And I have a temporary project directory
     When I run "rfh publish --verbose" in the project directory

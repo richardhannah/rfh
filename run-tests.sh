@@ -31,15 +31,18 @@ if command -v docker &> /dev/null; then
     if docker info &> /dev/null; then
         echo "🐳 Docker is available - managing test infrastructure..."
         
-        # Rebuild and restart docker containers for tests
+        # Clean up any existing test containers and start fresh
+        echo "   Cleaning up existing test containers..."
+        docker-compose -f docker-compose.test.yml down -v &> /dev/null || true
+        
+        # Build and start test infrastructure
         echo "   Building and starting test API server..."
-        docker-compose down &> /dev/null || true
-        docker-compose up --build -d &> /dev/null
+        docker-compose -f docker-compose.test.yml up --build -d &> /dev/null
         
         # Wait for API to be healthy
-        echo -n "   Waiting for API to be ready"
-        for i in {1..30}; do
-            if curl -s http://localhost:8080/v1/health &> /dev/null; then
+        echo -n "   Waiting for test API to be ready"
+        for i in {1..60}; do
+            if curl -s http://localhost:8081/v1/health &> /dev/null; then
                 echo " ✅"
                 break
             fi
@@ -48,7 +51,7 @@ if command -v docker &> /dev/null; then
         done
         
         # Check if API is responding
-        if ! curl -s http://localhost:8080/v1/health &> /dev/null; then
+        if ! curl -s http://localhost:8081/v1/health &> /dev/null; then
             echo ""
             echo "   ⚠️  Warning: API server not responding - some tests may fail"
         fi
@@ -135,12 +138,12 @@ echo "   - Run './run-tests.sh actual' for only working scenarios"
 echo "   - Run './run-tests.sh init' for all init-related tests"
 echo "   - Failed tests may indicate missing RFH features"
 
-# Optional cleanup
+# Clean up test infrastructure
 if command -v docker &> /dev/null && docker info &> /dev/null; then
     echo ""
-    echo "🐳 Docker containers are still running for debugging"
-    echo "   - View logs: docker-compose logs"
-    echo "   - Stop containers: docker-compose down"
+    echo "🧹 Cleaning up test infrastructure..."
+    docker-compose -f docker-compose.test.yml down -v &> /dev/null || true
+    echo "   Test containers cleaned up ✅"
 fi
 
 exit $TEST_EXIT_CODE

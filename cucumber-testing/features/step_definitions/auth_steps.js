@@ -1,11 +1,62 @@
 const { Given, When, Then } = require('@cucumber/cucumber');
 const { expect } = require('chai');
+const assert = require('assert');
 const fs = require('fs-extra');
 const path = require('path');
 const { spawn } = require('child_process');
 
 // Import shared helper functions
 const { runCommand, runCommandInDirectory } = require('./helpers');
+
+// Enhanced World authentication step definitions
+Given('I am logged in as a user', async function () {
+  await this.loginAsUser();
+});
+
+Given('I am logged in as root', async function () {
+  await this.loginAsRoot();
+});
+
+Given('I am logged in as a user named {string}', async function (username) {
+  await this.loginAsUser(username);
+});
+
+// Test data steps
+Given('test packages are available', async function () {
+  await this.setupTestData();
+});
+
+Given('package {string} version {string} is published', async function (name, version) {
+  await this.publishPackage(name, version, `# ${name}\n\nTest package for ${name} v${version}`);
+});
+
+// Registry setup (automatic in most cases)
+Given('the test registry is configured', async function () {
+  await this.ensureRegistrySetup();
+});
+
+// Verification steps
+Then('package {string} version {string} should exist', async function (name, version) {
+  const exists = await this.verifyPackageExists(name, version);
+  assert(exists, `Package ${name}@${version} should exist but was not found`);
+});
+
+Then('I should be authenticated as {string}', function (expectedUser) {
+  assert.strictEqual(this.currentUser, expectedUser, `Expected to be logged in as ${expectedUser} but was ${this.currentUser}`);
+});
+
+Then('the registry should be configured for testing', function () {
+  assert(this.registryConfigured, 'Test registry should be configured');
+});
+
+// Additional step definitions for enhanced World testing
+When('I create a temporary project directory', async function () {
+  await this.createTempDirectory();
+});
+
+When('I initialize RFH in the directory for dependency management', async function () {
+  await this.runCommand('rfh init');
+});
 
 // Auth-specific step definitions for user registration testing
 

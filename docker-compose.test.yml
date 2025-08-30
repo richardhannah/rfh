@@ -1,0 +1,71 @@
+services:
+  # PostgreSQL database for testing
+  postgres-test:
+    image: postgres:15-alpine
+    container_name: rulestack-postgres-test
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: rulestack_test_user
+      POSTGRES_PASSWORD: rulestack_test_password
+      POSTGRES_DB: rulestackdb_test
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_test_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U rulestack_test_user -d rulestackdb_test"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Flyway for test migrations
+  flyway-test:
+    image: flyway/flyway:9-alpine
+    container_name: rulestack-flyway-test
+    depends_on:
+      postgres-test:
+        condition: service_healthy
+    volumes:
+      - ./migrations/rulestack/migrations:/flyway/sql
+    command: >
+      -url=jdbc:postgresql://postgres-test:5432/rulestackdb_test
+      -user=rulestack_test_user
+      -password=rulestack_test_password
+      -baselineOnMigrate=true
+      -schemas=rulestack
+      migrate
+    restart: "no"
+
+  # RuleStack API for testing
+  api-test:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: rulestack-api-test
+    restart: unless-stopped
+    depends_on:
+      postgres-test:
+        condition: service_healthy
+      flyway-test:
+        condition: service_completed_successfully
+    ports:
+      - "8081:8080"
+    volumes:
+      - .:/app
+      - /app/tmp  # Exclude tmp directory from volume mount
+      - test_storage:/app/storage  # Use named volume for test package storage
+    environment:
+      DATABASE_URL: postgres://rulestack_test_user:rulestack_test_password@postgres-test:5432/rulestackdb_test?sslmode=disable&search_path=rulestack
+      TOKEN_SALT: test_salt_for_testing_only
+      JWT_SECRET: test_jwt_secret_for_testing_only_use_at_least_32_chars
+      STORAGE_PATH: /app/storage
+      PORT: 8080
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8080/v1/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  postgres_test_data:
+  test_storage:

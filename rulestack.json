@@ -1,7 +1,5 @@
 {
   "version": "1.0.0",
-  "projectRoot": "/Users/richard_h/development/rfh",
-  "dependencies": {
-    "golang-standard": "1.0.0"
-  }
+  "projectRoot": "D:\\projects\\render.com\\rfh",
+  "dependencies": {}
 }

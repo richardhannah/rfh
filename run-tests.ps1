@@ -20,17 +20,20 @@ try {
         $dockerAvailable = $true
         Write-Host "Docker is available - managing test infrastructure..." -ForegroundColor Cyan
         
-        # Rebuild and restart docker containers for tests
+        # Clean up any existing test containers and start fresh
+        Write-Host "Cleaning up existing test containers..." -ForegroundColor Yellow
+        docker-compose -f docker-compose.test.yml down -v *> $null
+        
+        # Build and start test infrastructure
         Write-Host "Building and starting test API server..." -ForegroundColor Yellow
-        docker-compose down *> $null
-        docker-compose up --build -d *> $null
+        docker-compose -f docker-compose.test.yml up --build -d *> $null
         
         # Wait for API to be healthy
-        Write-Host -NoNewline "Waiting for API to be ready"
+        Write-Host -NoNewline "Waiting for test API to be ready"
         $apiReady = $false
-        for ($i = 0; $i -lt 30; $i++) {
+        for ($i = 0; $i -lt 60; $i++) {
             try {
-                $response = Invoke-WebRequest -Uri "http://localhost:8080/v1/health" -Method Get -ErrorAction SilentlyContinue
+                $response = Invoke-WebRequest -Uri "http://localhost:8081/v1/health" -Method Get -ErrorAction SilentlyContinue
                 if ($response.StatusCode -eq 200) {
                     $apiReady = $true
                     Write-Host " OK" -ForegroundColor Green
@@ -106,12 +109,12 @@ Set-Location ..
 Write-Host "Test execution completed!" -ForegroundColor Green
 Write-Host "Check output above for results"
 
-# Show Docker cleanup hint if Docker was used
+# Clean up test infrastructure if Docker was used
 if ($dockerAvailable) {
     Write-Host ""
-    Write-Host "Docker containers are still running for debugging" -ForegroundColor Cyan
-    Write-Host "  - View logs: docker-compose logs" -ForegroundColor Gray
-    Write-Host "  - Stop containers: docker-compose down" -ForegroundColor Gray
+    Write-Host "Cleaning up test infrastructure..." -ForegroundColor Cyan
+    docker-compose -f docker-compose.test.yml down -v *> $null
+    Write-Host "Test containers cleaned up" -ForegroundColor Green
 }
 
 exit $TestExitCode

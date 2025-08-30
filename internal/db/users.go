@@ -17,6 +17,7 @@ const (
 	RoleUser      UserRole = "user"
 	RolePublisher UserRole = "publisher"
 	RoleAdmin     UserRole = "admin"
+	RoleRoot      UserRole = "root"
 )
 
 // Value implements the driver.Valuer interface for database storage
@@ -295,6 +296,11 @@ func (db *DB) ListUsers(limit, offset int) ([]User, error) {
 
 // HasPermission checks if a user role has permission for a specific action
 func (r UserRole) HasPermission(action string) bool {
+	// Root has access to everything
+	if r == RoleRoot {
+		return true
+	}
+	
 	switch action {
 	case "read":
 		return r == RoleUser || r == RolePublisher || r == RoleAdmin
