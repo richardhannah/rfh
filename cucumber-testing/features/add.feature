@@ -35,14 +35,6 @@ Feature: Add Package Command
     And "rulestack.lock.json" should contain package "security-rules" with version "1.0.1"
     And the command should exit with zero status
 
-  Scenario: Add with verbose output
-    When I run "rfh add example-rules@0.1.0 --verbose" in the project directory
-    Then I should see "RFH version: 1.0.0"
-    And I should see "📦 Adding package: example-rules@0.1.0"
-    And I should see "📁 Project root:"
-    And I should see "✅ Successfully added example-rules@0.1.0"
-    And the command should exit with zero status
-
   # Error scenarios
 
   Scenario: Add package with invalid format

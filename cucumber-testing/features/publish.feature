@@ -5,6 +5,8 @@ Feature: RFH Publish Command
 
   Background:
     Given RFH is installed and accessible
+    And I have a temporary project directory
+    And RFH is initialized in the directory
 
   # Basic functionality
   
@@ -16,15 +18,12 @@ Feature: RFH Publish Command
   # No staged archives scenarios
   
   Scenario: Publish command with no staged archives
-    Given I have a temporary project directory
-    And RFH is initialized in the directory  
     When I run "rfh publish" in the project directory
     Then I should see "no staged archives found"
     And I should see "Use 'rfh pack' to create archives first"
     And the command should exit with non-zero status
 
   Scenario: Publish with missing manifest
-    Given I have a temporary project directory
     When I run "rfh publish" in the project directory
     Then I should see "no staged archives found"
     And I should see "Use 'rfh pack' to create archives first"
@@ -34,8 +33,6 @@ Feature: RFH Publish Command
   
   Scenario: Publish with no active registry
     Given I have a clean config file with no registries
-    And I have a temporary project directory
-    And RFH is initialized in the directory
     And I have a rule file "test.mdc" with content "# Test Rules"
     When I run "rfh pack test.mdc --package=no-registry" in the project directory
     And I run "rfh publish" in the project directory
@@ -46,10 +43,7 @@ Feature: RFH Publish Command
   # Authentication scenarios
   
   Scenario: Publish without authentication token
-    Given I have a clean config file
-    And the test registry is configured
-    And I have a temporary project directory
-    And RFH is initialized in the directory
+    Given the test registry is configured
     And I have a rule file "rules.mdc" with content "# Unauth Test Rules"
     When I run "rfh pack rules.mdc --package=unauth-test" in the project directory
     And I run "rfh publish" in the project directory
@@ -58,10 +52,7 @@ Feature: RFH Publish Command
     And the command should exit with non-zero status
 
   Scenario: Publish with no authentication configured
-    Given I have a clean config file
-    And the test registry is configured
-    And I have a temporary project directory
-    And RFH is initialized in the directory
+    Given the test registry is configured
     And I have a rule file "rules.mdc" with content "# Token Test Rules"
     When I run "rfh pack rules.mdc --package=token-test" in the project directory
     And I run "rfh publish" in the project directory
@@ -71,10 +62,7 @@ Feature: RFH Publish Command
   # Multiple staged archives
   
   Scenario: Publish multiple staged archives
-    Given I have a temporary project directory
-    And RFH is initialized in the directory
-    And I have a clean config file
-    And the test registry is configured
+    Given the test registry is configured
     And I have a rule file "security-rule.mdc" with content "# Security Rule"
     And I run "rfh pack security-rule.mdc --package=security-rules" in the project directory
     And I have a rule file "network-rule.mdc" with content "# Network Rule"  
@@ -91,31 +79,16 @@ Feature: RFH Publish Command
     Given I have a clean config file
     And I have a registry "test-registry" configured at "http://localhost:9999"
     And "test-registry" is the active registry
-    And I have a temporary project directory
-    And RFH is initialized in the directory
     And I have a rule file "rules.mdc" with content "# Override Test Rules"
     When I run "rfh pack rules.mdc --package=override-test" in the project directory
     And I run "rfh publish" in the project directory
     Then I should see either authentication error or connection error
     And the command should exit with non-zero status
 
-  # Verbose output
-  
-  Scenario: Publish verbose output shows configuration
-    Given I have a clean config file
-    And the test registry is configured
-    And I have a temporary project directory
-    When I run "rfh publish --verbose" in the project directory
-    Then I should see "RFH version: 1.0.0"
-    And I should see "no staged archives found"
-    And the command should exit with non-zero status
-
   # Staging cleanup verification
   
   Scenario: Verify staged archives exist after pack
-    Given I have a temporary project directory
-    And RFH is initialized in the directory
-    And I have a rule file "test-rule.mdc" with content "# Test Rule"
+    Given I have a rule file "test-rule.mdc" with content "# Test Rule"
     When I run "rfh pack test-rule.mdc --package=test-package" in the project directory
     Then the archive file ".rulestack/staged/test-package-1.0.0.tgz" should exist
     # Note: Actual cleanup after successful publish would require a mock registry

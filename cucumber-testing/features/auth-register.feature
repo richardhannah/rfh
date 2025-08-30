@@ -5,7 +5,6 @@ Feature: User Registration Command
 
   Background:
     Given RFH is installed and accessible
-    And I have a clean config file
 
   Scenario: Registration command availability
     Given the test registry is configured

@@ -4,8 +4,8 @@ Feature: Initialize RFH project in empty directory
   So that I can start creating and managing rule packages
 
   Background:
-    Given I am in an empty directory
-    And RFH is installed and accessible
+    Given RFH is installed and accessible
+    And I am in an empty directory
 
   Scenario: Basic initialization works correctly
     When I run "rfh init --package"

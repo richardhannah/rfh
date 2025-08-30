@@ -4,8 +4,8 @@ Feature: Initialize RFH project in project mode (default)
   So that I can add packages created by others
 
   Background:
-    Given I am in an empty directory
-    And RFH is installed and accessible
+    Given RFH is installed and accessible
+    And I am in an empty directory
 
   Scenario: Basic project initialization works correctly
     When I run "rfh init"

@@ -5,7 +5,6 @@ Feature: User Login
 
   Background:
     Given RFH is installed and accessible
-    And I have a clean config file
 
   Scenario: Login command availability
     Given the test registry is configured

@@ -4,8 +4,8 @@ Feature: Initialize RFH project with existing files
   So that I can work with existing projects correctly
 
   Background:
-    Given I am in an empty directory
-    And RFH is installed and accessible
+    Given RFH is installed and accessible
+    And I am in an empty directory
 
   Scenario: Initialize in directory with existing rulestack.json
     Given a file "rulestack.json" already exists
