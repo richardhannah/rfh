@@ -5,9 +5,9 @@ Feature: Add Package Command
 
   Background:
     Given RFH is installed and accessible
-    And I have a clean config file
-    And I have a registry "test-registry" configured at "http://localhost:8081"
-    And "test-registry" is the active registry
+    And the test registry is configured
+    And test packages are available
+    And I am logged in as root
     And I have a temporary project directory
     And RFH is initialized in the directory for dependency management
 

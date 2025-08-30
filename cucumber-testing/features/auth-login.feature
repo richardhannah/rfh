@@ -8,8 +8,7 @@ Feature: User Login
     And I have a clean config file
 
   Scenario: Login command availability
-    Given I have a registry "test-registry" configured at "http://localhost:8081"
-    And "test-registry" is the active registry  
+    Given the test registry is configured
     When I attempt to login interactively
     Then I should see "Logging in to http://localhost:8081"
     And I should see "Username:"
@@ -41,15 +40,13 @@ Feature: User Login
     Then I should see "Logging in to http://localhost:9999"
 
   Scenario: Successful non-interactive login with valid credentials
-    Given I have a registry "test-registry" configured at "http://localhost:8081"
-    And "test-registry" is the active registry
-    When I login with username "validuser" and password "validpass"
-    Then I should see "Using provided credentials for validuser"
+    Given the test registry is configured
+    When I login with username "root" and password "root1234"
+    Then I should see "Using provided credentials for root"
     And I should see "Logging in to http://localhost:8081"
 
   Scenario: Non-interactive login with invalid credentials  
-    Given I have a registry "test-registry" configured at "http://localhost:8081"
-    And "test-registry" is the active registry
+    Given the test registry is configured
     When I login with username "invaliduser" and password "wrongpass"
     Then I should see "Using provided credentials for invaliduser"
     And I should see "login failed"
