@@ -112,31 +112,31 @@ func matchRoute(template, actual string) bool {
 	if template == actual {
 		return true
 	}
-	
+
 	// Split paths into segments
 	templateParts := strings.Split(strings.Trim(template, "/"), "/")
 	actualParts := strings.Split(strings.Trim(actual, "/"), "/")
-	
+
 	// Must have same number of segments
 	if len(templateParts) != len(actualParts) {
 		return false
 	}
-	
+
 	// Check each segment
 	for i, templatePart := range templateParts {
 		actualPart := actualParts[i]
-		
+
 		// If template part is a parameter (enclosed in {}), it matches any value
 		if strings.HasPrefix(templatePart, "{") && strings.HasSuffix(templatePart, "}") {
 			continue
 		}
-		
+
 		// Otherwise, must be exact match
 		if templatePart != actualPart {
 			return false
 		}
 	}
-	
+
 	return true
 }
 
@@ -167,7 +167,7 @@ func (s *Server) SetupRoutes(router *mux.Router) *RouteRegistry {
 	// Package routes (no scope support)
 	registry.RegisterRouteWithRateLimit("/v1/packages/{name}/versions/{version}", "GET", false, s.getPackageVersionHandler, "Get package version", 600)
 	api.HandleFunc("/packages/{name}/versions/{version}", s.getPackageVersionHandler).Methods("GET")
-	
+
 	registry.RegisterRouteWithRateLimit("/v1/packages/{name}", "GET", false, s.getPackageHandler, "Get package details", 600)
 	api.HandleFunc("/packages/{name}", s.getPackageHandler).Methods("GET")
 
@@ -176,29 +176,29 @@ func (s *Server) SetupRoutes(router *mux.Router) *RouteRegistry {
 	api.HandleFunc("/packages", s.publishPackageHandler).Methods("POST")
 
 	// Authentication endpoints - public for registration and login
-	registry.RegisterRouteWithRateLimit("/v1/auth/register", "POST", false, s.registerHandler, "User registration", 25)
+	registry.RegisterRouteWithRateLimit("/v1/auth/register", "POST", false, s.registerHandler, "User registration", 50)
 	api.HandleFunc("/auth/register", s.registerHandler).Methods("POST")
-	
+
 	registry.RegisterRouteWithRateLimit("/v1/auth/login", "POST", false, s.loginHandler, "User login", 50)
 	api.HandleFunc("/auth/login", s.loginHandler).Methods("POST")
 
 	// User management endpoints - require authentication
 	registry.RegisterRouteWithRoleAndRateLimit("/v1/auth/logout", "POST", "user", s.logoutHandler, "User logout", 30)
 	api.HandleFunc("/auth/logout", s.logoutHandler).Methods("POST")
-	
+
 	registry.RegisterRouteWithRoleAndRateLimit("/v1/auth/profile", "GET", "user", s.profileHandler, "Get user profile", 60)
 	api.HandleFunc("/auth/profile", s.profileHandler).Methods("GET")
-	
+
 	registry.RegisterRouteWithRoleAndRateLimit("/v1/auth/change-password", "POST", "user", s.changePasswordHandler, "Change password", 5)
 	api.HandleFunc("/auth/change-password", s.changePasswordHandler).Methods("POST")
-	
+
 	registry.RegisterRouteWithRoleAndRateLimit("/v1/auth/delete-account", "DELETE", "user", s.deleteAccountHandler, "Delete account", 2)
 	api.HandleFunc("/auth/delete-account", s.deleteAccountHandler).Methods("DELETE")
 
 	// Admin endpoints - require admin role
 	registry.RegisterRouteWithRoleAndRateLimit("/v1/admin/users", "GET", "admin", s.listUsersHandler, "List all users", 30)
 	api.HandleFunc("/admin/users", s.listUsersHandler).Methods("GET")
-	
+
 	registry.RegisterRouteWithRoleAndRateLimit("/v1/admin/users/{id}", "DELETE", "admin", s.adminDeleteUserHandler, "Admin delete user", 5)
 	api.HandleFunc("/admin/users/{id}", s.adminDeleteUserHandler).Methods("DELETE")
 

@@ -7,19 +7,41 @@ import (
 )
 
 func TestConfigDir(t *testing.T) {
-	dir, err := ConfigDir()
-	if err != nil {
-		t.Errorf("ConfigDir() returned error: %v", err)
-	}
+	t.Run("default config dir", func(t *testing.T) {
+		// Clear RFH_CONFIG to test default behavior
+		os.Unsetenv("RFH_CONFIG")
+		
+		dir, err := ConfigDir()
+		if err != nil {
+			t.Errorf("ConfigDir() returned error: %v", err)
+		}
 
-	if dir == "" {
-		t.Error("ConfigDir() returned empty string")
-	}
+		if dir == "" {
+			t.Error("ConfigDir() returned empty string")
+		}
 
-	// Should end with .rfh
-	if filepath.Base(dir) != ".rfh" {
-		t.Errorf("ConfigDir() = %q, expected to end with .rfh", dir)
-	}
+		// Should end with .rfh
+		if filepath.Base(dir) != ".rfh" {
+			t.Errorf("ConfigDir() = %q, expected to end with .rfh", dir)
+		}
+	})
+
+	t.Run("RFH_CONFIG environment variable", func(t *testing.T) {
+		// Test with custom RFH_CONFIG
+		customDir := "/custom/config/dir"
+		originalConfig := os.Getenv("RFH_CONFIG")
+		os.Setenv("RFH_CONFIG", customDir)
+		defer os.Setenv("RFH_CONFIG", originalConfig)
+
+		dir, err := ConfigDir()
+		if err != nil {
+			t.Errorf("ConfigDir() returned error: %v", err)
+		}
+
+		if dir != customDir {
+			t.Errorf("ConfigDir() = %q, expected %q", dir, customDir)
+		}
+	})
 }
 
 func TestConfigPath(t *testing.T) {
@@ -46,10 +68,11 @@ func TestLoadCLI(t *testing.T) {
 	}
 	defer os.RemoveAll(tempDir)
 
-	// Mock ConfigPath by temporarily changing HOME
-	originalHome := os.Getenv("HOME")
-	os.Setenv("HOME", tempDir)
-	defer os.Setenv("HOME", originalHome)
+	// Mock ConfigPath by temporarily setting RFH_CONFIG
+	rfhConfigDir := filepath.Join(tempDir, ".rfh")
+	originalConfig := os.Getenv("RFH_CONFIG")
+	os.Setenv("RFH_CONFIG", rfhConfigDir)
+	defer os.Setenv("RFH_CONFIG", originalConfig)
 
 	t.Run("loads empty config when file doesn't exist", func(t *testing.T) {
 		config, err := LoadCLI()
@@ -163,10 +186,11 @@ func TestSaveCLI(t *testing.T) {
 	}
 	defer os.RemoveAll(tempDir)
 
-	// Mock ConfigPath by temporarily changing HOME
-	originalHome := os.Getenv("HOME")
-	os.Setenv("HOME", tempDir)
-	defer os.Setenv("HOME", originalHome)
+	// Mock ConfigPath by temporarily setting RFH_CONFIG
+	rfhConfigDir := filepath.Join(tempDir, ".rfh")
+	originalConfig := os.Getenv("RFH_CONFIG")
+	os.Setenv("RFH_CONFIG", rfhConfigDir)
+	defer os.Setenv("RFH_CONFIG", originalConfig)
 
 	t.Run("saves config successfully", func(t *testing.T) {
 		config := CLIConfig{

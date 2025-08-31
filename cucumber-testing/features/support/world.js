@@ -26,8 +26,9 @@ class CustomWorld extends World {
     const binaryName = process.platform === 'win32' ? 'rfh.exe' : 'rfh';
     this.rfhBinary = path.resolve(__dirname, '../../../dist', binaryName);
     
-    // Configuration paths
-    this.configPath = path.join(os.homedir(), '.rfh', 'config.toml');
+    // Configuration paths - use isolated test config, not user's real config
+    this.testConfigDir = null; // Will be set in createTempDirectory
+    this.configPath = null; // Will be set based on testConfigDir
     
     // Enhanced World properties for authentication and registry management
     this.rootJwtToken = null;
@@ -40,6 +41,12 @@ class CustomWorld extends World {
     this.testDir = await fs.mkdtemp(path.join(os.tmpdir(), 'rfh-test-'));
     // Store the current working directory and change to test directory
     this.tempProjectDir = this.testDir;  // Alias for backward compatibility
+    
+    // Set up shared cucumber config directory (production-like)
+    this.testConfigDir = path.join(os.homedir(), '.rfh-cucumber');
+    this.configPath = path.join(this.testConfigDir, 'config.toml');
+    await fs.ensureDir(this.testConfigDir);
+    
     process.chdir(this.testDir);
   }
 
@@ -53,19 +60,85 @@ class CustomWorld extends World {
 
   async runCommand(command, options = {}) {
     try {
+      // Ensure we have consistent config directory path
+      const configDir = this.testConfigDir;
+      if (!configDir) {
+        throw new Error('Test config directory not initialized. Call createTempDirectory first.');
+      }
+      await fs.ensureDir(configDir);
+      
       // Replace 'rfh' with the actual binary path (handle both 'rfh ' and 'rfh' at end of string)
       const actualCommand = command.replace(/^rfh(\s|$)/, `"${this.rfhBinary}"$1`);
+      
+      // Set up environment with RFH_CONFIG for test isolation
+      const env = {
+        ...process.env,
+        RFH_CONFIG: configDir,
+        ...options.env
+      };
+      
+      // Environment setup complete - RFH_CONFIG is now set for test isolation
       
       this.lastCommandOutput = execSync(actualCommand, {
         cwd: options.cwd || this.testDir || process.cwd(),
         encoding: 'utf8',
-        timeout: 30000
+        timeout: 30000,
+        env: env
       });
       this.lastExitCode = 0;
+      this.lastCommandExitCode = 0;
     } catch (error) {
       this.lastCommandError = error.stderr || error.message || '';
       this.lastCommandOutput = error.stdout || '';
       this.lastExitCode = error.status || 1;
+      this.lastCommandExitCode = error.status || 1;
+      
+      // Debug logging for failed execution
+      this.log(`Command failed with exit code: ${this.lastExitCode}`, 'error');
+      this.log(`Error: ${this.lastCommandError}`, 'error');
+      this.log(`Stdout: ${this.lastCommandOutput}`, 'error');
+    }
+  }
+
+  async runCommandInDirectory(command, directory, options = {}) {
+    try {
+      // Ensure we have consistent config directory path
+      const configDir = this.testConfigDir;
+      if (!configDir) {
+        throw new Error('Test config directory not initialized. Call createTempDirectory first.');
+      }
+      await fs.ensureDir(configDir);
+      
+      // Replace 'rfh' with the actual binary path (handle both 'rfh ' and 'rfh' at end of string)
+      const actualCommand = command.replace(/^rfh(\s|$)/, `"${this.rfhBinary}"$1`);
+      
+      // Set up environment with RFH_CONFIG for test isolation
+      const env = {
+        ...process.env,
+        RFH_CONFIG: configDir,
+        ...options.env
+      };
+      
+      // Environment setup complete - RFH_CONFIG is now set for test isolation
+      
+      this.lastCommandOutput = execSync(actualCommand, {
+        cwd: directory,
+        encoding: 'utf8',
+        timeout: 30000,
+        env: env
+      });
+      this.lastExitCode = 0;
+      this.lastCommandExitCode = 0;
+    } catch (error) {
+      this.lastCommandError = error.stderr || error.message || '';
+      this.lastCommandOutput = error.stdout || '';
+      this.lastExitCode = error.status || 1;
+      this.lastCommandExitCode = error.status || 1;
+      
+      // Debug logging for failed execution
+      this.log(`Command failed with exit code: ${this.lastExitCode}`, 'error');
+      this.log(`Error: ${this.lastCommandError}`, 'error');
+      this.log(`Stdout: ${this.lastCommandOutput}`, 'error');
     }
   }
 
@@ -239,15 +312,16 @@ class CustomWorld extends World {
         throw new Error(`Init failed for ${name}: ${this.lastCommandError || this.lastCommandOutput}`);
       }
       
-      // Copy authentication from main config directory (not just the file)
-      const packageConfigDir = path.join(packageDir, '.rfh');
-      const mainConfigDir = path.dirname(this.configPath);
-      await fs.ensureDir(packageConfigDir);
+      // Copy authentication from test config directory (not the user's real config)
+      const packageConfigDir = path.join(packageDir, '.rfh-package-config');
       
-      // Copy the entire config directory to ensure all authentication files are copied
-      if (await fs.pathExists(mainConfigDir)) {
-        await fs.copy(mainConfigDir, packageConfigDir);
-        console.log(`Copied config from ${mainConfigDir} to ${packageConfigDir}`);
+      // Copy the test config if it exists
+      if (this.testConfigDir && await fs.pathExists(this.testConfigDir)) {
+        await fs.copy(this.testConfigDir, packageConfigDir);
+        console.log(`Copied test config from ${this.testConfigDir} to ${packageConfigDir}`);
+      } else {
+        // Create empty config dir if test config doesn't exist yet
+        await fs.ensureDir(packageConfigDir);
       }
       
       // Create the rule content file
@@ -291,38 +365,23 @@ class CustomWorld extends World {
       try {
         process.chdir(packageDir);
         
-        // Verify we're in the right directory
-        await this.runCommand('rfh projectroot');
-        console.log(`\n=== DEBUG: Manual directory change for ${name} ===`);
-        console.log(`Package directory: ${packageDir}`);
-        console.log(`Current process.cwd(): ${process.cwd()}`);
-        console.log(`Projectroot output:\n${this.lastCommandOutput}`);
+        // Use the package-specific config directory for all commands
+        const packageEnv = { RFH_CONFIG: packageConfigDir };
         
-        // Pack the package from the correct directory
-        await this.runCommand(`rfh pack rules.mdc --package ${name}`);
+        // Pack the package from the correct directory with isolated config
+        await this.runCommand(`rfh pack rules.mdc --package ${name}`, { env: packageEnv });
         if (this.lastExitCode !== 0) {
-          console.log(`Pack failed - Exit code: ${this.lastExitCode}`);
-          console.log(`Pack output: ${this.lastCommandOutput}`);
-          console.log(`Pack error: ${this.lastCommandError}`);
-          console.log('=== END DEBUG ===\n');
           throw new Error(`Pack failed for ${name}: ${this.lastCommandError || this.lastCommandOutput}`);
-        } else {
-          console.log(`Pack succeeded for ${name}!`);
-          console.log('=== END DEBUG ===\n');
         }
         
         // Ensure authentication in the package directory context
-        console.log('=== DEBUG: Authenticating in package directory ===');
-        await this.runCommand('rfh auth login --username root --password root1234');
+        await this.runCommand('rfh auth login --username root --password root1234', { env: packageEnv });
         if (this.lastExitCode !== 0) {
-          console.log(`Auth login failed: ${this.lastCommandOutput}`);
-        } else {
-          console.log('Auth login succeeded in package directory');
+          console.warn(`Auth login failed for package ${name}: ${this.lastCommandOutput}`);
         }
-        console.log('=== END DEBUG ===');
         
         // Publish the package
-        await this.runCommand('rfh publish');
+        await this.runCommand('rfh publish', { env: packageEnv });
         if (this.lastExitCode !== 0) {
           throw new Error(`Publish failed for ${name}: ${this.lastCommandError || this.lastCommandOutput}`);
         }

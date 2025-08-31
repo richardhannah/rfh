@@ -25,7 +25,15 @@ type CLIConfig struct {
 }
 
 // ConfigDir returns the CLI config directory path
+// It first checks the RFH_CONFIG environment variable for a custom config location.
+// If not set, it falls back to the default ~/.rfh directory.
 func ConfigDir() (string, error) {
+	// Check for RFH_CONFIG environment variable first
+	if rfhConfig := os.Getenv("RFH_CONFIG"); rfhConfig != "" {
+		return rfhConfig, nil
+	}
+	
+	// Fall back to default ~/.rfh location
 	home, err := os.UserHomeDir()
 	if err != nil {
 		return "", err

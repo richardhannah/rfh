@@ -7,6 +7,10 @@ set -e
 echo "🧪 RFH Cucumber Test Runner"
 echo "=========================="
 
+# Default to fail-fast enabled
+FAIL_FAST_FLAG="--fail-fast"
+FAIL_FAST_ENABLED=true
+
 # Check if we're in the correct directory
 if [ ! -f "go.mod" ] || [ ! -d "cucumber-testing" ]; then
     echo "❌ Error: Please run this script from the RFH root directory"
@@ -85,16 +89,33 @@ echo ""
 echo "🧪 Running Cucumber tests..."
 echo ""
 
-# Parse command line arguments
+# Parse command line arguments for fail-fast option
+for arg in "$@"; do
+    if [[ "$arg" == "-fail-fast=false" ]]; then
+        FAIL_FAST_FLAG=""
+        FAIL_FAST_ENABLED=false
+        shift
+    fi
+done
+
+# Display fail-fast status
+if [ "$FAIL_FAST_ENABLED" = true ]; then
+    echo "⚡ Fail-fast mode: ENABLED (stop on first failure)"
+else
+    echo "🔄 Fail-fast mode: DISABLED (run full test suite)"
+fi
+echo ""
+
+# Parse command line arguments for test target
 TEST_PATTERN=""
 case "${1:-all}" in
     "init")
         echo "🎯 Running rfh init tests only..."
-        TEST_PATTERN="features/init-*.feature"
+        TEST_PATTERN="features/01-init-*.feature"
         ;;
     "actual")
         echo "🎯 Running actual behavior tests only..."
-        TEST_PATTERN="features/init-actual-behavior.feature"
+        TEST_PATTERN="features/01-init-empty-directory.feature"
         ;;
     "working")
         echo "🎯 Running only working/passing scenarios..."
@@ -107,18 +128,22 @@ case "${1:-all}" in
         ;;
     *)
         echo "❌ Unknown test target: $1"
-        echo "Usage: $0 [init|actual|working|all]"
+        echo "Usage: $0 [init|actual|working|all] [-fail-fast=false]"
         echo "  init    - Run rfh init tests only"
         echo "  actual  - Run actual behavior tests only" 
         echo "  working - Run only passing scenarios"
         echo "  all     - Run all tests (default)"
+        echo ""
+        echo "Options:"
+        echo "  -fail-fast=false - Disable fail-fast (run full suite even on failures)"
+        echo "                    Default: fail-fast enabled (stop on first failure)"
         exit 1
         ;;
 esac
 
 # Run the tests
 if [ -n "$TEST_PATTERN" ]; then
-    npx cucumber-js $TEST_PATTERN --format progress
+    npx cucumber-js $TEST_PATTERN --format progress $FAIL_FAST_FLAG
 else
     npm test
 fi

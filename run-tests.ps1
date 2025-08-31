@@ -1,10 +1,19 @@
 # RFH Cucumber Test Runner (PowerShell)
 param(
-    [string]$TestTarget = "all"
+    [string]$TestTarget = "all",
+    [bool]$FailFast = $true
 )
 
 Write-Host "RFH Cucumber Test Runner" -ForegroundColor Cyan
 Write-Host "========================" -ForegroundColor Cyan
+
+# Set up fail-fast flag
+$FailFastFlag = if ($FailFast) { "--fail-fast" } else { "" }
+if ($FailFast) {
+    Write-Host "Fail-fast mode: ENABLED (stop on first failure)" -ForegroundColor Yellow
+} else {
+    Write-Host "Fail-fast mode: DISABLED (run full test suite)" -ForegroundColor Yellow
+}
 
 # Check if we're in the correct directory
 if (-not (Test-Path "go.mod") -or -not (Test-Path "cucumber-testing")) {
@@ -83,17 +92,17 @@ Write-Host "Running Cucumber tests..." -ForegroundColor Cyan
 switch ($TestTarget) {
     "actual" {
         Write-Host "Running actual behavior tests only..." -ForegroundColor Yellow
-        npx cucumber-js features/init-actual-behavior.feature --format progress
+        npx cucumber-js features/01-init-empty-directory.feature --format progress $FailFastFlag
         break
     }
     "init" {
         Write-Host "Running rfh init tests only..." -ForegroundColor Yellow
-        npx cucumber-js "features/init-*.feature" --format progress
+        npx cucumber-js "features/01-init-*.feature" --format progress $FailFastFlag
         break
     }
     "working" {
         Write-Host "Running only working scenarios..." -ForegroundColor Yellow
-        npx cucumber-js features/init-actual-behavior.feature --format progress
+        npx cucumber-js features/01-init-empty-directory.feature --format progress $FailFastFlag
         break
     }
     default {

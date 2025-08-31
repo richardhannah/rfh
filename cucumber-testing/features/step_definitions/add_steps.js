@@ -5,8 +5,7 @@ const path = require('path');
 const { spawn } = require('child_process');
 const os = require('os');
 
-// Import shared helper functions
-require('./helpers');
+// Helper functions are now provided by the World class
 
 // Add-specific step definitions
 

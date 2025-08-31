@@ -4,8 +4,7 @@ const fs = require('fs-extra');
 const path = require('path');
 const os = require('os');
 
-// Import shared helper functions
-require('./helpers');
+// Helper functions are now provided by the World class
 
 // Publish-specific step definitions
 

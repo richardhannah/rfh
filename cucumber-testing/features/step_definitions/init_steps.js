@@ -351,5 +351,4 @@ Then('the {string} directory should exist', async function (dirPath) {
   expect(exists, `Directory ${dirPath} should exist`).to.be.true;
 });
 
-// Import shared helper functions
-require('./helpers');
+// Helper functions are now provided by the World class

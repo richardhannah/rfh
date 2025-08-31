@@ -6,7 +6,7 @@ const path = require('path');
 const { spawn } = require('child_process');
 
 // Import shared helper functions
-const { runCommand, runCommandInDirectory } = require('./helpers');
+// Helper functions are now provided by the World class
 
 // Enhanced World authentication step definitions
 Given('I am logged in as a user', async function () {
@@ -363,14 +363,10 @@ async function runAuthRegisterWithCredentials(username, email, password) {
   });
 }
 
-// Attach ALL helper functions to the world context (both shared and auth-specific)
+// Attach auth-specific helper functions to the world context
 require('@cucumber/cucumber').setDefinitionFunctionWrapper(function(fn) {
   return function(...args) {
-    // Shared command execution functions
-    this.runCommand = runCommand.bind(this);
-    this.runCommandInDirectory = runCommandInDirectory.bind(this);
-    
-    // Auth-specific functions
+    // Auth-specific functions - command execution functions are now provided by World class
     this.runAuthRegisterTest = runAuthRegisterTest.bind(this);
     this.runAuthLoginTest = runAuthLoginTest.bind(this);
     this.runAuthLoginWithCredentials = runAuthLoginWithCredentials.bind(this);

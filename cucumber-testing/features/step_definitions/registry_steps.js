@@ -4,8 +4,7 @@ const fs = require('fs-extra');
 const path = require('path');
 const { execSync } = require('child_process');
 
-// Import shared helper functions
-require('./helpers');
+// Helper functions are now provided by the World class
 const os = require('os');
 
 // Helper function to ensure test packages are published to the server using root user
@@ -31,15 +30,18 @@ async function ensureTestPackagesPublished() {
 
 // Config management steps
 Given('I have a clean config file', async function () {
-  // Ensure we start with a clean config (config path already set in World constructor)
-  if (await fs.pathExists(this.configPath)) {
-    // Backup existing config
-    this.originalConfig = await fs.readFile(this.configPath, 'utf8');
-    await fs.remove(this.configPath);
-  }
+  // Using shared ~/.rfh-cucumber directory for production-like testing
+  // The config path is set to ~/.rfh-cucumber/config.toml in World's createTempDirectory
   
-  // Ensure .rfh directory exists
-  await fs.ensureDir(path.dirname(this.configPath));
+  // Ensure the cucumber config directory exists 
+  await fs.ensureDir(this.testConfigDir);
+  
+  // Instead of deleting the file, create an empty config file
+  // This ensures the directory structure exists for RFH commands
+  const emptyConfig = `# Empty config for testing
+[registries]
+`;
+  await fs.writeFile(this.configPath, emptyConfig);
 });
 
 Given('I have a registry {string} configured at {string}', async function (name, url) {
@@ -49,15 +51,27 @@ Given('I have a registry {string} configured at {string}', async function (name,
   } else {
     // Keep existing logic for non-test registries
     await this.runCommand(`rfh registry add ${name} ${url}`);
+    if (this.lastExitCode !== 0) {
+      throw new Error(`Failed to add registry ${name}: ${this.lastCommandError || this.lastCommandOutput}`);
+    }
+    
+    // Small delay to ensure file is written 
+    await new Promise(resolve => setTimeout(resolve, 200));
   }
 });
 
 Given('I have a registry {string} configured', async function (name) {
   await this.runCommand(`rfh registry add ${name} https://example.com`);
+  if (this.lastExitCode !== 0) {
+    throw new Error(`Failed to add registry ${name}: ${this.lastCommandError || this.lastCommandOutput}`);
+  }
 });
 
 Given('{string} is the active registry', async function (name) {
   await this.runCommand(`rfh registry use ${name}`);
+  if (this.lastExitCode !== 0) {
+    throw new Error(`Failed to set active registry ${name}: ${this.lastCommandError || this.lastCommandOutput}`);
+  }
 });
 
 // Step to explicitly ensure test packages are published using root user
@@ -67,38 +81,75 @@ Given('test packages are published to the registry', async function () {
 
 // Registry operations validation
 Then('the config should contain registry {string} with URL {string}', async function (name, url) {
+  // Small delay to ensure file is fully written
+  await new Promise(resolve => setTimeout(resolve, 100));
+  
   const configExists = await fs.pathExists(this.configPath);
-  expect(configExists, 'Config file should exist').to.be.true;
+  expect(configExists, `Config file should exist at ${this.configPath}`).to.be.true;
   
   const configContent = await fs.readFile(this.configPath, 'utf8');
-  expect(configContent).to.include(`[registries.${name}]`);
+  
+  // Debug output: show what we actually found (only if test fails)
+  // Note: This debug output helps identify config file issues
+  
+  expect(configContent, `Config should contain [registries.${name}]\nActual config:\n${configContent}`).to.include(`[registries.${name}]`);
   // RFH uses single quotes in TOML format
-  expect(configContent).to.include(`url = '${url}'`);
+  expect(configContent, `Config should contain url = '${url}'\nActual config:\n${configContent}`).to.include(`url = '${url}'`);
 });
 
 // Token storage step removed - JWT tokens are obtained via 'rfh auth login'
 
 Then('{string} should be the current active registry', async function (name) {
+  // Small delay to ensure file is fully written
+  await new Promise(resolve => setTimeout(resolve, 100));
+  
+  const configExists = await fs.pathExists(this.configPath);
+  expect(configExists, `Config file should exist at ${this.configPath}`).to.be.true;
+  
   const configContent = await fs.readFile(this.configPath, 'utf8');
   expect(configContent).to.include(`current = '${name}'`);
 });
 
 Then('the config should contain both registries', async function () {
+  // Small delay to ensure file is fully written
+  await new Promise(resolve => setTimeout(resolve, 100));
+  
+  const configExists = await fs.pathExists(this.configPath);
+  expect(configExists, `Config file should exist at ${this.configPath}`).to.be.true;
+  
   const configContent = await fs.readFile(this.configPath, 'utf8');
   expect(configContent).to.match(/\[registries\..+\]/g);
 });
 
 Then('{string} should remain the active registry', async function (name) {
+  // Small delay to ensure file is fully written
+  await new Promise(resolve => setTimeout(resolve, 100));
+  
+  const configExists = await fs.pathExists(this.configPath);
+  expect(configExists, `Config file should exist at ${this.configPath}`).to.be.true;
+  
   const configContent = await fs.readFile(this.configPath, 'utf8');
   expect(configContent).to.include(`current = '${name}'`);
 });
 
 Then('no registry should be active', async function () {
+  // Small delay to ensure file is fully written
+  await new Promise(resolve => setTimeout(resolve, 100));
+  
+  const configExists = await fs.pathExists(this.configPath);
+  expect(configExists, `Config file should exist at ${this.configPath}`).to.be.true;
+  
   const configContent = await fs.readFile(this.configPath, 'utf8');
   expect(configContent).to.match(/current = "?"?/);
 });
 
 Then('the config should not contain registry {string}', async function (name) {
+  // Small delay to ensure file is fully written
+  await new Promise(resolve => setTimeout(resolve, 100));
+  
+  const configExists = await fs.pathExists(this.configPath);
+  expect(configExists, `Config file should exist at ${this.configPath}`).to.be.true;
+  
   const configContent = await fs.readFile(this.configPath, 'utf8');
   expect(configContent).to.not.include(`[registries.${name}]`);
 });
@@ -150,17 +201,10 @@ Then('the original registry should remain unchanged', async function () {
 const { After } = require('@cucumber/cucumber');
 
 After(async function () {
-  if (this.originalConfig && this.configPath) {
-    try {
-      await fs.writeFile(this.configPath, this.originalConfig);
-    } catch (error) {
-      // Ignore cleanup errors
-    }
-  } else if (this.configPath) {
-    try {
-      await fs.remove(this.configPath);
-    } catch (error) {
-      // Ignore cleanup errors  
-    }
-  }
+  // With RFH_CONFIG, we're using isolated test configs
+  // Cleanup is handled by World's cleanup method which removes the entire test directory
+  // No need to restore or delete configs here as they're all in temp directories
+  
+  // Clear any test-specific state
+  this.originalConfig = null;
 });

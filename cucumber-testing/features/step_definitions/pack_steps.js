@@ -5,8 +5,7 @@ const path = require('path');
 const { execSync } = require('child_process');
 const os = require('os');
 
-// Import shared helper functions
-require('./helpers');
+// Helper functions are now provided by the World class
 
 // Pack-specific step definitions
 
