@@ -11,15 +11,17 @@ require('./helpers');
 // Pack-specific step definitions
 
 Given('I have a temporary project directory', async function () {
-  // Create a temporary directory for the project
-  this.tempProjectDir = path.join(os.tmpdir(), `rfh-pack-test-${Date.now()}`);
-  await fs.ensureDir(this.tempProjectDir);
+  // Use World's createTempDirectory method for consistency
+  await this.createTempDirectory();
 });
 
 Given('I have a temporary project directory at {string}', async function (dirPath) {
-  // Create a relative path from current working directory 
-  this.tempProjectDir = path.resolve(dirPath);
-  await fs.ensureDir(this.tempProjectDir);
+  // Use World's createTempDirectory method, then optionally create subdirectory
+  await this.createTempDirectory();
+  if (dirPath !== this.testDir) {
+    this.tempProjectDir = path.resolve(dirPath);
+    await fs.ensureDir(this.tempProjectDir);
+  }
 });
 
 Given('I have a rulestack.json manifest with name {string} and version {string}', async function (name, version) {
@@ -30,8 +32,8 @@ Given('I have a rulestack.json manifest with name {string} and version {string}'
     "files": ["*.md"]
   }];
   
-  const manifestPath = path.join(this.tempProjectDir, 'rulestack.json');
-  await fs.writeJSON(manifestPath, manifestContent, { spaces: 2 });
+  // Use World's writeFile method for consistency
+  await this.writeFile('rulestack.json', JSON.stringify(manifestContent, null, 2));
 });
 
 Given('I have a rulestack.json manifest with name {string} and version {string} in {string}', async function (name, version, dirPath) {
@@ -59,8 +61,8 @@ Given('I have a custom manifest {string} with name {string} and version {string}
 });
 
 Given('I have a rule file {string} with content {string}', async function (filename, content) {
-  const filePath = path.join(this.tempProjectDir, filename);
-  await fs.writeFile(filePath, content, 'utf8');
+  // Use World's writeFile method for consistency
+  await this.writeFile(filename, content);
 });
 
 Given('I have a rule file {string} with content {string} in {string}', async function (filename, content, dirPath) {
@@ -69,37 +71,35 @@ Given('I have a rule file {string} with content {string} in {string}', async fun
 });
 
 Given('the manifest includes file {string}', async function (filename) {
-  const manifestPath = path.join(this.tempProjectDir, 'rulestack.json');
-  const manifest = await fs.readJSON(manifestPath);
+  // Use World's readFile and writeFile methods for consistency
+  const manifestContent = await this.readFile('rulestack.json');
+  const manifest = JSON.parse(manifestContent);
   
   // Add specific file to files array instead of glob pattern
   manifest.files = [filename];
   
-  await fs.writeJSON(manifestPath, manifest, { spaces: 2 });
+  await this.writeFile('rulestack.json', JSON.stringify(manifest, null, 2));
 });
 
 When('I run {string} in the project directory', async function (command) {
-  await this.runCommandInDirectory(command, this.tempProjectDir);
+  // Use World's runCommand method which already uses testDir
+  await this.runCommand(command);
 });
 
 When('I run {string} in the {string} directory', async function (command, dirName) {
-  // The directory was created as a relative path from CWD
-  const targetDir = path.resolve(dirName);
-  await this.runCommandInDirectory(command, targetDir);
+  // If dirName is different from current test directory, create it
+  if (dirName !== this.testDir) {
+    const targetDir = path.resolve(dirName);
+    await this.runCommand(command, { cwd: targetDir });
+  } else {
+    await this.runCommand(command);
+  }
 });
 
 Then('the archive file {string} should exist', async function (filename) {
-  // Check both in temp directory and as absolute path
-  let archivePath = path.join(this.tempProjectDir, filename);
-  let exists = await fs.pathExists(archivePath);
-  
-  // If not found in temp directory, check if it's an absolute path or relative to current working directory
-  if (!exists) {
-    archivePath = path.isAbsolute(filename) ? filename : path.resolve(filename);
-    exists = await fs.pathExists(archivePath);
-  }
-  
-  expect(exists, `Archive file ${filename} should exist at ${archivePath}`).to.be.true;
+  // Use World's fileExists method for consistency
+  const exists = await this.fileExists(filename);
+  expect(exists, `Archive file ${filename} should exist`).to.be.true;
 });
 
 // File existence is handled by init_steps.js to avoid conflicts
@@ -117,66 +117,49 @@ Then('I should see an error about missing files', function () {
 // New step definitions for enhanced pack functionality
 
 Given('RFH is initialized in the directory for package creation', async function () {
-  const { execSync } = require('child_process');
-  const binaryName = process.platform === 'win32' ? 'rfh.exe' : 'rfh';
-  const rfhPath = path.resolve(__dirname, '../../../dist', binaryName);
-  // Use package mode for pack tests since they need package manifests
-  const initCommand = `"${rfhPath}" init --package`;
-  
-  try {
-    execSync(initCommand, { 
-      cwd: this.tempProjectDir,
-      stdio: 'pipe'
-    });
-  } catch (error) {
-    throw new Error(`Failed to initialize RFH: ${error.message}`);
+  // Use World's runCommand method for consistency
+  await this.runCommand('rfh init --package');
+  if (this.lastExitCode !== 0) {
+    throw new Error(`Failed to initialize RFH: ${this.lastCommandError || this.lastCommandOutput}`);
   }
 });
 
 // Backward compatibility step for existing tests
 Given('RFH is initialized in the directory', async function () {
-  const { execSync } = require('child_process');
-  const binaryName = process.platform === 'win32' ? 'rfh.exe' : 'rfh';
-  const rfhPath = path.resolve(__dirname, '../../../dist', binaryName);
-  // Use package mode for pack tests since they need package manifests
-  const initCommand = `"${rfhPath}" init --package`;
-  
-  try {
-    execSync(initCommand, { 
-      cwd: this.tempProjectDir,
-      stdio: 'pipe'
-    });
-  } catch (error) {
-    throw new Error(`Failed to initialize RFH: ${error.message}`);
+  // Use World's runCommand method for consistency
+  await this.runCommand('rfh init --package');
+  if (this.lastExitCode !== 0) {
+    throw new Error(`Failed to initialize RFH: ${this.lastCommandError || this.lastCommandOutput}`);
   }
 });
 
 Then('the rulestack.json should contain package {string} with version {string}', async function (packageName, version) {
-  const manifestPath = path.join(this.tempProjectDir, 'rulestack.json');
-  const manifestContent = await fs.readJSON(manifestPath);
+  // Use World's readFile method for consistency
+  const manifestContent = await this.readFile('rulestack.json');
+  const manifestData = JSON.parse(manifestContent);
   
   // Handle both array and object formats
-  const manifests = Array.isArray(manifestContent) ? manifestContent : [manifestContent];
+  const manifests = Array.isArray(manifestData) ? manifestData : [manifestData];
   
   const foundPackage = manifests.find(m => m.name === packageName && m.version === version);
   expect(foundPackage, `Package ${packageName} v${version} not found in manifest`).to.exist;
 });
 
 Then('the archive file {string} should not exist', async function (archivePath) {
-  const fullPath = path.join(this.tempProjectDir, archivePath);
-  const exists = await fs.pathExists(fullPath);
+  // Use World's fileExists method for consistency
+  const exists = await this.fileExists(archivePath);
   expect(exists, `Archive ${archivePath} should not exist but it does`).to.be.false;
 });
 
 Then('the directory {string} should not exist', async function (dirPath) {
-  const fullPath = path.join(this.tempProjectDir, dirPath);
-  const exists = await fs.pathExists(fullPath);
+  // Use World's directoryExists method for consistency
+  const exists = await this.directoryExists(dirPath);
   expect(exists, `Directory ${dirPath} should not exist but it does`).to.be.false;
 });
 
 Then('the directory {string} should exist', async function (dirPath) {
-  const fullPath = path.join(this.tempProjectDir, dirPath);
-  const exists = await fs.pathExists(fullPath);
+  // Use World's directoryExists method for consistency
+  const exists = await this.directoryExists(dirPath);
   expect(exists, `Directory ${dirPath} should exist but it doesn't`).to.be.true;
 });
 
@@ -210,16 +193,6 @@ ${output}
 // Cleanup hook for temporary directories and attach helper functions
 const { After, Before } = require('@cucumber/cucumber');
 
-After(async function () {
-  // Clean up temporary project directory if it was created
-  if (this.tempProjectDir) {
-    try {
-      await fs.remove(this.tempProjectDir);
-    } catch (error) {
-      // Ignore cleanup errors
-      console.warn('Failed to cleanup temp directory:', error.message);
-    }
-  }
-});
+// Cleanup is now handled by World's cleanup method in hooks.js
 
 // Helper functions are bound via auth_steps.js setDefinitionFunctionWrapper

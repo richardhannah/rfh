@@ -38,6 +38,8 @@ class CustomWorld extends World {
 
   async createTempDirectory() {
     this.testDir = await fs.mkdtemp(path.join(os.tmpdir(), 'rfh-test-'));
+    // Store the current working directory and change to test directory
+    this.tempProjectDir = this.testDir;  // Alias for backward compatibility
     process.chdir(this.testDir);
   }
 
@@ -227,42 +229,118 @@ class CustomWorld extends World {
       await this.loginAsRoot();
     }
     
-    // Create package in test-packages directory instead of temp dir
-    const packageDir = path.join(__dirname, '../../test-packages', `${name}-${version}`);
-    await fs.ensureDir(packageDir);
+    // Create a temporary isolated directory for this package
+    const packageDir = await fs.mkdtemp(path.join(os.tmpdir(), `rfh-publish-${name}-`));
     
     try {
-      // Create rulestack.json manually
-      const manifest = {
-        name: name,
-        version: version,
-        description: `Test package for ${name}`,
-        targets: ["cursor"],
-        tags: ["test"],
-        files: ["*.md"],
-        license: "MIT"
-      };
+      // Initialize RFH in the temp directory first
+      await this.runCommand('rfh init --package', { cwd: packageDir });
+      if (this.lastExitCode !== 0) {
+        throw new Error(`Init failed for ${name}: ${this.lastCommandError || this.lastCommandOutput}`);
+      }
       
-      await fs.writeFile(path.join(packageDir, 'rulestack.json'), JSON.stringify(manifest, null, 2));
+      // Copy authentication from main config directory (not just the file)
+      const packageConfigDir = path.join(packageDir, '.rfh');
+      const mainConfigDir = path.dirname(this.configPath);
+      await fs.ensureDir(packageConfigDir);
+      
+      // Copy the entire config directory to ensure all authentication files are copied
+      if (await fs.pathExists(mainConfigDir)) {
+        await fs.copy(mainConfigDir, packageConfigDir);
+        console.log(`Copied config from ${mainConfigDir} to ${packageConfigDir}`);
+      }
+      
+      // Create the rule content file
       await fs.writeFile(path.join(packageDir, 'rules.mdc'), content);
       
-      // Copy config to package directory
-      await fs.ensureDir(path.join(packageDir, '.rfh'));
-      await fs.copy(path.dirname(this.configPath), path.join(packageDir, '.rfh'));
-      
-      // Run pack and publish with relative path
-      await this.runCommand(`rfh pack rules.mdc --package ${name}`, { cwd: packageDir });
-      if (this.lastExitCode !== 0) {
-        throw new Error(`Pack failed for ${name}: ${this.lastCommandError || this.lastCommandOutput}`);
+      // Update the generated rulestack.json with correct package info
+      const manifestPath = path.join(packageDir, 'rulestack.json');
+      let manifest;
+      if (await fs.pathExists(manifestPath)) {
+        const manifestContent = await fs.readFile(manifestPath, 'utf8');
+        manifest = JSON.parse(manifestContent);
+        // Update the first entry if it's an array, or the object itself
+        if (Array.isArray(manifest)) {
+          manifest[0].name = name;
+          manifest[0].version = version;
+          manifest[0].description = `Test package for ${name}`;
+          manifest[0].files = ["rules.mdc"];
+        } else {
+          manifest.name = name;
+          manifest.version = version;
+          manifest.description = `Test package for ${name}`;
+          manifest.files = ["rules.mdc"];
+        }
+      } else {
+        // Create manifest as array format for package mode
+        manifest = [{
+          name: name,
+          version: version,
+          description: `Test package for ${name}`,
+          targets: ["cursor"],
+          tags: ["test"],
+          files: ["rules.mdc"],
+          license: "MIT"
+        }];
       }
       
-      await this.runCommand('rfh publish', { cwd: packageDir });
-      if (this.lastExitCode !== 0) {
-        throw new Error(`Publish failed for ${name}: ${this.lastCommandError || this.lastCommandOutput}`);
+      await fs.writeFile(manifestPath, JSON.stringify(manifest, null, 2));
+      
+      // Save current directory and change to package directory manually
+      const originalDir = process.cwd();
+      try {
+        process.chdir(packageDir);
+        
+        // Verify we're in the right directory
+        await this.runCommand('rfh projectroot');
+        console.log(`\n=== DEBUG: Manual directory change for ${name} ===`);
+        console.log(`Package directory: ${packageDir}`);
+        console.log(`Current process.cwd(): ${process.cwd()}`);
+        console.log(`Projectroot output:\n${this.lastCommandOutput}`);
+        
+        // Pack the package from the correct directory
+        await this.runCommand(`rfh pack rules.mdc --package ${name}`);
+        if (this.lastExitCode !== 0) {
+          console.log(`Pack failed - Exit code: ${this.lastExitCode}`);
+          console.log(`Pack output: ${this.lastCommandOutput}`);
+          console.log(`Pack error: ${this.lastCommandError}`);
+          console.log('=== END DEBUG ===\n');
+          throw new Error(`Pack failed for ${name}: ${this.lastCommandError || this.lastCommandOutput}`);
+        } else {
+          console.log(`Pack succeeded for ${name}!`);
+          console.log('=== END DEBUG ===\n');
+        }
+        
+        // Ensure authentication in the package directory context
+        console.log('=== DEBUG: Authenticating in package directory ===');
+        await this.runCommand('rfh auth login --username root --password root1234');
+        if (this.lastExitCode !== 0) {
+          console.log(`Auth login failed: ${this.lastCommandOutput}`);
+        } else {
+          console.log('Auth login succeeded in package directory');
+        }
+        console.log('=== END DEBUG ===');
+        
+        // Publish the package
+        await this.runCommand('rfh publish');
+        if (this.lastExitCode !== 0) {
+          throw new Error(`Publish failed for ${name}: ${this.lastCommandError || this.lastCommandOutput}`);
+        }
+        
+      } finally {
+        // Always restore original directory
+        process.chdir(originalDir);
       }
+      
+      console.log(`Successfully published ${name}@${version}`);
+      
     } finally {
       // Clean up package directory
-      await fs.remove(packageDir);
+      try {
+        await fs.remove(packageDir);
+      } catch (cleanupError) {
+        console.warn(`Failed to cleanup package dir: ${cleanupError.message}`);
+      }
     }
   }
 
@@ -287,9 +365,16 @@ class CustomWorld extends World {
   // Standard test data setup
   async setupTestData() {
     await this.ensureRegistrySetup();
-    // TODO: Package publishing setup needs to be fixed
-    // For now, just ensure registry is set up - individual tests can handle their own package needs
-    console.warn('Package publishing temporarily disabled - tests requiring pre-published packages will be skipped');
+    
+    // Publish test packages that are expected by the tests
+    try {
+      await this.publishPackage('security-rules', '1.0.1', '# Security Rules v1.0.1\n\nTest security rules for testing purposes.');
+      await this.publishPackage('example-rules', '0.1.0', '# Example Rules v0.1.0\n\nTest example rules for testing purposes.');
+      console.log('Test packages published successfully');
+    } catch (error) {
+      console.warn(`Warning: Failed to publish test packages: ${error.message}`);
+      // Don't throw - tests might still work if packages are already on server
+    }
   }
 
   // Verify package exists

@@ -4,9 +4,9 @@ Feature: RFH Publish Command
   So that others can discover and use my rulesets
 
   Background:
-    Given RFH is installed and accessible
-    And I have a temporary project directory
-    And RFH is initialized in the directory
+    Given I am in an empty directory
+    And RFH is installed and accessible
+    And RFH is initialized in the directory for package creation
 
   # Basic functionality
   

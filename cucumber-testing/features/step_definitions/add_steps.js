@@ -12,58 +12,48 @@ require('./helpers');
 
 // Initialize RFH in project mode (for dependency management)
 Given('RFH is initialized in the directory for dependency management', async function () {
-  const { execSync } = require('child_process');
-  const binaryName = process.platform === 'win32' ? 'rfh.exe' : 'rfh';
-  const rfhPath = path.resolve(__dirname, '../../../dist', binaryName);
-  // Use project mode (default) for add tests since they manage dependencies
-  const initCommand = `"${rfhPath}" init`;
-  
-  try {
-    execSync(initCommand, { 
-      cwd: this.tempProjectDir,
-      stdio: 'pipe'
-    });
-  } catch (error) {
-    throw new Error(`Failed to initialize RFH project: ${error.message}`);
+  // Use World's runCommand method for consistency
+  await this.runCommand('rfh init');
+  if (this.lastExitCode !== 0) {
+    throw new Error(`Failed to initialize RFH project: ${this.lastCommandError || this.lastCommandOutput}`);
   }
 });
 
 Given('I have already added package {string}', async function (packageSpec) {
   // Simulate having already added a package by creating the directory structure
   const [name, version] = packageSpec.split('@');
-  const packageDir = path.join(this.tempProjectDir, '.rulestack', `${name}.${version}`);
-  await fs.ensureDir(packageDir);
+  
+  // Create package directory using World methods
+  const packagePath = path.join('.rulestack', `${name}.${version}`);
+  await fs.ensureDir(path.join(this.testDir, packagePath));
   
   // Create a sample rule file in the package directory
-  const ruleFile = path.join(packageDir, 'rules.mdc');
-  await fs.writeFile(ruleFile, `# ${name} Rules\nExisting package content`);
+  await this.writeFile(`${packagePath}/rules.mdc`, `# ${name} Rules\nExisting package content`);
   
-  // Update manifest files
-  const manifestPath = path.join(this.tempProjectDir, 'rulestack.json');
+  // Update manifest files using World methods
   let manifest;
   try {
-    const content = await fs.readFile(manifestPath, 'utf8');
+    const content = await this.readFile('rulestack.json');
     manifest = JSON.parse(content);
   } catch (err) {
     manifest = {
       version: "1.0.0",
-      projectRoot: this.tempProjectDir,
+      projectRoot: this.testDir,
       dependencies: {}
     };
   }
   manifest.dependencies[name] = version;
-  await fs.writeFile(manifestPath, JSON.stringify(manifest, null, 2));
+  await this.writeFile('rulestack.json', JSON.stringify(manifest, null, 2));
   
   // Update lock file
-  const lockPath = path.join(this.tempProjectDir, 'rulestack.lock.json');
   let lockManifest;
   try {
-    const content = await fs.readFile(lockPath, 'utf8');
+    const content = await this.readFile('rulestack.lock.json');
     lockManifest = JSON.parse(content);
   } catch (err) {
     lockManifest = {
       version: "1.0.0",
-      projectRoot: this.tempProjectDir,
+      projectRoot: this.testDir,
       packages: {}
     };
   }
@@ -77,46 +67,27 @@ Given('I have already added package {string}', async function (packageSpec) {
     version: version,
     sha256: "mock-sha256-hash"
   };
-  await fs.writeFile(lockPath, JSON.stringify(lockManifest, null, 2));
+  await this.writeFile('rulestack.lock.json', JSON.stringify(lockManifest, null, 2));
 });
 
 // Add missing step definition
 When('I run {string} in that directory', async function (command) {
-  const binaryName = process.platform === 'win32' ? 'rfh.exe' : 'rfh';
-  const rfhPath = path.resolve(__dirname, '../../../dist', binaryName);
-  const args = command.split(' ').slice(1); // Remove 'rfh' from the command
-  
-  const { execSync } = require('child_process');
-  try {
-    const fullCommand = `"${rfhPath}" ${args.join(' ')}`;
-    const result = execSync(fullCommand, { 
-      cwd: this.tempProjectDir,
-      encoding: 'utf8',
-      stdio: 'pipe'
-    });
-    this.lastCommandOutput = result;
-    this.lastCommandError = '';
-    this.lastExitCode = 0;
-  } catch (error) {
-    this.lastCommandOutput = error.stdout || '';
-    this.lastCommandError = error.stderr || '';
-    this.lastExitCode = error.status || 1;
-  }
+  // Use World's runCommand method for consistency
+  await this.runCommand(command);
 });
 
 Given('CLAUDE.md does not exist', async function () {
-  const claudePath = path.join(this.tempProjectDir, 'CLAUDE.md');
-  if (await fs.pathExists(claudePath)) {
-    await fs.remove(claudePath);
+  // Use World's fileExists method and direct file removal
+  if (await this.fileExists('CLAUDE.md')) {
+    await fs.remove(path.join(this.testDir, 'CLAUDE.md'));
   }
 });
 
 Given('{string} already contains import {string}', async function (filename, importPath) {
-  const filePath = path.join(this.tempProjectDir, filename);
   let content = '';
   
-  if (await fs.pathExists(filePath)) {
-    content = await fs.readFile(filePath, 'utf8');
+  if (await this.fileExists(filename)) {
+    content = await this.readFile(filename);
   } else {
     // Create basic CLAUDE.md structure
     content = `# CLAUDE.md
@@ -134,7 +105,7 @@ This file provides guidance to Claude Code when working with code in this reposi
     content += `- ${importPath}\n`;
   }
   
-  await fs.writeFile(filePath, content);
+  await this.writeFile(filename, content);
 });
 
 Given('the registry has no authentication token configured', async function () {
@@ -149,10 +120,9 @@ Given('the registry has no authentication token configured', async function () {
 });
 
 Given('I have a directory with no rulestack.json', async function () {
-  // Create a temporary directory without rulestack.json
-  this.tempProjectDir = path.join(os.tmpdir(), `rfh-no-project-${Date.now()}`);
-  await fs.ensureDir(this.tempProjectDir);
-  // Explicitly don't create rulestack.json
+  // Use World's createTempDirectory and explicitly don't create rulestack.json
+  await this.createTempDirectory();
+  // Explicitly don't create rulestack.json - directory is already empty
 });
 
 Given('I have a truly clean config with no registries', async function () {
@@ -184,7 +154,7 @@ When('I run {string} with input {string} in the project directory', async functi
   return new Promise((resolve) => {
     const child = spawn(rfhPath, args, {
       stdio: ['pipe', 'pipe', 'pipe'],
-      cwd: this.tempProjectDir
+      cwd: this.testDir // Use World's testDir instead of tempProjectDir
     });
     
     let stdout = '';
@@ -215,35 +185,31 @@ When('I run {string} with input {string} in the project directory', async functi
 
 // File and directory verification
 Then('the package should be downloaded to {string}', async function (packagePath) {
-  const fullPath = path.join(this.tempProjectDir, packagePath);
-  const exists = await fs.pathExists(fullPath);
+  // Use World's directoryExists method for consistency
+  const exists = await this.directoryExists(packagePath);
   expect(exists).to.be.true;
-  
-  // Verify it's a directory
-  const stats = await fs.stat(fullPath);
-  expect(stats.isDirectory()).to.be.true;
 });
 
 // Remove duplicate step definition - use the one from init_steps.js instead
 
 // JSON file verification
 Then('{string} should contain dependency {string}: {string}', async function (filename, packageName, version) {
-  const filePath = path.join(this.tempProjectDir, filename);
-  const exists = await fs.pathExists(filePath);
+  // Use World's fileExists and readFile methods for consistency
+  const exists = await this.fileExists(filename);
   expect(exists).to.be.true;
   
-  const content = await fs.readFile(filePath, 'utf8');
+  const content = await this.readFile(filename);
   const json = JSON.parse(content);
   expect(json.dependencies).to.exist;
   expect(json.dependencies[packageName]).to.equal(version);
 });
 
 Then('{string} should contain package {string} with version {string}', async function (filename, packageName, version) {
-  const filePath = path.join(this.tempProjectDir, filename);
-  const exists = await fs.pathExists(filePath);
+  // Use World's fileExists and readFile methods for consistency
+  const exists = await this.fileExists(filename);
   expect(exists).to.be.true;
   
-  const content = await fs.readFile(filePath, 'utf8');
+  const content = await this.readFile(filename);
   const json = JSON.parse(content);
   expect(json.packages).to.exist;
   expect(json.packages[packageName]).to.exist;
@@ -253,42 +219,41 @@ Then('{string} should contain package {string} with version {string}', async fun
 
 // CLAUDE.md verification
 Then('{string} should contain import {string}', async function (filename, importPath) {
-  const filePath = path.join(this.tempProjectDir, filename);
-  const exists = await fs.pathExists(filePath);
+  // Use World's fileExists and readFile methods for consistency
+  const exists = await this.fileExists(filename);
   expect(exists).to.be.true;
   
-  const content = await fs.readFile(filePath, 'utf8');
+  const content = await this.readFile(filename);
   expect(content).to.include(importPath);
 });
 
 Then('{string} should not be modified with new imports', async function (filename) {
   // For this test, we check that no new @.rulestack imports were added
   // We would need to compare with a baseline, but for now we just check it exists
-  const filePath = path.join(this.tempProjectDir, filename);
   
-  if (await fs.pathExists(filePath)) {
-    const content = await fs.readFile(filePath, 'utf8');
+  if (await this.fileExists(filename)) {
+    const content = await this.readFile(filename);
     // Basic validation that CLAUDE.md structure is preserved
     expect(content).to.include('CLAUDE.md');
   }
 });
 
 Then('{string} should contain exactly one import {string}', async function (filename, importPath) {
-  const filePath = path.join(this.tempProjectDir, filename);
-  const exists = await fs.pathExists(filePath);
+  // Use World's fileExists and readFile methods for consistency
+  const exists = await this.fileExists(filename);
   expect(exists).to.be.true;
   
-  const content = await fs.readFile(filePath, 'utf8');
+  const content = await this.readFile(filename);
   const matches = (content.match(new RegExp(importPath.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\\\$&'), 'g')) || []).length;
   expect(matches).to.equal(1);
 });
 
 Then('CLAUDE.md should be created', async function () {
-  const filePath = path.join(this.tempProjectDir, 'CLAUDE.md');
-  const exists = await fs.pathExists(filePath);
+  // Use World's fileExists and readFile methods for consistency
+  const exists = await this.fileExists('CLAUDE.md');
   expect(exists).to.be.true;
   
-  const content = await fs.readFile(filePath, 'utf8');
+  const content = await this.readFile('CLAUDE.md');
   expect(content).to.include('CLAUDE.md');
 });
 
@@ -296,12 +261,4 @@ Then('CLAUDE.md should be created', async function () {
 
 // Cleanup - this runs after each scenario to clean up temp directories
 const { After } = require('@cucumber/cucumber');
-After(async function() {
-  // Clean up temporary project directory
-  if (this.tempProjectDir && await fs.pathExists(this.tempProjectDir)) {
-    await fs.remove(this.tempProjectDir);
-  }
-  
-  // Reset test packages
-  this.testPackages = {};
-});
+// Cleanup is now handled by World's cleanup method in hooks.js

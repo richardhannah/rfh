@@ -9,7 +9,9 @@ require('./helpers');
 const os = require('os');
 
 // Helper function to ensure test packages are published to the server using root user
+// Now uses World instance for consistency
 async function ensureTestPackagesPublished() {
+  // Note: This function is bound to World context via setDefinitionFunctionWrapper
   // Create and publish test packages that are expected by the tests
   const testPackages = [
     { name: 'security-rules', version: '1.0.1' },
@@ -17,51 +19,10 @@ async function ensureTestPackagesPublished() {
   ];
   
   for (const pkg of testPackages) {
-    const tempDir = path.join(os.tmpdir(), `rfh-test-package-${pkg.name}-${Date.now()}`);
-    
     try {
-      // Create temporary directory for the package
-      await fs.ensureDir(tempDir);
-      
-      // Create a sample rule file with .mdc extension
-      const ruleFile = path.join(tempDir, 'rules.mdc');
-      await fs.writeFile(ruleFile, `# ${pkg.name} Rules v${pkg.version}\n\nTest rules for ${pkg.name} v${pkg.version}`);
-      
-      // Initialize RFH in the temp directory
-      const binaryName = process.platform === 'win32' ? 'rfh.exe' : 'rfh';
-      const rfhPath = path.resolve(__dirname, '../../../dist', binaryName);
-      
-      execSync(`"${rfhPath}" init`, { cwd: tempDir, stdio: 'pipe' });
-      
-      // Configure the test registry for this package 
-      execSync(`"${rfhPath}" registry add test-local http://localhost:8081`, { cwd: tempDir, stdio: 'pipe' });
-      execSync(`"${rfhPath}" registry use test-local`, { cwd: tempDir, stdio: 'pipe' });
-      
-      // Login with root user credentials (created automatically on API startup)
-      try {
-        execSync(`"${rfhPath}" auth login --username root --password root1234`, { cwd: tempDir, stdio: 'pipe', timeout: 5000 });
-      } catch (loginError) {
-        // Ignore login errors - API might not be ready
-      }
-      
-      // Pack the package
-      execSync(`"${rfhPath}" pack rules.mdc --package ${pkg.name}`, { cwd: tempDir, stdio: 'pipe' });
-      
-      // Publish the package using root user authentication
-      try {
-        execSync(`"${rfhPath}" publish`, { cwd: tempDir, stdio: 'pipe', timeout: 10000 });
-      } catch (publishError) {
-        // Ignore publish errors - package might already exist or API might not be ready
-        console.log(`Warning: Failed to publish ${pkg.name}@${pkg.version}: ${publishError.message}`);
-      }
-      
-      // Clean up temp directory
-      await fs.remove(tempDir);
+      // Use publishPackage method from World class which handles isolation properly
+      await this.publishPackage(pkg.name, pkg.version, `# ${pkg.name} Rules v${pkg.version}\n\nTest rules for ${pkg.name} v${pkg.version}`);
     } catch (error) {
-      // Clean up on error
-      if (await fs.pathExists(tempDir)) {
-        await fs.remove(tempDir);
-      }
       // Don't throw - test might still work if packages are already on server
       console.log(`Warning: Failed to set up test package ${pkg.name}@${pkg.version}: ${error.message}`);
     }
@@ -70,8 +31,7 @@ async function ensureTestPackagesPublished() {
 
 // Config management steps
 Given('I have a clean config file', async function () {
-  // Ensure we start with a clean config
-  this.configPath = path.join(os.homedir(), '.rfh', 'config.toml');
+  // Ensure we start with a clean config (config path already set in World constructor)
   if (await fs.pathExists(this.configPath)) {
     // Backup existing config
     this.originalConfig = await fs.readFile(this.configPath, 'utf8');
@@ -102,7 +62,7 @@ Given('{string} is the active registry', async function (name) {
 
 // Step to explicitly ensure test packages are published using root user
 Given('test packages are published to the registry', async function () {
-  await ensureTestPackagesPublished();
+  await ensureTestPackagesPublished.bind(this)();
 });
 
 // Registry operations validation

@@ -4,12 +4,12 @@ Feature: Add Package Command
   So that I can use rule packages created by others
 
   Background:
-    Given RFH is installed and accessible
+    Given I am in an empty directory
+    And RFH is installed and accessible
+    And RFH is initialized in the directory for dependency management
     And the test registry is configured
     And test packages are available
     And I am logged in as root
-    And I have a temporary project directory
-    And RFH is initialized in the directory for dependency management
 
   # Basic functionality tests
 

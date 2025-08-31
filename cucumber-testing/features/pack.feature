@@ -4,8 +4,9 @@ Feature: Package Creation
   So that I can publish them to a registry
 
   Background:
-    Given RFH is installed and accessible
-    And I have a temporary project directory
+    Given I am in an empty directory
+    And RFH is installed and accessible
+    And RFH is initialized in the directory for package creation
 
   # Basic functionality tests
   

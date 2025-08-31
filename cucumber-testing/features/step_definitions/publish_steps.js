@@ -36,13 +36,4 @@ Then('I should see either authentication error or connection error', function ()
 // Cleanup hook for temporary directories
 const { After } = require('@cucumber/cucumber');
 
-After(async function () {
-  // Clean up any temporary project directories created for publish tests
-  if (this.tempProjectDir) {
-    try {
-      await fs.remove(this.tempProjectDir);
-    } catch (error) {
-      // Ignore cleanup errors
-    }
-  }
-});
+// Cleanup is now handled by World's cleanup method in hooks.js
