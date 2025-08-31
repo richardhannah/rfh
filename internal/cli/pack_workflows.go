@@ -100,10 +100,6 @@ func runNonInteractivePack(fileName string) error {
 		return fmt.Errorf("--package is required in non-interactive mode")
 	}
 	
-	// Note: --add-to-existing is no longer supported since we don't persist package manifests
-	if addToExisting {
-		return fmt.Errorf("--add-to-existing is not supported: pack creates new packages only")
-	}
 	
 	// Create new package
 	return createNewPackageNonInteractive(fileName, packageName)

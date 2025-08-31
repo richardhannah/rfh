@@ -133,6 +133,137 @@ Background:
 ### Scenario Independence
 Each scenario should be independent and not rely on side effects from other scenarios. The enhanced World provides fresh state for each scenario.
 
+## State Management and Test Isolation Rules
+
+### Always Use RFH Commands for State Management
+**ALWAYS** prefer using RFH commands to set up and tear down test conditions rather than manually manipulating config files or using external tools.
+
+**❌ Bad Example:**
+```javascript
+Given('I have no registries configured', async function () {
+  // Manually delete config file
+  await fs.remove(this.configPath);
+  // Or set configPath to nonexistent location
+  this.configPath = '/nonexistent/path/config.toml';
+});
+```
+
+**✅ Good Example:**
+```javascript
+Given('I have a clean config file with no registries', async function () {
+  // Use RFH commands to properly reset state
+  await this.resetConfig();
+  this.configPath = path.join(this.testConfigDir, 'config.toml');
+});
+```
+
+### Create Reusable State Management Functions in World.js
+When multiple tests need the same state setup or cleanup, create reusable methods in the World class rather than duplicating logic in step definitions.
+
+**❌ Bad Example:**
+```javascript
+// In step definitions - duplicated logic
+Given('I have a clean registry state', async function () {
+  await this.runCommand('rfh auth logout');
+  await this.runCommand('rfh registry list');
+  const output = this.lastCommandOutput;
+  // Complex parsing and cleanup logic repeated everywhere
+});
+```
+
+**✅ Good Example:**
+```javascript
+// In world.js - reusable method
+async resetConfig() {
+  await this.runCommand('rfh auth logout');
+  await this.runCommand('rfh registry list');
+  const registryNames = this.parseRegistryNames(this.lastCommandOutput);
+  for (const name of registryNames) {
+    await this.runCommand(`rfh registry remove ${name}`);
+  }
+  this.registryConfigured = false;
+  this.currentUser = null;
+}
+
+// In step definitions - simple call
+Given('I have a clean config file with no registries', async function () {
+  await this.resetConfig();
+});
+```
+
+### Avoid Shared State Between Tests
+Tests should never depend on state left behind by previous tests. Always reset to a known clean state at the beginning of scenarios that need specific conditions.
+
+**❌ Bad Pattern:**
+```gherkin
+Scenario: Setup registry
+  When I run "rfh registry add test-reg http://example.com"
+  
+Scenario: Use existing registry  # ❌ Depends on previous scenario
+  When I run "rfh auth login --username test --password pass"
+  Then I should see "Logging in to http://example.com"
+```
+
+**✅ Good Pattern:**
+```gherkin
+Scenario: Setup registry
+  When I run "rfh registry add test-reg http://example.com"
+  
+Scenario: Login with configured registry
+  Given I have a clean config file with no registries  # ✅ Reset state
+  And I have a registry "test-reg" configured at "http://example.com"
+  When I run "rfh auth login --username test --password pass" 
+  Then I should see "Logging in to http://example.com"
+```
+
+### Prefer Reset Over Failure
+When a test fails due to incorrect state from a previous run, the solution is to improve state management, not to accept the failure.
+
+**Problem Indicators:**
+- Tests pass individually but fail when run in sequence
+- Tests show unexpected registry/auth state
+- Error messages reference configs from previous tests
+
+**Solution Approach:**
+1. Identify what state is being shared incorrectly
+2. Create or improve World methods to properly reset that state
+3. Use those methods in step definitions that need clean state
+4. Verify tests pass both individually and in sequence
+
+### State Management Function Patterns
+
+```javascript
+// Pattern: Reset functions that use RFH commands
+async resetConfig() {
+  // Use RFH commands to clean up
+  await this.runCommand('rfh auth logout');
+  const registries = await this.getRegistryList();
+  for (const registry of registries) {
+    await this.runCommand(`rfh registry remove ${registry}`);
+  }
+  // Reset internal flags
+  this.resetInternalState();
+}
+
+// Pattern: Setup functions that use RFH commands  
+async ensureRegistrySetup() {
+  if (!this.registryConfigured) {
+    await this.runCommand('rfh registry add test-registry http://localhost:8081');
+    await this.runCommand('rfh registry use test-registry');
+    await this.loginAsRoot();
+    this.registryConfigured = true;
+  }
+}
+
+// Pattern: Parsing helpers for RFH command output
+parseRegistryNames(listOutput) {
+  // Parse RFH command output into usable data
+  if (listOutput.includes('No registries configured')) return [];
+  // Handle actual format from 'rfh registry list'
+  return extractedNames;
+}
+```
+
 ### Error Testing
 When testing error conditions, be specific about what you're testing:
 ```gherkin

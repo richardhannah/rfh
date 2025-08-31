@@ -10,8 +10,6 @@ var (
 	outputPath   string
 	fileOverride string  // Single file override
 	packageName  string  // Non-interactive package name
-	newVersion   string  // Non-interactive version
-	addToExisting bool   // Non-interactive: add to existing package
 )
 
 // packCmd represents the pack command
@@ -28,7 +26,6 @@ Interactive mode:
    - Handles version incrementing and directory management
 
 Non-interactive mode:
-   - rfh pack my-rule.mdc --package="my-package" --version="1.0.1" --add-to-existing
    - rfh pack my-rule.mdc --package="new-package"  # Creates new package at v1.0.0
 
 The pack command:
@@ -40,7 +37,6 @@ The pack command:
 
 Examples:
   rfh pack my-security-rule.mdc                                    # Interactive
-  rfh pack my-rule.mdc --package="security-rules" --version="1.0.1" --add-to-existing  # Update existing
   rfh pack my-rule.mdc --package="new-rules"                      # Create new package`,
 	Args: cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
@@ -72,6 +68,4 @@ func init() {
 	
 	// Non-interactive mode flags
 	packCmd.Flags().StringVarP(&packageName, "package", "p", "", "package name (enables non-interactive mode)")
-	packCmd.Flags().StringVarP(&newVersion, "version", "", "", "package version (required with --add-to-existing)")
-	packCmd.Flags().BoolVar(&addToExisting, "add-to-existing", false, "add to existing package (requires --package and --version)")
 }

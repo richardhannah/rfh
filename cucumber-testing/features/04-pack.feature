@@ -24,9 +24,9 @@ Feature: Package Creation
   Scenario: Pack command help text
     When I run "rfh pack --help"
     Then I should see "Creates a tar.gz archive containing ruleset files"
-    And I should see "--file string       override single file to pack"
-    And I should see "--output string     output archive path"
-    And I should see "--package string    package name (enables non-interactive mode)"
+    And I should see "-f, --file string      override single file to pack"
+    And I should see "-o, --output string    output archive path"
+    And I should see "-p, --package string   package name (enables non-interactive mode)"
 
   # Creating new packages
   
@@ -57,30 +57,7 @@ Feature: Package Creation
     And the directory ".rulestack/security-rules.1.0.0" should exist
     And the command should exit with zero status
 
-  # Updating existing packages
-  
-  Scenario: Pack command non-interactive mode - add-to-existing no longer supported
-    Given RFH is initialized in the directory
-    And I have a rule file "security-rule.mdc" with content "# Security Rule\nNever hardcode passwords."
-    When I run "rfh pack security-rule.mdc --package=security-rules --version=1.0.1 --add-to-existing" in the project directory
-    Then I should see "Error: --add-to-existing is not supported: pack creates new packages only"
-    And the command should exit with non-zero status
-
   # Version management
-  
-  Scenario: Pack command version validation - reject downgrade no longer applicable
-    Given RFH is initialized in the directory
-    And I have a rule file "security-rule.mdc" with content "# Security Rule"
-    When I run "rfh pack security-rule.mdc --package=security-rules --version=1.0.0 --add-to-existing" in the project directory
-    Then I should see "Error: --add-to-existing is not supported: pack creates new packages only"
-    And the command should exit with non-zero status
-
-  Scenario: Pack command non-interactive mode - missing version for add-to-existing no longer applicable
-    Given RFH is initialized in the directory
-    And I have a rule file "security-rule.mdc" with content "# Security Rule"
-    When I run "rfh pack security-rule.mdc --package=security-rules --add-to-existing" in the project directory
-    Then I should see "Error: --add-to-existing is not supported: pack creates new packages only"
-    And the command should exit with non-zero status
 
   # Output options
   
@@ -108,13 +85,6 @@ Feature: Package Creation
     Then I should see "✅ Created new package: broken-rules v1.0.0"
     And the archive file ".rulestack/staged/broken-rules-1.0.0.tgz" should exist
     And the command should exit with zero status
-
-  Scenario: Pack command non-interactive mode - package not found no longer applicable
-    Given RFH is initialized in the directory
-    And I have a rule file "security-rule.mdc" with content "# Security Rule"
-    When I run "rfh pack security-rule.mdc --package=nonexistent-package --add-to-existing" in the project directory
-    Then I should see "Error: --add-to-existing is not supported: pack creates new packages only"
-    And the command should exit with non-zero status
 
   # Multi-package management
   

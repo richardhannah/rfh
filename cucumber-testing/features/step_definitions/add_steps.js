@@ -107,16 +107,6 @@ This file provides guidance to Claude Code when working with code in this reposi
   await this.writeFile(filename, content);
 });
 
-Given('the registry has no authentication token configured', async function () {
-  // Remove JWT token from registry configuration
-  const configPath = path.join(os.homedir(), '.rfh', 'config.toml');
-  if (await fs.pathExists(configPath)) {
-    let content = await fs.readFile(configPath, 'utf8');
-    // Remove jwt_token lines
-    content = content.replace(/jwt_token = .*/g, '');
-    await fs.writeFile(configPath, content);
-  }
-});
 
 Given('I have a directory with no rulestack.json', async function () {
   // Use World's createTempDirectory and explicitly don't create rulestack.json

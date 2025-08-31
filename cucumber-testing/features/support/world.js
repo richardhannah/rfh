@@ -486,6 +486,138 @@ class CustomWorld extends World {
       console.log(`[${level.toUpperCase()}] ${message}`);
     }
   }
+
+  // Config reset functionality for clean test state
+  async resetConfig() {
+    // 1. Logout to clear authentication
+    try {
+      await this.runCommand('rfh auth logout');
+    } catch (error) {
+      // Ignore if not logged in - this is expected in clean state
+      this.log('No active session to logout from', 'debug');
+    }
+    
+    // 2. Get list of all registries
+    try {
+      await this.runCommand('rfh registry list');
+      const registryListOutput = this.lastCommandOutput;
+      this.log(`Registry list output:\n${registryListOutput}`, 'debug');
+      
+      // 3. Parse registry names from output and remove each one
+      const registryNames = this.parseRegistryNames(registryListOutput);
+      this.log(`Parsed registry names: ${JSON.stringify(registryNames)}`, 'debug');
+      
+      for (const registryName of registryNames) {
+        try {
+          await this.runCommand(`rfh registry remove ${registryName}`);
+          this.log(`Successfully removed registry: ${registryName}`, 'debug');
+        } catch (error) {
+          console.warn(`Failed to remove registry ${registryName}: ${error.message}`);
+        }
+      }
+      
+      // 4. Verify clean state by listing registries again
+      await this.runCommand('rfh registry list');
+      const finalListOutput = this.lastCommandOutput;
+      this.log(`Final registry list after cleanup:\n${finalListOutput}`, 'debug');
+      
+    } catch (error) {
+      // If registry list fails, the config might already be clean
+      this.log(`Registry list command failed: ${error.message}`, 'debug');
+    }
+    
+    // 4. Reset internal state flags
+    this.registryConfigured = false;
+    this.currentUser = null;
+    this.rootJwtToken = null;
+    if (this.testUsers) {
+      this.testUsers.clear();
+    }
+    
+    this.log('Config reset completed', 'debug');
+  }
+
+  // Parse registry names from "rfh registry list" output
+  parseRegistryNames(listOutput) {
+    if (!listOutput || listOutput.includes('No registries configured')) {
+      return [];
+    }
+    
+    const lines = listOutput.split('\n');
+    const registryNames = [];
+    
+    for (const line of lines) {
+      const trimmed = line.trim();
+      
+      // Skip empty lines, headers, help text, and known non-registry lines
+      if (!trimmed || 
+          trimmed.startsWith('No registries') || 
+          trimmed.includes('Configured registries:') ||
+          trimmed.startsWith('Usage:') ||
+          trimmed.startsWith('Available') ||
+          trimmed.startsWith('Flags:') ||
+          trimmed.startsWith('-') ||
+          trimmed.includes('help for') ||
+          trimmed.startsWith('URL:') ||
+          trimmed.includes('* = active') ||
+          trimmed.match(/^\s*$/)) {
+        continue;
+      }
+      
+      // Look for registry name patterns:
+      // "* test-reg" (active registry with asterisk)
+      // "  test-reg" (non-active registry with spaces)
+      let registryName = null;
+      
+      if (trimmed.startsWith('* ')) {
+        // Active registry: "* test-reg"
+        registryName = trimmed.substring(2).trim();
+      } else if (trimmed.match(/^[a-zA-Z0-9_-]+$/)) {
+        // Plain registry name on its own line
+        registryName = trimmed;
+      }
+      
+      if (registryName && 
+          registryName.length > 0 && 
+          registryName !== 'URL' && 
+          !registryName.includes(':') &&
+          !registryName.includes('*') &&
+          !registryName.includes('=')) {
+        registryNames.push(registryName);
+        this.log(`Found registry to remove: ${registryName}`, 'debug');
+      }
+    }
+    
+    return registryNames;
+  }
+
+  // Convenience method for tests that need clean config
+  async ensureCleanConfig() {
+    await this.resetConfig();
+  }
+
+  // Set up registry without authentication for testing unauthenticated scenarios
+  async ensureUnauthenticatedRegistrySetup() {
+    // Set up registry but ensure no authentication
+    if (!this.registryConfigured) {
+      await this.runCommand('rfh registry add test-registry http://localhost:8081');
+      await this.runCommand('rfh registry use test-registry');
+      this.registryConfigured = true;
+    }
+    
+    // Ensure no authentication token using RFH command
+    try {
+      await this.runCommand('rfh auth logout');
+      this.log('Logged out to remove authentication token', 'debug');
+    } catch (error) {
+      // Ignore if already logged out - this is the desired state
+      this.log('No active session to logout from (this is expected)', 'debug');
+    }
+    
+    // Reset authentication state
+    this.currentUser = null;
+    this.rootJwtToken = null;
+  }
 }
 
 module.exports = CustomWorld;

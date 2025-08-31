@@ -35,6 +35,11 @@ Given('the test registry is configured', async function () {
   await this.ensureRegistrySetup();
 });
 
+// Registry setup without authentication for testing unauthenticated scenarios
+Given('I have a registry configured but no authentication token', async function () {
+  await this.ensureUnauthenticatedRegistrySetup();
+});
+
 // Verification steps
 Then('package {string} version {string} should exist', async function (name, version) {
   const exists = await this.verifyPackageExists(name, version);
@@ -143,10 +148,11 @@ Then('the command should exit with zero status', function () {
 });
 
 Given('I have a clean config file with no registries', async function () {
-  // Set a config path that doesn't exist - this will cause RFH to behave as if no config is present
-  this.configPath = path.join(require('os').tmpdir(), `rfh-test-no-config-${Date.now()}-${Math.random().toString(36)}`, 'nonexistent.toml');
+  // Reset the config to a clean state using RFH commands
+  await this.resetConfig();
   
-  // Don't create the config file - let RFH handle the absence of config
+  // Ensure configPath points to the shared test config location
+  this.configPath = path.join(this.testConfigDir, 'config.toml');
 });
 
 Given('I have a config with current registry {string}', async function (registryName) {

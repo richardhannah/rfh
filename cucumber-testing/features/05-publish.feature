@@ -43,7 +43,7 @@ Feature: RFH Publish Command
   # Authentication scenarios
   
   Scenario: Publish without authentication token
-    Given the test registry is configured
+    Given I have a registry configured but no authentication token
     And I have a rule file "rules.mdc" with content "# Unauth Test Rules"
     When I run "rfh pack rules.mdc --package=unauth-test" in the project directory
     And I run "rfh publish" in the project directory
@@ -52,7 +52,7 @@ Feature: RFH Publish Command
     And the command should exit with non-zero status
 
   Scenario: Publish with no authentication configured
-    Given the test registry is configured
+    Given I have a registry configured but no authentication token
     And I have a rule file "rules.mdc" with content "# Token Test Rules"
     When I run "rfh pack rules.mdc --package=token-test" in the project directory
     And I run "rfh publish" in the project directory
