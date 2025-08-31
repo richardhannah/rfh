@@ -87,6 +87,7 @@ When('I register with username {string}, empty email, and password {string}', as
 // Login-specific step definitions
 When('I login with username {string} and password {string}', async function (username, password) {
   // For scenarios testing basic registry/auth validation, use the simpler runCommand approach
+  await this.delayForAuth(50); // Add small delay for step definition login commands
   const command = `rfh auth login --username "${username}" --password "${password}"`;
   await this.runCommand(command);
 });

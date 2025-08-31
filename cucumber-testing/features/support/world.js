@@ -176,6 +176,7 @@ class CustomWorld extends World {
   }
 
   async loginAsRoot() {
+    await this.delayForAuth(100); // Add delay to reduce DB contention on root login
     await this.runCommand('rfh auth login --username root --password root1234');
     this.rootJwtToken = this.extractJwtTokenFromConfig();
     this.currentUser = 'root';
@@ -263,6 +264,7 @@ class CustomWorld extends World {
   // Role-specific login methods (simplified to user/root only)
   async loginAsUser(username = 'test-user') {
     await this.createTestUser(username, 'user');
+    await this.delayForAuth(75); // Add shorter delay for user logins
     await this.runCommand(`rfh auth login --username ${username} --password testpass123`);
     this.currentUser = username;
   }
@@ -325,7 +327,14 @@ class CustomWorld extends World {
       }
       
       // Create the rule content file
-      await fs.writeFile(path.join(packageDir, 'rules.mdc'), content);
+      const mdcFilePath = path.join(packageDir, 'rules.mdc');
+      await fs.writeFile(mdcFilePath, content);
+      console.log(`Created test file: ${mdcFilePath}`);
+      
+      // Verify file was created successfully
+      if (!await fs.pathExists(mdcFilePath)) {
+        throw new Error(`Failed to create test file: ${mdcFilePath}`);
+      }
       
       // Update the generated rulestack.json with correct package info
       const manifestPath = path.join(packageDir, 'rulestack.json');
@@ -359,36 +368,32 @@ class CustomWorld extends World {
       }
       
       await fs.writeFile(manifestPath, JSON.stringify(manifest, null, 2));
+      console.log(`Updated manifest: ${manifestPath}`);
       
-      // Save current directory and change to package directory manually
-      const originalDir = process.cwd();
-      try {
-        process.chdir(packageDir);
-        
-        // Use the package-specific config directory for all commands
-        const packageEnv = { RFH_CONFIG: packageConfigDir };
-        
-        // Pack the package from the correct directory with isolated config
-        await this.runCommand(`rfh pack rules.mdc --package ${name}`, { env: packageEnv });
-        if (this.lastExitCode !== 0) {
-          throw new Error(`Pack failed for ${name}: ${this.lastCommandError || this.lastCommandOutput}`);
-        }
-        
-        // Ensure authentication in the package directory context
-        await this.runCommand('rfh auth login --username root --password root1234', { env: packageEnv });
-        if (this.lastExitCode !== 0) {
-          console.warn(`Auth login failed for package ${name}: ${this.lastCommandOutput}`);
-        }
-        
-        // Publish the package
-        await this.runCommand('rfh publish', { env: packageEnv });
-        if (this.lastExitCode !== 0) {
-          throw new Error(`Publish failed for ${name}: ${this.lastCommandError || this.lastCommandOutput}`);
-        }
-        
-      } finally {
-        // Always restore original directory
-        process.chdir(originalDir);
+      // Use the package-specific config directory for all commands
+      const packageEnv = { RFH_CONFIG: packageConfigDir };
+      const commandOptions = { env: packageEnv, cwd: packageDir };
+      
+      console.log(`Running pack command in directory: ${packageDir}`);
+      console.log(`Pack command will look for: ${path.join(packageDir, 'rules.mdc')}`);
+      
+      // Pack the package from the correct directory with isolated config
+      await this.runCommand(`rfh pack rules.mdc --package ${name}`, commandOptions);
+      if (this.lastExitCode !== 0) {
+        throw new Error(`Pack failed for ${name}: ${this.lastCommandError || this.lastCommandOutput}`);
+      }
+      
+      // Ensure authentication in the package directory context
+      await this.delayForAuth(125); // Add delay for package-context root login
+      await this.runCommand('rfh auth login --username root --password root1234', commandOptions);
+      if (this.lastExitCode !== 0) {
+        console.warn(`Auth login failed for package ${name}: ${this.lastCommandOutput}`);
+      }
+      
+      // Publish the package
+      await this.runCommand('rfh publish', commandOptions);
+      if (this.lastExitCode !== 0) {
+        throw new Error(`Publish failed for ${name}: ${this.lastCommandError || this.lastCommandOutput}`);
       }
       
       console.log(`Successfully published ${name}@${version}`);
@@ -478,6 +483,13 @@ class CustomWorld extends World {
       console.error(`Command failed: ${command}`, error.message);
       throw error;
     }
+  }
+
+  // Authentication delay utility to reduce database contention
+  async delayForAuth(baseDelayMs = 100) {
+    const randomDelay = baseDelayMs + Math.random() * 100; // Add 0-100ms random variation
+    this.log(`Adding ${Math.round(randomDelay)}ms delay before auth command to reduce DB contention`, 'debug');
+    await new Promise(resolve => setTimeout(resolve, randomDelay));
   }
 
   // Debug logging
