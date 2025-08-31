@@ -153,7 +153,11 @@ When('I run {string} with input {string} in the project directory', async functi
   return new Promise((resolve) => {
     const child = spawn(rfhPath, args, {
       stdio: ['pipe', 'pipe', 'pipe'],
-      cwd: this.testDir // Use World's testDir instead of tempProjectDir
+      cwd: this.testDir, // Use World's testDir instead of tempProjectDir
+      env: {
+        ...process.env,
+        RFH_CONFIG: this.testConfigDir
+      }
     });
     
     let stdout = '';

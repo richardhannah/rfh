@@ -169,7 +169,11 @@ async function runAuthRegisterTest() {
   return new Promise((resolve) => {
     const child = spawn(rfhPath, ['auth', 'register'], {
       stdio: ['pipe', 'pipe', 'pipe'],
-      cwd: path.dirname(configPath)
+      cwd: path.dirname(configPath),
+      env: {
+        ...process.env,
+        RFH_CONFIG: this.testConfigDir
+      }
     });
     
     let stdout = '';
@@ -219,7 +223,11 @@ async function runAuthLoginTest() {
   return new Promise((resolve) => {
     const child = spawn(rfhPath, ['auth', 'login'], {
       stdio: ['pipe', 'pipe', 'pipe'],
-      cwd: path.dirname(configPath)
+      cwd: path.dirname(configPath),
+      env: {
+        ...process.env,
+        RFH_CONFIG: this.testConfigDir
+      }
     });
     
     let stdout = '';
@@ -273,7 +281,11 @@ async function runAuthLoginWithCredentials(username, password) {
       '--password', password
     ], {
       stdio: ['pipe', 'pipe', 'pipe'],
-      cwd: path.dirname(configPath)
+      cwd: path.dirname(configPath),
+      env: {
+        ...process.env,
+        RFH_CONFIG: this.testConfigDir
+      }
     });
     
     let stdout = '';
@@ -325,7 +337,11 @@ async function runAuthRegisterWithCredentials(username, email, password) {
       '--password', password
     ], {
       stdio: ['pipe', 'pipe', 'pipe'],
-      cwd: path.dirname(configPath)
+      cwd: path.dirname(configPath),
+      env: {
+        ...process.env,
+        RFH_CONFIG: this.testConfigDir
+      }
     });
     
     let stdout = '';
