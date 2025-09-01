@@ -13,15 +13,9 @@ type Registry struct {
 	JWTToken string `toml:"jwt_token,omitempty"` // JWT token for this registry
 }
 
-type User struct {
-	Username string `toml:"username"`
-	Token    string `toml:"token"` // JWT token
-}
-
 type CLIConfig struct {
 	Current    string              `toml:"current"`
 	Registries map[string]Registry `toml:"registries"`
-	User       *User               `toml:"user,omitempty"` // DEPRECATED: Legacy global user config
 }
 
 // ConfigDir returns the CLI config directory path
@@ -77,9 +71,6 @@ func LoadCLI() (CLIConfig, error) {
 		config.Registries = make(map[string]Registry)
 	}
 
-	// Migrate global user config to per-registry config if needed
-	config = migrateToPerRegistryAuth(config)
-
 	return config, nil
 }
 
@@ -101,24 +92,4 @@ func SaveCLI(config CLIConfig) error {
 	}
 
 	return os.WriteFile(configPath, data, 0o600)
-}
-
-// migrateToPerRegistryAuth migrates global user config to per-registry auth
-func migrateToPerRegistryAuth(config CLIConfig) CLIConfig {
-	// If we have a global user config and a current registry, migrate it
-	if config.User != nil && config.Current != "" {
-		if registry, exists := config.Registries[config.Current]; exists {
-			// Only migrate if the registry doesn't already have per-registry auth
-			if registry.Username == "" && registry.JWTToken == "" {
-				registry.Username = config.User.Username
-				registry.JWTToken = config.User.Token
-				config.Registries[config.Current] = registry
-				
-				// Keep the global user config for backward compatibility
-				// It will be used as fallback by getEffectiveToken
-			}
-		}
-	}
-	
-	return config
 }

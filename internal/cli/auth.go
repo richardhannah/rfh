@@ -169,12 +169,6 @@ func runRegister() error {
 	registryConfig.JWTToken = authResp.Token
 	cfg.Registries[cfg.Current] = registryConfig
 
-	// Also save to global user config for backward compatibility
-	cfg.User = &config.User{
-		Username: authResp.User.Username,
-		Token:    authResp.Token,
-	}
-
 	if err := config.SaveCLI(cfg); err != nil {
 		return fmt.Errorf("failed to save config: %w", err)
 	}
@@ -256,12 +250,6 @@ func runLogin() error {
 	registryConfig.JWTToken = authResp.Token
 	cfg.Registries[cfg.Current] = registryConfig
 
-	// Also save to global user config for backward compatibility
-	cfg.User = &config.User{
-		Username: authResp.User.Username,
-		Token:    authResp.Token,
-	}
-
 	if err := config.SaveCLI(cfg); err != nil {
 		return fmt.Errorf("failed to save config: %w", err)
 	}
@@ -290,12 +278,6 @@ func runLogout() error {
 		}
 	}
 
-	// Fallback to global user authentication
-	if username == "" && cfg.User != nil {
-		username = cfg.User.Username
-		tokenToLogout = cfg.User.Token
-	}
-
 	if username == "" {
 		fmt.Println("ℹ️  You are not currently logged in")
 		return nil
@@ -320,9 +302,6 @@ func runLogout() error {
 			cfg.Registries[cfg.Current] = registryConfig
 		}
 	}
-
-	// Clear global user credentials for backward compatibility
-	cfg.User = nil
 
 	if err := config.SaveCLI(cfg); err != nil {
 		return fmt.Errorf("failed to save config: %w", err)
@@ -349,12 +328,6 @@ func runWhoami() error {
 			username = registry.Username
 			token = registry.JWTToken
 		}
-	}
-
-	// Fallback to global user authentication
-	if username == "" && cfg.User != nil {
-		username = cfg.User.Username
-		token = cfg.User.Token
 	}
 
 	if username == "" {

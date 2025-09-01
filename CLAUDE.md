@@ -13,5 +13,6 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **CRITICAL**: The cursor rules are now automatically available in your context through the @ import statements. Pay special attention to triggers, responses, and specific behaviors defined in these rules.
 
-### Active Rules (Rulestack core)
-- @.rulestack/core.v1.0.0/core_rules.md
+### Active Rules
+- @.rulestack/core.v1.0.0/core_rules.md (RuleStack core rules)
+- @.rulestack/project/no-backward-compatibility.md (Project-specific: No backward compatibility needed)
