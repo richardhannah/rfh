@@ -73,5 +73,5 @@ func init() {
 	
 	// Non-interactive mode flags
 	packCmd.Flags().StringVarP(&packageName, "package", "p", "", "package name (enables non-interactive mode)")
-	packCmd.Flags().StringVarP(&packageVersion, "version", "", "1.0.0", "package version (default: 1.0.0)")
+	packCmd.Flags().StringVarP(&packageVersion, "version", "", "", "package version (auto-increments for existing packages, defaults to 1.0.0 for new packages)")
 }

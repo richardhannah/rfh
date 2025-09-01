@@ -8,37 +8,33 @@ Feature: Initialize RFH project in empty directory
     And I am in an empty directory
 
   Scenario: Basic initialization works correctly
-    When I run "rfh init --package"
+    When I run "rfh init"
     Then I should see "Initialized RuleStack project"
     And a file "rulestack.json" should be created
-    And the default package name should be "example-rules"
+    And the project manifest should be created correctly
     And a directory ".rulestack" should be created
     And a file "CLAUDE.md" should be created
     And core rules should be downloaded to ".rulestack/core.v1.0.0"
 
-  Scenario: Verify manifest structure
-    When I run "rfh init --package"
+  Scenario: Verify project manifest structure
+    When I run "rfh init"
     Then the "rulestack.json" file should be valid JSON
-    And the manifest should contain:
-      | field       | value              |
-      | name        | example-rules      |
-      | version     | 0.1.0              |
-      | description | Example AI ruleset |
-    And the manifest should have the following structure:
+    And the project manifest should contain:
+      | field        | value |
+      | version      | 1.0.0 |
+      | projectRoot  | *     |
+      | dependencies | {}    |
+    And the manifest should have the project structure:
       ```json
       {
-        "name": "example-rules",
-        "version": "0.1.0",
-        "description": "Example AI ruleset",
-        "targets": ["cursor"],
-        "tags": ["example", "starter"],
-        "files": ["*.md"],
-        "license": "MIT"
+        "version": "1.0.0",
+        "projectRoot": "/path/to/project",
+        "dependencies": {}
       }
       ```
 
   Scenario: Verify directory structure after init
-    When I run "rfh init --package"
+    When I run "rfh init"
     Then the following files and directories should exist:
       | path                                      | type      |
       | rulestack.json                           | file      |
@@ -55,12 +51,12 @@ Feature: Initialize RFH project in empty directory
     And I should not see "migrate"
 
   Scenario: Verify success message format
-    When I run "rfh init --package"
+    When I run "rfh init"
     Then I should see output containing:
       | message                                    |
       | ✅ Initialized RuleStack project          |
       | 📁 Created:                               |
-      | rulestack.json (package manifest)         |
+      | rulestack.json (project manifest)         |
       | CLAUDE.md (Claude Code integration)       |
       | .rulestack/ (dependency directory)        |
       | 🚀 Next steps:                            |

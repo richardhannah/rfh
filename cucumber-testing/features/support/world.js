@@ -4,6 +4,7 @@ const path = require('path');
 const { execSync } = require('child_process');
 const os = require('os');
 const toml = require('toml');
+const tar = require('tar');
 // Use dynamic import for node-fetch in Node.js versions that support it
 let fetch;
 try {
@@ -582,6 +583,37 @@ class CustomWorld extends World {
     // Reset authentication state
     this.currentUser = null;
     this.rootJwtToken = null;
+  }
+
+  // Archive verification helper for enhanced pack testing
+  async archiveContainsFile(archivePath, filename) {
+    try {
+      // Create a temporary directory to extract the archive
+      const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'rfh-archive-test-'));
+      
+      try {
+        // Extract the tar.gz archive
+        await tar.extract({
+          file: archivePath,
+          cwd: tempDir
+        });
+        
+        // Check if the file exists in the extracted content
+        const extractedFilePath = path.join(tempDir, filename);
+        const exists = await fs.pathExists(extractedFilePath);
+        
+        this.log(`Archive ${archivePath} ${exists ? 'contains' : 'does not contain'} ${filename}`, 'debug');
+        return exists;
+        
+      } finally {
+        // Clean up temporary directory
+        await fs.remove(tempDir);
+      }
+      
+    } catch (error) {
+      this.log(`Error checking archive ${archivePath} for file ${filename}: ${error.message}`, 'error');
+      return false;
+    }
   }
 }
 

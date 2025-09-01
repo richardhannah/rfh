@@ -17,7 +17,7 @@ var initCmd = &cobra.Command{
 	Long: `Initialize a new RuleStack project in the current directory.
 
 This establishes the current directory as the project root and creates:
-- rulestack.json (package manifest file)
+- rulestack.json (project manifest file)
 - .rulestack/ directory (for dependency management with core rules)
 - CLAUDE.md (Claude Code integration file)
 
@@ -25,12 +25,11 @@ Similar to 'git init', this command must be run before using other RFH commands
 in this directory. It explicitly sets the project root to the current directory.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		force, _ := cmd.Flags().GetBool("force")
-		packageMode, _ := cmd.Flags().GetBool("package")
-		return runInit(force, packageMode)
+		return runInit(force)
 	},
 }
 
-func runInit(force bool, packageMode bool) error {
+func runInit(force bool) error {
 	// Get current directory as project root
 	projectRoot, err := os.Getwd()
 	if err != nil {
@@ -50,21 +49,12 @@ func runInit(force bool, packageMode bool) error {
 
 	fmt.Printf("Initializing RuleStack project in: %s\n", projectRoot)
 
-	if packageMode {
-		// Create package manifest (array format for rule creation)
-		sample := manifest.CreateSamplePackageManifest()
-		if err := manifest.SavePackageManifest(manifestPath, sample); err != nil {
-			return fmt.Errorf("failed to create package manifest: %w", err)
-		}
-		fmt.Printf("Creating package manifest for rule creation\n")
-	} else {
-		// Create project manifest (object format for dependency management) 
-		projectManifest := manifest.CreateProjectManifest(projectRoot)
-		if err := manifest.SaveProjectManifest(manifestPath, projectManifest); err != nil {
-			return fmt.Errorf("failed to create project manifest: %w", err)
-		}
-		fmt.Printf("Creating project manifest for dependency management\n")
+	// Always create project manifest (object format for dependency management) 
+	projectManifest := manifest.CreateProjectManifest(projectRoot)
+	if err := manifest.SaveProjectManifest(manifestPath, projectManifest); err != nil {
+		return fmt.Errorf("failed to create project manifest: %w", err)
 	}
+	fmt.Printf("Creating project manifest for dependency management\n")
 
 	// Create .rulestack directory for dependency management
 	if err := os.MkdirAll(".rulestack", 0o755); err != nil {
@@ -202,16 +192,14 @@ Which package should contain this rule? [default: project]"
 
 	fmt.Printf("✅ Initialized RuleStack project in: %s\n", filepath.Base(projectRoot))
 	fmt.Printf("📁 Created:\n")
-	fmt.Printf("   - rulestack.json (package manifest)\n")
+	fmt.Printf("   - rulestack.json (project manifest)\n")
 	fmt.Printf("   - CLAUDE.md (Claude Code integration)\n")
 	fmt.Printf("   - .rulestack/ (dependency directory)\n")
 	fmt.Printf("   - .rulestack/core.v1.0.0/core_rules.md (baseline rules)\n")
 	fmt.Printf("\n🚀 Next steps:\n")
-	fmt.Printf("   1. Edit rulestack.json with your package details\n")
-	fmt.Printf("   2. Add your rule files (create them as needed)\n")
-	fmt.Printf("   3. Run 'rfh add <package>' to install dependencies\n")
-	fmt.Printf("   4. Run 'rfh pack' to create archive\n")
-	fmt.Printf("   5. Run 'rfh publish' to publish to registry\n")
+	fmt.Printf("   1. Run 'rfh add <package>' to install dependencies\n")
+	fmt.Printf("   2. Run 'rfh pack --file=<rule>.mdc --package=<name>' to create packages\n")
+	fmt.Printf("   3. Run 'rfh publish' to publish to registry\n")
 
 	return nil
 }
@@ -219,5 +207,4 @@ Which package should contain this rule? [default: project]"
 func init() {
 	// Add flags if needed
 	initCmd.Flags().BoolP("force", "f", false, "force overwrite existing files")
-	initCmd.Flags().BoolP("package", "p", false, "create package manifest for rule creation (default: project manifest for dependency management)")
 }

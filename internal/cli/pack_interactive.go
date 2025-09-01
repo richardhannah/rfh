@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"rulestack/internal/manifest"
+	"rulestack/internal/version"
 )
 
 // promptUserChoice prompts user for a yes/no choice
@@ -76,7 +77,7 @@ func promptPackageSelection(packageManifests manifest.PackageManifestFile) (int,
 
 // promptNewVersion prompts user for new version number with validation
 func promptNewVersion(currentVersion string) (string, error) {
-	nextPatch, err := incrementPatchVersion(currentVersion)
+	nextPatch, err := version.IncrementPatchVersion(currentVersion)
 	if err != nil {
 		return "", err
 	}
@@ -94,7 +95,7 @@ func promptNewVersion(currentVersion string) (string, error) {
 			return nextPatch, nil
 		}
 		
-		if err := validateVersionIncrease(currentVersion, input); err != nil {
+		if err := version.ValidateVersionIncrease(currentVersion, input); err != nil {
 			fmt.Printf("Error: %v\n", err)
 			continue
 		}
@@ -103,51 +104,7 @@ func promptNewVersion(currentVersion string) (string, error) {
 	}
 }
 
-// incrementPatchVersion increments the patch version (x.y.z -> x.y.z+1)
-func incrementPatchVersion(version string) (string, error) {
-	parts := strings.Split(version, ".")
-	if len(parts) != 3 {
-		return "", fmt.Errorf("invalid version format: %s", version)
-	}
-	
-	patch, err := strconv.Atoi(parts[2])
-	if err != nil {
-		return "", fmt.Errorf("invalid patch version: %s", parts[2])
-	}
-	
-	return fmt.Sprintf("%s.%s.%d", parts[0], parts[1], patch+1), nil
-}
 
-// validateVersionIncrease ensures new version is greater than current version
-func validateVersionIncrease(currentVersion, newVersion string) error {
-	currentParts := strings.Split(currentVersion, ".")
-	newParts := strings.Split(newVersion, ".")
-	
-	if len(currentParts) != 3 || len(newParts) != 3 {
-		return fmt.Errorf("versions must be in semantic version format (x.y.z)")
-	}
-	
-	for i := 0; i < 3; i++ {
-		current, err := strconv.Atoi(currentParts[i])
-		if err != nil {
-			return fmt.Errorf("invalid current version: %s", currentVersion)
-		}
-		
-		new, err := strconv.Atoi(newParts[i])
-		if err != nil {
-			return fmt.Errorf("invalid new version: %s", newVersion)
-		}
-		
-		if new > current {
-			return nil // New version is higher
-		} else if new < current {
-			return fmt.Errorf("new version %s must be greater than current version %s", newVersion, currentVersion)
-		}
-		// If equal, continue to next part
-	}
-	
-	return fmt.Errorf("new version %s must be greater than current version %s", newVersion, currentVersion)
-}
 
 // isValidMdcFile checks if a file is a valid .mdc rules file
 func isValidMdcFile(filePath string) bool {

@@ -27,7 +27,7 @@ Feature: Package Creation
     And I should see "-f, --file string      .mdc file to pack (required)"
     And I should see "-o, --output string    output archive path"
     And I should see "-p, --package string   package name (enables non-interactive mode)"
-    And I should see "--version string   package version (default: 1.0.0)"
+    And I should see "--version string   package version (auto-increments for existing packages, defaults to 1.0.0 for new packages)"
 
   # Creating new packages
   
@@ -169,4 +169,94 @@ Feature: Package Creation
     When I run "rfh pack --file=custom-ver.mdc --package=custom-version --version=3.2.1" in the project directory
     And I run "rfh status" in the project directory
     Then I should see "custom-version-3.2.1.tgz"
+    And the command should exit with zero status
+
+  # Enhanced Pack Functionality - Existing Package Updates
+
+  Scenario: Pack adds file to existing package with explicit version
+    Given I am in an empty directory
+    And I have installed package "test-rules@1.0.0" containing file "existing.mdc"
+    And I have a rule file "new-rule.mdc" with content "# New Rule"
+    And I debug the current test environment state
+    When I run "rfh pack --file=new-rule.mdc --package=test-rules --version=1.1.0" in the project directory
+    Then I should see "📦 Found existing package test-rules@1.0.0 with 1 files"
+    And I should see "✅ Updated existing package: test-rules v1.0.0 -> v1.1.0"
+    And I should see "📋 Files included: existing.mdc, new-rule.mdc"
+    And the staged archive should contain "existing.mdc"
+    And the staged archive should contain "new-rule.mdc"
+    And the staged archive should contain "rulestack.json"
+    And the staged archive should be named "test-rules-1.1.0.tgz"
+    And the command should exit with zero status
+
+  Scenario: Pack auto-increments version for existing package
+    Given I am in an empty directory
+    And RFH is initialized in the directory
+    And I have installed package "test-rules@1.2.3" containing file "existing.mdc"
+    And I have a rule file "auto-increment.mdc" with content "# Auto Increment Test"
+    When I run "rfh pack --file=auto-increment.mdc --package=test-rules" in the project directory
+    Then I should see "📦 Found existing package test-rules@1.2.3 with 1 files"
+    And I should see "🔄 Auto-incrementing version to 1.2.4"
+    And I should see "✅ Updated existing package: test-rules v1.2.3 -> v1.2.4"
+    And I should see "📋 Files included: existing.mdc, auto-increment.mdc"
+    And the staged archive should be named "test-rules-1.2.4.tgz"
+    And the command should exit with zero status
+
+  Scenario: Pack fails on version decrease
+    Given I am in an empty directory
+    And RFH is initialized in the directory
+    And I have installed package "test-rules@2.0.0" containing file "existing.mdc"
+    And I have a rule file "downgrade.mdc" with content "# Downgrade Test"
+    When I run "rfh pack --file=downgrade.mdc --package=test-rules --version=1.5.0" in the project directory
+    Then I should see "📦 Found existing package test-rules@2.0.0 with 1 files"
+    And I should see "Error: version validation failed: new version 1.5.0 must be greater than current version 2.0.0"
+    And the command should exit with non-zero status
+
+  Scenario: Pack fails on file name conflict
+    Given I am in an empty directory
+    And RFH is initialized in the directory
+    And I have installed package "test-rules@1.0.0" containing file "conflict.mdc"
+    And I have a rule file "conflict.mdc" with content "# Different content but same name"
+    When I run "rfh pack --file=conflict.mdc --package=test-rules --version=1.1.0" in the project directory
+    Then I should see "📦 Found existing package test-rules@1.0.0 with 1 files"
+    And I should see "Error: file conflict.mdc already exists in package test-rules@1.0.0, use a different filename or increment version to replace"
+    And the command should exit with non-zero status
+
+  Scenario: Pack handles existing package with multiple files
+    Given I am in an empty directory
+    And RFH is initialized in the directory
+    And I have installed package "multi-rules@1.0.0" containing files:
+      | filename    | content           |
+      | auth.mdc    | # Auth Rules      |
+      | security.mdc| # Security Rules  |
+      | logging.mdc | # Logging Rules   |
+    And I have a rule file "validation.mdc" with content "# Validation Rules"
+    When I run "rfh pack --file=validation.mdc --package=multi-rules --version=1.1.0" in the project directory
+    Then I should see "📦 Found existing package multi-rules@1.0.0 with 3 files"
+    And I should see "✅ Updated existing package: multi-rules v1.0.0 -> v1.1.0"
+    And I should see "📋 Files included: auth.mdc, logging.mdc, security.mdc, validation.mdc"
+    And the staged archive should contain "auth.mdc"
+    And the staged archive should contain "security.mdc"
+    And the staged archive should contain "logging.mdc"
+    And the staged archive should contain "validation.mdc"
+    And the staged archive should contain "rulestack.json"
+    And the command should exit with zero status
+
+  Scenario: Pack validates file format for existing packages
+    Given I am in an empty directory
+    And RFH is initialized in the directory
+    And I have installed package "test-rules@1.0.0" containing file "existing.mdc"
+    And I have a rule file "invalid.txt" with content "# Not an MDC file"
+    When I run "rfh pack --file=invalid.txt --package=test-rules --version=1.1.0" in the project directory
+    Then I should see "Error: file must be a valid .mdc file: invalid.txt"
+    And the command should exit with non-zero status
+
+  Scenario: Pack works with semantic versioning including pre-release
+    Given I am in an empty directory
+    And RFH is initialized in the directory
+    And I have installed package "test-rules@1.0.0-alpha" containing file "existing.mdc"
+    And I have a rule file "beta-feature.mdc" with content "# Beta Feature"
+    When I run "rfh pack --file=beta-feature.mdc --package=test-rules --version=1.0.0" in the project directory
+    Then I should see "📦 Found existing package test-rules@1.0.0-alpha with 1 files"
+    And I should see "✅ Updated existing package: test-rules v1.0.0-alpha -> v1.0.0"
+    And I should see "📋 Files included: existing.mdc, beta-feature.mdc"
     And the command should exit with zero status

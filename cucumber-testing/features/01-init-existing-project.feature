@@ -16,9 +16,9 @@ Feature: Initialize RFH project with existing files
 
   Scenario: Force flag overwrites existing project
     Given a file "rulestack.json" already exists
-    When I run "rfh init --force --package"
+    When I run "rfh init --force"
     Then I should see "Initialized RuleStack project"
-    And the manifest should have name "example-rules"
+    And the project manifest should be created correctly
     And a file "CLAUDE.md" should be created
     And a directory ".rulestack" should be created
 

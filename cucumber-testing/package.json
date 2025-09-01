@@ -23,6 +23,7 @@
   },
   "dependencies": {
     "node-fetch": "^3.3.2",
+    "tar": "^7.4.3",
     "toml": "^3.0.0"
   }
 }
