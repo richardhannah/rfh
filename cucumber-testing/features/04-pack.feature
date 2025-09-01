@@ -27,6 +27,7 @@ Feature: Package Creation
     And I should see "-f, --file string      .mdc file to pack (required)"
     And I should see "-o, --output string    output archive path"
     And I should see "-p, --package string   package name (enables non-interactive mode)"
+    And I should see "--version string   package version (default: 1.0.0)"
 
   # Creating new packages
   
@@ -58,6 +59,28 @@ Feature: Package Creation
     And the command should exit with zero status
 
   # Version management
+
+  Scenario: Pack with custom version number
+    Given I am in an empty directory
+    And RFH is initialized in the directory
+    And I have a rule file "version-test.mdc" with content "# Version Test Rule"
+    When I run "rfh pack --file=version-test.mdc --package=version-test --version=2.1.5" in the project directory
+    Then I should see "✅ Created new package: version-test v2.1.5"
+    And I should see "📦 Archive: .rulestack/staged/version-test-2.1.5.tgz"
+    And the archive file ".rulestack/staged/version-test-2.1.5.tgz" should exist
+    And the directory ".rulestack/version-test.2.1.5" should exist
+    And the command should exit with zero status
+
+  Scenario: Pack with default version when --version omitted
+    Given I am in an empty directory
+    And RFH is initialized in the directory
+    And I have a rule file "default-version.mdc" with content "# Default Version Test"
+    When I run "rfh pack --file=default-version.mdc --package=default-test" in the project directory
+    Then I should see "✅ Created new package: default-test v1.0.0"
+    And I should see "📦 Archive: .rulestack/staged/default-test-1.0.0.tgz"
+    And the archive file ".rulestack/staged/default-test-1.0.0.tgz" should exist
+    And the directory ".rulestack/default-test.1.0.0" should exist
+    And the command should exit with zero status
 
   # Output options
   
@@ -137,4 +160,13 @@ Feature: Package Creation
     And I run "rfh status" in the project directory
     Then I should see "package1-1.0.0.tgz"
     And I should see "package2-1.0.0.tgz"
+    And the command should exit with zero status
+
+  Scenario: Status shows correct filenames with custom versions
+    Given I am in an empty directory
+    And RFH is initialized in the directory
+    And I have a rule file "custom-ver.mdc" with content "# Custom Version Rule"
+    When I run "rfh pack --file=custom-ver.mdc --package=custom-version --version=3.2.1" in the project directory
+    And I run "rfh status" in the project directory
+    Then I should see "custom-version-3.2.1.tgz"
     And the command should exit with zero status
