@@ -7,9 +7,10 @@ import (
 )
 
 var (
-	outputPath   string
-	fileOverride string  // Single file override
-	packageName  string  // Non-interactive package name
+	outputPath     string
+	fileOverride   string  // Single file override
+	packageName    string  // Non-interactive package name
+	packageVersion string  // Non-interactive package version
 )
 
 // packCmd represents the pack command
@@ -27,6 +28,7 @@ Interactive mode:
 
 Non-interactive mode:
    - rfh pack my-rule.mdc --package="new-package"  # Creates new package at v1.0.0
+   - rfh pack my-rule.mdc --package="new-package" --version="1.2.0"  # Creates new package at v1.2.0
 
 The pack command:
 - Validates .mdc file format
@@ -37,7 +39,8 @@ The pack command:
 
 Examples:
   rfh pack my-security-rule.mdc                                    # Interactive
-  rfh pack my-rule.mdc --package="new-rules"                      # Create new package`,
+  rfh pack my-rule.mdc --package="new-rules"                      # Create new package
+  rfh pack my-rule.mdc --package="new-rules" --version="2.1.0"    # Create new package with version`,
 	Args: cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		fileName := args[0]
@@ -68,4 +71,5 @@ func init() {
 	
 	// Non-interactive mode flags
 	packCmd.Flags().StringVarP(&packageName, "package", "p", "", "package name (enables non-interactive mode)")
+	packCmd.Flags().StringVarP(&packageVersion, "version", "", "1.0.0", "package version (default: 1.0.0)")
 }

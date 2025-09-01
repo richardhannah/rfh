@@ -115,23 +115,15 @@ Given('I have a directory with no rulestack.json', async function () {
 });
 
 Given('I have a truly clean config with no registries', async function () {
-  // Override the default config path to use a temporary empty config
-  const configPath = path.join(os.homedir(), '.rfh', 'config.toml');
+  // Use the test-isolated config directory, not the global one
+  const configPath = path.join(this.testConfigDir, 'config.toml');
   
-  // Backup existing config if it exists
-  if (await fs.pathExists(configPath)) {
-    this.originalConfig = await fs.readFile(configPath, 'utf8');
-  }
-  
-  // Create empty config file
+  // Create empty config file in the test-isolated directory
   await fs.ensureDir(path.dirname(configPath));
   const emptyConfig = `# Empty config for testing
 [registries]
 `;
   await fs.writeFile(configPath, emptyConfig);
-  
-  // Store the config path for cleanup
-  this.configPath = configPath;
 });
 
 // Command execution with input

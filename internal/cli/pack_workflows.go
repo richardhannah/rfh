@@ -95,17 +95,16 @@ func copyFile(src, dst string) error {
 // runNonInteractivePack handles non-interactive pack mode with command-line flags
 func runNonInteractivePack(fileName string) error {
 	// Simplified: pack no longer reads existing manifests
-	// Just create new package with provided name
+	// Just create new package with provided name and version
 	if packageName == "" {
 		return fmt.Errorf("--package is required in non-interactive mode")
 	}
 	
-	
-	// Create new package
-	return createNewPackageNonInteractive(fileName, packageName)
+	// Create new package with specified version (defaults to 1.0.0 if not provided)
+	return createNewPackageNonInteractive(fileName, packageName, packageVersion)
 }
 
 // createNewPackageNonInteractive creates a new package without prompts
-func createNewPackageNonInteractive(fileName string, pkgName string) error {
-	return createPackageFromMetadata(fileName, pkgName, "1.0.0")
+func createNewPackageNonInteractive(fileName string, pkgName string, version string) error {
+	return createPackageFromMetadata(fileName, pkgName, version)
 }

@@ -170,16 +170,22 @@ class CustomWorld extends World {
     if (!this.registryConfigured) {
       await this.runCommand('rfh registry add test-registry http://localhost:8081');
       await this.runCommand('rfh registry use test-registry');
-      await this.loginAsRoot();
+      // Note: No longer automatically logging in - that's a separate concern
       this.registryConfigured = true;
     }
   }
 
   async loginAsRoot() {
-    await this.delayForAuth(100); // Add delay to reduce DB contention on root login
-    await this.runCommand('rfh auth login --username root --password root1234');
-    this.rootJwtToken = this.extractJwtTokenFromConfig();
-    this.currentUser = 'root';
+    // Ensure registry exists before attempting login
+    await this.ensureRegistrySetup();
+    
+    // Only login if not already logged in as root
+    if (this.currentUser !== 'root') {
+      await this.delayForAuth(100); // Add delay to reduce DB contention on root login
+      await this.runCommand('rfh auth login --username root --password root1234');
+      this.rootJwtToken = this.extractJwtTokenFromConfig();
+      this.currentUser = 'root';
+    }
   }
 
   extractJwtTokenFromConfig() {
@@ -308,77 +314,24 @@ class CustomWorld extends World {
     const packageDir = await fs.mkdtemp(path.join(os.tmpdir(), `rfh-publish-${name}-`));
     
     try {
-      // Initialize RFH in the temp directory first
-      await this.runCommand('rfh init --package', { cwd: packageDir });
-      if (this.lastExitCode !== 0) {
-        throw new Error(`Init failed for ${name}: ${this.lastCommandError || this.lastCommandOutput}`);
-      }
-      
-      // Copy authentication from test config directory (not the user's real config)
-      const packageConfigDir = path.join(packageDir, '.rfh-package-config');
-      
-      // Copy the test config if it exists
-      if (this.testConfigDir && await fs.pathExists(this.testConfigDir)) {
-        await fs.copy(this.testConfigDir, packageConfigDir);
-        console.log(`Copied test config from ${this.testConfigDir} to ${packageConfigDir}`);
-      } else {
-        // Create empty config dir if test config doesn't exist yet
-        await fs.ensureDir(packageConfigDir);
-      }
-      
-      // Create the rule content file
+      // Create the rule content file - pack command will handle manifest creation
       const mdcFilePath = path.join(packageDir, 'rules.mdc');
       await fs.writeFile(mdcFilePath, content);
-      console.log(`Created test file: ${mdcFilePath}`);
+      this.log(`Created test file: ${mdcFilePath}`, 'debug');
       
       // Verify file was created successfully
       if (!await fs.pathExists(mdcFilePath)) {
         throw new Error(`Failed to create test file: ${mdcFilePath}`);
       }
       
-      // Update the generated rulestack.json with correct package info
-      const manifestPath = path.join(packageDir, 'rulestack.json');
-      let manifest;
-      if (await fs.pathExists(manifestPath)) {
-        const manifestContent = await fs.readFile(manifestPath, 'utf8');
-        manifest = JSON.parse(manifestContent);
-        // Update the first entry if it's an array, or the object itself
-        if (Array.isArray(manifest)) {
-          manifest[0].name = name;
-          manifest[0].version = version;
-          manifest[0].description = `Test package for ${name}`;
-          manifest[0].files = ["rules.mdc"];
-        } else {
-          manifest.name = name;
-          manifest.version = version;
-          manifest.description = `Test package for ${name}`;
-          manifest.files = ["rules.mdc"];
-        }
-      } else {
-        // Create manifest as array format for package mode
-        manifest = [{
-          name: name,
-          version: version,
-          description: `Test package for ${name}`,
-          targets: ["cursor"],
-          tags: ["test"],
-          files: ["rules.mdc"],
-          license: "MIT"
-        }];
-      }
+      // Just set the working directory - let runCommand handle RFH_CONFIG
+      const commandOptions = { cwd: packageDir };
       
-      await fs.writeFile(manifestPath, JSON.stringify(manifest, null, 2));
-      console.log(`Updated manifest: ${manifestPath}`);
+      this.log(`Running pack command in directory: ${packageDir}`, 'debug');
+      this.log(`Pack command will look for: ${path.join(packageDir, 'rules.mdc')}`, 'debug');
       
-      // Use the package-specific config directory for all commands
-      const packageEnv = { RFH_CONFIG: packageConfigDir };
-      const commandOptions = { env: packageEnv, cwd: packageDir };
-      
-      console.log(`Running pack command in directory: ${packageDir}`);
-      console.log(`Pack command will look for: ${path.join(packageDir, 'rules.mdc')}`);
-      
-      // Pack the package from the correct directory with isolated config
-      await this.runCommand(`rfh pack rules.mdc --package ${name}`, commandOptions);
+      // Pack the package from the correct directory with test isolation
+      await this.runCommand(`rfh pack rules.mdc --package ${name} --version ${version}`, commandOptions);
       if (this.lastExitCode !== 0) {
         throw new Error(`Pack failed for ${name}: ${this.lastCommandError || this.lastCommandOutput}`);
       }
@@ -396,7 +349,7 @@ class CustomWorld extends World {
         throw new Error(`Publish failed for ${name}: ${this.lastCommandError || this.lastCommandOutput}`);
       }
       
-      console.log(`Successfully published ${name}@${version}`);
+      this.log(`Successfully published ${name}@${version}`, 'info');
       
     } finally {
       // Clean up package directory

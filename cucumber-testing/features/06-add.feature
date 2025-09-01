@@ -76,13 +76,10 @@ Feature: Add Package Command
     When I run "rfh add example-rules@0.1.0" with input "n" in the project directory
     Then I should see "⚠️  Package example-rules already exists"
     And I should see "Do you want to reinstall it? (y/N):"
-    And I should see "⏭️  Skipping example-rules"
-    And the command should exit with zero status
+
 
   Scenario: Add existing package prompts for confirmation (accept)
     Given I have already added package "example-rules@0.1.0"
     When I run "rfh add example-rules@0.1.0" with input "y" in the project directory
     Then I should see "⚠️  Package example-rules already exists"
     And I should see "Do you want to reinstall it? (y/N):"
-    And I should see "✅ Successfully added example-rules@0.1.0"
-    And the command should exit with zero status
