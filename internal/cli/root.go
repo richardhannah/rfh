@@ -46,6 +46,7 @@ func init() {
 	// Add subcommands
 	rootCmd.AddCommand(initCmd)
 	rootCmd.AddCommand(packCmd)
+	rootCmd.AddCommand(statusCmd)
 	rootCmd.AddCommand(publishCmd)
 	rootCmd.AddCommand(searchCmd)
 	rootCmd.AddCommand(addCmd)

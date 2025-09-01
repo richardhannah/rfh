@@ -16,3 +16,4 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ### Active Rules
 - @.rulestack/core.v1.0.0/core_rules.md (RuleStack core rules)
 - @.rulestack/project/no-backward-compatibility.md (Project-specific: No backward compatibility needed)
+- @.rulestack/project/simple-implementation.md (Project-specific: Keep implementations simple, avoid over-engineering)

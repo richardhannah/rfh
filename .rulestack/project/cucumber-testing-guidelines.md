@@ -47,7 +47,7 @@ Background:
   And I am logged in as root
 ```
 
-## Available Enhanced World Functions
+## Available Enhanced World Function
 
 ### Registry and Authentication Setup
 - `Given the test registry is configured` - Sets up test registry at localhost:8081 with root authentication

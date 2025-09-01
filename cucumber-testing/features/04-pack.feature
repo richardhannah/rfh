@@ -108,3 +108,33 @@ Feature: Package Creation
     And I have a rule file "remote.mdc" with content "# Remote Rules" in "remote-project"
     When I run "rfh pack remote.mdc --package=remote-rules" in the "remote-project" directory
     Then I should see "✅ Created new package: remote-rules v1.0.0"
+
+  # Status command tests
+  
+  Scenario: Status with no staged packages
+    Given I am in an empty directory
+    And RFH is initialized in the directory
+    When I run "rfh status" in the project directory
+    Then I should see "No staged packages found"
+    And the command should exit with zero status
+
+  Scenario: Status with single staged package
+    Given I am in an empty directory
+    And RFH is initialized in the directory
+    And I have a rule file "test-rule.mdc" with content "# Test Rule"
+    When I run "rfh pack test-rule.mdc --package=test-package" in the project directory
+    And I run "rfh status" in the project directory
+    Then I should see "test-package-1.0.0.tgz"
+    And the command should exit with zero status
+
+  Scenario: Status with multiple staged packages
+    Given I am in an empty directory
+    And RFH is initialized in the directory
+    And I have a rule file "rule1.mdc" with content "# Rule 1"
+    And I have a rule file "rule2.mdc" with content "# Rule 2"
+    When I run "rfh pack rule1.mdc --package=package1" in the project directory
+    And I run "rfh pack rule2.mdc --package=package2" in the project directory
+    And I run "rfh status" in the project directory
+    Then I should see "package1-1.0.0.tgz"
+    And I should see "package2-1.0.0.tgz"
+    And the command should exit with zero status
