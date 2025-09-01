@@ -331,7 +331,7 @@ class CustomWorld extends World {
       this.log(`Pack command will look for: ${path.join(packageDir, 'rules.mdc')}`, 'debug');
       
       // Pack the package from the correct directory with test isolation
-      await this.runCommand(`rfh pack rules.mdc --package ${name} --version ${version}`, commandOptions);
+      await this.runCommand(`rfh pack --file=rules.mdc --package ${name} --version ${version}`, commandOptions);
       if (this.lastExitCode !== 0) {
         throw new Error(`Pack failed for ${name}: ${this.lastCommandError || this.lastCommandOutput}`);
       }
