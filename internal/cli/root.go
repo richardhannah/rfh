@@ -3,6 +3,7 @@ package cli
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/spf13/cobra"
 
@@ -27,6 +28,12 @@ Registry for Humans - making AI rulesets accessible and shareable.`,
 
 		if verbose {
 			fmt.Printf("RFH version: 1.0.0\n")
+		}
+
+		// Check for root user and display security warning
+		if cfg, err := config.LoadCLI(); err == nil {
+			commandName := getFullCommandName(cmd)
+			checkAndWarnRootUser(cfg, commandName)
 		}
 	},
 }
@@ -65,4 +72,13 @@ func checkErr(err error) {
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 		os.Exit(1)
 	}
+}
+
+// getFullCommandName returns the full command path (e.g., "rfh auth login")
+func getFullCommandName(cmd *cobra.Command) string {
+	var parts []string
+	for current := cmd; current != nil && current.Name() != ""; current = current.Parent() {
+		parts = append([]string{current.Name()}, parts...)
+	}
+	return strings.Join(parts, " ")
 }
