@@ -128,6 +128,29 @@ rfh auth logout
 rfh auth login
 ```
 
+#### Root User Security Warning
+
+**Warning**: `🚨 SECURITY WARNING 🚨 YOU ARE LOGGED IN AS ROOT USER!`
+
+**Explanation**:
+RFH displays this warning when commands are run as root user to encourage security best practices.
+
+**Recommended Actions**:
+```bash
+# Create a dedicated admin user (recommended)
+sudo useradd -m -s /bin/bash rfhuser
+sudo usermod -aG sudo rfhuser  # Add to sudo group if needed
+
+# Switch to the new user
+su - rfhuser
+
+# Run RFH commands as non-root user
+rfh auth login
+rfh pack --file=rules.mdc --package=my-rules
+```
+
+**Note**: The warning appears for all commands except authentication commands (`rfh auth login`, `rfh auth logout`, etc.) to avoid interfering with login workflows.
+
 #### Token Expired
 
 **Error**: `authentication failed: token expired`
@@ -157,6 +180,54 @@ rfh registry list
 ```
 
 ### Package Operations
+
+#### Install Command Issues
+
+**Error**: `failed to find project root`
+
+**Solution**:
+```bash
+# Ensure you're in a valid RFH project
+ls -la rulestack.json
+
+# Initialize project if needed
+rfh init
+
+# Run install from project root
+rfh install .
+```
+
+**Error**: `failed to load project manifest`
+
+**Solution**:
+```bash
+# Check manifest file exists and is valid
+cat rulestack.json
+
+# Validate JSON format
+python -m json.tool rulestack.json
+
+# Recreate if corrupted
+rfh init --force
+```
+
+**Partial Failures during Install**:
+
+**Output**: `Summary: 2 installed, 1 updated, 0 skipped, 1 failed`
+
+**Analysis**:
+The install command continues processing after individual package failures. Check the detailed output for specific error reasons:
+
+```bash
+# Run with verbose output for detailed error information
+rfh install . --verbose
+
+# Common failure reasons:
+# - Package not found in registry
+# - Network connectivity issues  
+# - Authentication problems
+# - Version comparison errors
+```
 
 #### Pack Command Issues
 

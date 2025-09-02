@@ -129,6 +129,9 @@ Each RFH project contains a `rulestack.json` file with project-specific configur
 - `version` (string) - Project version
 - `dependencies` (object) - Map of package names to versions
 
+**Dependency Management:**
+The `dependencies` object defines the required packages and their versions for your project. The `rfh install .` command uses this manifest to ensure all dependencies are properly installed with the correct versions.
+
 ### Dependency Management
 
 Dependencies are automatically managed when you run:
@@ -138,9 +141,15 @@ Dependencies are automatically managed when you run:
 rfh add security-rules@1.2.0
 # Adds to dependencies in rulestack.json
 
-# Install all dependencies
-rfh install
-# Installs packages listed in dependencies
+# Install all dependencies from manifest
+rfh install .
+# Installs/updates packages listed in dependencies
+
+# The install command provides intelligent dependency management:
+# - Installs missing packages
+# - Updates packages to higher versions in manifest
+# - Skips packages that are already up-to-date
+# - Reports failures but continues processing other packages
 ```
 
 ## Advanced Configuration

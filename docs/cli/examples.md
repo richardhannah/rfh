@@ -58,6 +58,24 @@ rfh add performance-rules@1.0.1
 rfh add best-practices@2.0.0
 ```
 
+### Installing Project Dependencies
+```bash
+# Install all dependencies from rulestack.json manifest
+rfh install .
+
+# Example output with mixed operations
+# 📦 Installation Summary:
+# ✅ security-rules@1.2.0 → installed successfully
+# ✅ logging-rules@2.1.0 → Updated from 2.0.0  
+# ⏭️ best-practices@2.0.0 → Already up-to-date
+# ❌ network-rules@1.3.0 → failed (package not found)
+# 
+# Summary: 1 installed, 1 updated, 1 skipped, 1 failed
+
+# Use with verbose output for detailed logging
+rfh install . --verbose
+```
+
 ## Package Creation Examples
 
 ### Basic Package Creation
@@ -216,6 +234,30 @@ rfh pack --file=api.mdc --package=api-rules
 
 # Publish all at once
 rfh publish
+```
+
+### Team Collaboration Workflow
+```bash
+# Team member clones project
+git clone https://github.com/company/rules-project
+cd rules-project
+
+# Install all project dependencies from manifest
+rfh install .
+# Output shows which packages were installed/updated
+
+# Work on project with all dependencies available
+rfh pack --file=new-feature.mdc --package=team-rules
+
+# Share updated manifest
+git add rulestack.json
+git commit -m "Add new dependency: team-rules"
+git push
+
+# Other team members sync dependencies
+git pull
+rfh install .
+# Only installs newly added packages
 ```
 
 ### Version Management

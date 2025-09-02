@@ -17,6 +17,7 @@ All commands support these global options:
 |---------|---------|
 | `rfh init` | Initialize a new RuleStack project |
 | `rfh add <package>` | Add a package dependency |
+| `rfh install .` | Install/update all project dependencies |
 | `rfh pack` | Package rules into distributable archive |
 | `rfh publish` | Publish package to registry |
 | `rfh search [query]` | Search for packages |
@@ -92,6 +93,45 @@ rfh add security-rules@1.2.0
 # Add with verbose output
 rfh add security-rules --verbose
 ```
+
+### `rfh install .`
+
+Install all packages from project manifest.
+
+**Usage:**
+```bash
+rfh install .
+```
+
+Reads the `rulestack.json` project manifest and ensures all dependencies are installed with the correct versions. This command provides resilient package management that continues processing even when individual packages fail.
+
+**Operations:**
+- **Install missing packages** - Downloads and installs packages not currently present
+- **Update packages** - Updates installed packages to higher versions specified in manifest
+- **Skip up-to-date packages** - Leaves packages that already meet version requirements
+- **Continue on failures** - Reports failures but continues processing remaining packages
+
+**Examples:**
+```bash
+# Install all dependencies from rulestack.json
+rfh install .
+# Output:
+# 📦 Installation Summary:
+# ✅ security-rules@1.2.0 → installed successfully
+# ✅ logging-rules@2.1.0 → Updated from 2.0.0
+# ⏭️ best-practices@1.0.1 → Already up-to-date
+# ❌ network-rules@1.3.0 → failed (package not found)
+# 
+# Summary: 1 installed, 1 updated, 1 skipped, 1 failed
+```
+
+**Behavior:**
+- Analyzes current `.rulestack/` directory to determine installed packages
+- Compares installed versions with manifest requirements using semantic versioning
+- Downloads missing packages from active registry
+- Updates packages when manifest specifies higher versions
+- Preserves packages when installed version equals or exceeds manifest requirement
+- Provides detailed status reporting for each package operation
 
 ### `rfh pack`
 
