@@ -19,3 +19,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - @.rulestack/project/no-backward-compatibility.md (Project-specific: No backward compatibility needed)
 - @.rulestack/project/simple-implementation.md (Project-specific: Keep implementations simple, avoid over-engineering)
 - @.rulestack/project/save-implementation-plans.md (Project-specific: Save approved plans to planning/ folder before implementation)
+
+
+## Active Rules (Rulestack core)
+- @.rulestack/golang-standard.1.0.0/golang-rules.mdc
