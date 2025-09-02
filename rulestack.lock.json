@@ -1,6 +1,5 @@
 {
   "version": "1.0.0",
-  "projectRoot": "D:\\projects\\render.com\\rfh",
   "packages": {
     "golang-standard": {
       "version": "1.0.0",
