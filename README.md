@@ -7,6 +7,11 @@
 
 A secure package manager for AI rulesets, making it easy to share and discover AI rules for code editors like Claude Code, Cursor, and Windsurf. Built with enterprise-grade security validation and automatic Claude Code integration.
 
+NOTE: please regard the documentation with some skepticism for the moment - it was written by AI, and as anyone who
+has worked with AIs for any length of time knows - they get excited and add things that they think should be there, not
+things as they actually are. I'm working through the docs to correct them as we go. Feel free to point out mistakes,
+misrepresentations and outright lies in the issues ;)
+
 ## 📚 Documentation
 
 ### Getting Started
@@ -79,9 +84,10 @@ RuleStack is a secure package manager for AI rulesets - configuration files and 
 
 ## Supported Editors
 
+- **Claude Code** - Anthropic's coding assistant
+
+## Planned support
 - **Cursor** - AI-powered code editor
-- **Claude Code** - Anthropic's coding assistant  
-- **Windsurf** - AI development environment
 - **GitHub Copilot** - Microsoft's AI pair programmer
 
 ## Architecture
