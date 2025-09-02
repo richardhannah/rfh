@@ -57,6 +57,7 @@ func init() {
 	rootCmd.AddCommand(publishCmd)
 	rootCmd.AddCommand(searchCmd)
 	rootCmd.AddCommand(addCmd)
+	rootCmd.AddCommand(installCmd)
 	rootCmd.AddCommand(registryCmd)
 	rootCmd.AddCommand(authCmd)
 }
