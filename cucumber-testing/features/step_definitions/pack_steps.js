@@ -29,7 +29,6 @@ Given('I have a rulestack.json manifest with name {string} and version {string}'
   // For now, create an empty project manifest since packages are managed separately
   const manifestContent = {
     "version": "1.0.0",
-    "projectRoot": ".",
     "dependencies": {}
   };
   
@@ -41,7 +40,6 @@ Given('I have a rulestack.json manifest with name {string} and version {string} 
   // Create a ProjectManifest instead of PackageManifest array
   const manifestContent = {
     "version": "1.0.0",
-    "projectRoot": ".",
     "dependencies": {}
   };
   
@@ -53,7 +51,6 @@ Given('I have a custom manifest {string} with name {string} and version {string}
   // Create a ProjectManifest instead of PackageManifest array
   const manifestContent = {
     "version": "1.0.0",
-    "projectRoot": ".",
     "dependencies": {}
   };
   

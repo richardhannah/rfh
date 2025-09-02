@@ -50,7 +50,7 @@ func runInit(force bool) error {
 	fmt.Printf("Initializing RuleStack project in: %s\n", projectRoot)
 
 	// Always create project manifest (object format for dependency management) 
-	projectManifest := manifest.CreateProjectManifest(projectRoot)
+	projectManifest := manifest.CreateProjectManifest()
 	if err := manifest.SaveProjectManifest(manifestPath, projectManifest); err != nil {
 		return fmt.Errorf("failed to create project manifest: %w", err)
 	}

@@ -11,7 +11,6 @@ import (
 // ProjectManifest represents the rulestack.json file in project mode (dependency management)
 type ProjectManifest struct {
 	Version      string            `json:"version"`
-	ProjectRoot  string            `json:"projectRoot"`
 	Dependencies map[string]string `json:"dependencies"`
 }
 
@@ -38,7 +37,6 @@ var (
 	ErrInvalidName        = errors.New("invalid package name")
 	ErrInvalidVersion     = errors.New("invalid version")
 	ErrEmptyManifest      = errors.New("manifest file cannot be empty")
-	ErrInvalidProjectRoot = errors.New("invalid project root")
 )
 
 // nameRegex matches valid package names (with or without scope)
@@ -92,9 +90,6 @@ func (pm *ProjectManifest) Validate() error {
 		return fmt.Errorf("%w: version must be semantic version (x.y.z)", ErrInvalidVersion)
 	}
 
-	if pm.ProjectRoot == "" {
-		return fmt.Errorf("%w: projectRoot is required", ErrInvalidProjectRoot)
-	}
 
 	if pm.Dependencies == nil {
 		return fmt.Errorf("%w: dependencies field is required (can be empty object)", ErrInvalidManifest)
@@ -104,10 +99,9 @@ func (pm *ProjectManifest) Validate() error {
 }
 
 // CreateProjectManifest creates a new project manifest with default values
-func CreateProjectManifest(projectRoot string) *ProjectManifest {
+func CreateProjectManifest() *ProjectManifest {
 	return &ProjectManifest{
 		Version:      "1.0.0",
-		ProjectRoot:  projectRoot,
 		Dependencies: make(map[string]string),
 	}
 }
@@ -311,7 +305,7 @@ func IsProjectManifest(path string) bool {
 	}
 
 	// Check if it has project manifest fields and lacks package manifest fields
-	return pm.ProjectRoot != "" && pm.Dependencies != nil
+	return pm.Dependencies != nil
 }
 
 // IsPackageManifest checks if a rulestack.json file contains package manifests

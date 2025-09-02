@@ -241,7 +241,6 @@ Project manifest file with dependency information:
 ```json
 {
   "version": "1.0.0",
-  "projectRoot": "/path/to/project", 
   "dependencies": {
     "security-rules": "1.2.0",
     "logging-rules": "1.0.1"

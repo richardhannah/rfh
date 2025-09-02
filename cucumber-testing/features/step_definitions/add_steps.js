@@ -37,7 +37,6 @@ Given('I have already added package {string}', async function (packageSpec) {
   } catch (err) {
     manifest = {
       version: "1.0.0",
-      projectRoot: this.testDir,
       dependencies: {}
     };
   }
@@ -52,7 +51,6 @@ Given('I have already added package {string}', async function (packageSpec) {
   } catch (err) {
     lockManifest = {
       version: "1.0.0",
-      projectRoot: this.testDir,
       packages: {}
     };
   }

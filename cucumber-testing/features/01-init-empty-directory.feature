@@ -22,13 +22,11 @@ Feature: Initialize RFH project in empty directory
     And the project manifest should contain:
       | field        | value |
       | version      | 1.0.0 |
-      | projectRoot  | *     |
       | dependencies | {}    |
     And the manifest should have the project structure:
       ```json
       {
         "version": "1.0.0",
-        "projectRoot": "/path/to/project",
         "dependencies": {}
       }
       ```

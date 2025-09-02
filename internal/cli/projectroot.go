@@ -48,15 +48,14 @@ func runProjectRootDiagnostic() error {
 
 	fmt.Printf("📄 Closest rulestack.json: %s\n", rulestackPath)
 
-	// 3. Read the rulestack.json and extract project root if it exists
-	registeredRoot, err := getRegisteredProjectRoot(rulestackPath)
-	if err != nil {
-		fmt.Printf("⚠️  Failed to read project root from rulestack.json: %v\n", err)
-	} else if registeredRoot == "" {
-		fmt.Printf("📋 Registered Project Root: (not specified - this is a package manifest)\n")
-	} else {
-		fmt.Printf("🎯 Registered Project Root: %s\n", registeredRoot)
+	// 3. Determine manifest type
+	manifestType := "unknown"
+	if manifest.IsProjectManifest(rulestackPath) {
+		manifestType = "project manifest (dependency management)"
+	} else if manifest.IsPackageManifest(rulestackPath) {
+		manifestType = "package manifest (array of packages)"
 	}
+	fmt.Printf("📋 Manifest Type: %s\n", manifestType)
 
 	// 4. Show comparison
 	fmt.Printf("\n--- Analysis ---\n")
@@ -67,10 +66,8 @@ func runProjectRootDiagnostic() error {
 		fmt.Printf("✅ Working directory matches discovered project root\n")
 	}
 
-	if registeredRoot != "" && registeredRoot != projectRoot {
-		fmt.Printf("⚠️  Registered project root differs from discovered location\n")
-		fmt.Printf("   This indicates a project manifest with explicit projectRoot\n")
-	}
+	fmt.Printf("ℹ️  Project root is determined by walking up directory tree to find rulestack.json\n")
+	fmt.Printf("   The projectRoot field has been removed as it was not functionally used\n")
 
 	return nil
 }
@@ -101,23 +98,6 @@ func findProjectRootWithPath() (string, string, error) {
 	return "", "", fmt.Errorf("no rulestack.json found in directory tree")
 }
 
-// getRegisteredProjectRoot reads the rulestack.json file and extracts the projectRoot field if it exists
-func getRegisteredProjectRoot(rulestackPath string) (string, error) {
-	// Try to parse as project manifest first (has projectRoot field)
-	projectManifest, err := manifest.LoadProjectManifest(rulestackPath)
-	if err == nil && projectManifest.ProjectRoot != "" {
-		return projectManifest.ProjectRoot, nil
-	}
-
-	// If that fails, it might be a package manifest (array format) - no projectRoot field
-	// We can use the manifest type detection functions
-	if manifest.IsPackageManifest(rulestackPath) {
-		return "", nil // Package manifests don't have projectRoot
-	}
-
-	// If we can't determine the type or there was an error, return the error
-	return "", err
-}
 
 func init() {
 	rootCmd.AddCommand(projectrootCmd)

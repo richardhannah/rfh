@@ -13,7 +13,7 @@ Feature: Initialize RFH project in project mode (default)
     And I should see "Creating project manifest for dependency management"
     And a file "rulestack.json" should be created
     And the project manifest should have version "1.0.0"
-    And the project manifest should have projectRoot
+    And the project manifest should have version and dependencies
     And the project manifest should have empty dependencies
     And a directory ".rulestack" should be created
     And a file "CLAUDE.md" should be created

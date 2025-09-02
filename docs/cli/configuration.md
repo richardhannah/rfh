@@ -117,7 +117,6 @@ Each RFH project contains a `rulestack.json` file with project-specific configur
 ```json
 {
   "version": "1.0.0",
-  "projectRoot": "/path/to/project",
   "dependencies": {
     "security-rules": "1.2.0",
     "logging-rules": "2.1.0",
@@ -128,7 +127,6 @@ Each RFH project contains a `rulestack.json` file with project-specific configur
 
 **Project Manifest Fields:**
 - `version` (string) - Project version
-- `projectRoot` (string) - Absolute path to project root
 - `dependencies` (object) - Map of package names to versions
 
 ### Dependency Management

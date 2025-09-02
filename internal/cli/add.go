@@ -39,7 +39,6 @@ type PackageRef struct {
 // LockManifest represents the rulestack.lock.json file
 type LockManifest struct {
 	Version      string                       `json:"version"`
-	ProjectRoot  string                       `json:"projectRoot"`
 	Packages     map[string]LockPackageEntry  `json:"packages"`
 }
 
@@ -285,7 +284,7 @@ func updateManifests(projectRoot string, pkgRef *PackageRef, sha256 string) erro
 func loadOrCreateProjectManifest(path, projectRoot string) (*manifest.ProjectManifest, error) {
 	if _, err := os.Stat(path); os.IsNotExist(err) {
 		// Create new manifest using centralized function
-		return manifest.CreateProjectManifest(projectRoot), nil
+		return manifest.CreateProjectManifest(), nil
 	}
 
 	// Load existing manifest using centralized function
@@ -303,7 +302,6 @@ func loadOrCreateLockManifest(path, projectRoot string) (*LockManifest, error) {
 		// Create new lock manifest
 		return &LockManifest{
 			Version:     "1.0.0",
-			ProjectRoot: projectRoot,
 			Packages:    make(map[string]LockPackageEntry),
 		}, nil
 	}

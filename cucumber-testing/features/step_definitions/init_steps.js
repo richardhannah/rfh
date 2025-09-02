@@ -182,12 +182,13 @@ Then('the project manifest should have version {string}', async function (expect
   expect(manifest.version).to.equal(expectedVersion);
 });
 
-Then('the project manifest should have projectRoot', async function () {
+Then('the project manifest should have version and dependencies', async function () {
   const manifestContent = await this.readFile('rulestack.json');
   const manifest = JSON.parse(manifestContent);
-  expect(manifest.projectRoot).to.exist;
-  expect(manifest.projectRoot).to.be.a('string');
-  expect(manifest.projectRoot.length).to.be.greaterThan(0);
+  expect(manifest.version).to.exist;
+  expect(manifest.version).to.be.a('string');
+  expect(manifest.dependencies).to.exist;
+  expect(manifest.dependencies).to.be.an('object');
 });
 
 Then('the project manifest should have empty dependencies', async function () {
@@ -210,10 +211,8 @@ Then('the project manifest should contain:', async function (dataTable) {
       expect(manifest[field]).to.be.an('object');
       expect(Object.keys(manifest[field])).to.have.length(0);
     } else if (field === 'projectRoot' && expectedValue === '*') {
-      // Wildcard - just check that projectRoot exists and is a string
-      expect(manifest[field]).to.exist;
-      expect(manifest[field]).to.be.a('string');
-      expect(manifest[field].length).to.be.greaterThan(0);
+      // projectRoot field no longer exists - skip this check
+      continue;
     } else {
       expect(manifest[field]).to.equal(expectedValue);
     }
@@ -226,7 +225,6 @@ Then('the manifest should be a valid project manifest for add command', async fu
   
   // Verify it has the structure the add command expects
   expect(manifest).to.have.property('version');
-  expect(manifest).to.have.property('projectRoot');
   expect(manifest).to.have.property('dependencies');
   expect(manifest).to.not.have.property('name'); // Should not be package manifest
   expect(manifest).to.not.be.an('array'); // Should not be array format
@@ -365,9 +363,8 @@ Then('the project manifest should be created correctly', async function () {
   
   // Verify it has the correct project manifest structure
   expect(manifest).to.have.property('version', '1.0.0');
-  expect(manifest).to.have.property('projectRoot');
-  expect(manifest.projectRoot).to.be.a('string');
-  expect(manifest.projectRoot.length).to.be.greaterThan(0);
+  expect(manifest).to.have.property('version');
+  expect(manifest.version).to.be.a('string');
   expect(manifest).to.have.property('dependencies');
   expect(manifest.dependencies).to.be.an('object');
   expect(Object.keys(manifest.dependencies)).to.have.length(0);
