@@ -95,14 +95,14 @@ jobs:
       run: ./rfh --help
     
     - name: Upload CLI binary
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: rfh-cli-linux
         path: rfh
         retention-days: 30
     
     - name: Upload API binary
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: rulestack-api-linux
         path: rulestack-api
