@@ -1,5 +1,3 @@
-version: "2"
-
 run:
   timeout: 5m
 
@@ -8,11 +6,14 @@ linters:
     - gofmt
     - goimports
     - misspell
-  disable-all: true
-
-linters-settings:
-  misspell:
-    locale: US
+  disable:
+    - errcheck
+    - gosimple
+    - govet
+    - ineffassign
+    - staticcheck
+    - typecheck
+    - unused
 
 issues:
   max-issues-per-linter: 0
