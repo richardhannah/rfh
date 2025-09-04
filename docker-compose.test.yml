@@ -66,6 +66,33 @@ services:
       timeout: 5s
       retries: 10
 
+  # Gitea Git server for Git registry testing
+  gitea-test:
+    image: gitea/gitea:1.21
+    container_name: rulestack-gitea-test
+    restart: unless-stopped
+    ports:
+      - "3000:3000"  # Web UI
+      - "2222:22"    # SSH
+    volumes:
+      - gitea_test_data:/data
+    environment:
+      - USER_UID=1000
+      - USER_GID=1000
+      - GITEA__database__DB_TYPE=sqlite3
+      - GITEA__security__INSTALL_LOCK=true
+      - GITEA__server__DOMAIN=localhost
+      - GITEA__server__HTTP_PORT=3000
+      - GITEA__server__ROOT_URL=http://localhost:3000/
+      - GITEA__security__SECRET_KEY=test_secret_key_for_testing_only_32chars
+      - GITEA__admin__DISABLE_REGULAR_ORG_CREATION=true
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/v1/version"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
 volumes:
   postgres_test_data:
   test_storage:
+  gitea_test_data:

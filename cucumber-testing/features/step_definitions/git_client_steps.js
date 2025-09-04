@@ -4,6 +4,25 @@ const fs = require('fs-extra');
 const path = require('path');
 const os = require('os');
 
+// Helper function to check if Gitea is ready and repositories exist
+async function ensureGiteaReady() {
+  // Check if Gitea is responding
+  try {
+    const response = await fetch('http://localhost:3000/api/v1/version');
+    if (!response.ok) {
+      throw new Error('Gitea not ready');
+    }
+    
+    // Check if test repositories exist
+    const repoResponse = await fetch('http://localhost:3000/api/v1/repos/rfh-admin/rfh-test-registry-public');
+    if (!repoResponse.ok) {
+      console.log('WARN: Test repositories may not be set up. Run ./scripts/setup-gitea-repos.sh');
+    }
+  } catch (error) {
+    throw new Error('Gitea server not available at localhost:3000. Make sure docker-compose.test.yml is running with gitea-test service.');
+  }
+}
+
 // Git-specific step definitions for Git client testing
 
 Given('the Git token is not configured', async function () {
@@ -27,6 +46,11 @@ Given('the Git token is configured for authentication', async function () {
 });
 
 Given('I have a Git registry {string} configured at {string}', async function (name, url) {
+  // Ensure Gitea is ready if using localhost URLs
+  if (url.includes('localhost:3000')) {
+    await ensureGiteaReady();
+  }
+  
   await this.runCommand(`rfh registry add ${name} ${url} --type git`);
   if (this.lastExitCode !== 0) {
     throw new Error(`Failed to add Git registry ${name}: ${this.lastCommandError || this.lastCommandOutput}`);
@@ -37,7 +61,10 @@ Given('I have a Git registry {string} configured at {string}', async function (n
 });
 
 Given('I have a Git registry {string} configured', async function (name) {
-  await this.runCommand(`rfh registry add ${name} https://github.com/test/repo --type git`);
+  // Ensure Gitea is ready for localhost URLs
+  await ensureGiteaReady();
+  
+  await this.runCommand(`rfh registry add ${name} http://localhost:3000/rfh-admin/rfh-test-registry-public.git --type git`);
   if (this.lastExitCode !== 0) {
     throw new Error(`Failed to add Git registry ${name}: ${this.lastCommandError || this.lastCommandOutput}`);
   }
