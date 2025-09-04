@@ -79,3 +79,41 @@ Feature: Registry Management
     When I run "rfh registry add production https://different.example.com"
     Then I should see "Added registry 'production'"
     And the config should contain registry "production" with URL "https://different.example.com"
+
+  Scenario: Add HTTP registry with explicit type
+    When I run "rfh registry add http-typed https://registry.example.com --type remote-http"
+    Then I should see "Added registry 'http-typed'"
+    And I should see "Type: remote-http"
+    And I should see "Use 'rfh auth login' to authenticate"
+    And the config should contain registry "http-typed" with type "remote-http"
+    
+  Scenario: Add Git registry
+    When I run "rfh registry add git-registry https://github.com/org/registry --type git"
+    Then I should see "Added registry 'git-registry'"
+    And I should see "Type: git"
+    And I should see "Set git_token in config or use GITHUB_TOKEN environment variable"
+    And the config should contain registry "git-registry" with type "git"
+    
+  Scenario: Add registry without type defaults to HTTP
+    When I run "rfh registry add default-registry https://registry.example.com"
+    Then I should see "Added registry 'default-registry'"
+    And I should see "Type: remote-http"
+    And the config should contain registry "default-registry" with type "remote-http"
+    
+  Scenario: Reject invalid registry type
+    When I run "rfh registry add invalid https://example.com --type invalid-type"
+    Then the command should exit with non-zero status
+    And I should see an error containing "unsupported registry type"
+    
+  Scenario: List shows registry types
+    Given I have a registry "typed-http" configured at "https://http.example.com" with type "remote-http"
+    And I have a registry "typed-git" configured at "https://github.com/org/repo" with type "git"
+    When I run "rfh registry list"
+    Then I should see "typed-http (remote-http)" in the registry list
+    And I should see "typed-git (git)" in the registry list
+
+  Scenario: Git registry URL validation warning
+    When I run "rfh registry add git-invalid https://example.com/not-git --type git"
+    Then I should see "Added registry 'git-invalid'"
+    And I should see "Warning: Git registry URL may not be valid"
+    And I should see "Type: git"
