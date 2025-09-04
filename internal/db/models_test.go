@@ -11,28 +11,25 @@ func TestPackageFullPackageName(t *testing.T) {
 		expected string
 	}{
 		{
-			name: "scoped package",
+			name: "package name",
 			pkg: Package{
-				Scope: stringPtr("acme"),
-				Name:  "test-rules",
-			},
-			expected: "@acme/test-rules",
-		},
-		{
-			name: "unscoped package",
-			pkg: Package{
-				Scope: nil,
-				Name:  "test-rules",
+				Name: "test-rules",
 			},
 			expected: "test-rules",
 		},
 		{
-			name: "empty scope",
+			name: "package with complex name",
 			pkg: Package{
-				Scope: stringPtr(""),
-				Name:  "test-rules",
+				Name: "acme-security-rules",
 			},
-			expected: "test-rules",
+			expected: "acme-security-rules",
+		},
+		{
+			name: "package with hyphens",
+			pkg: Package{
+				Name: "my-awesome-package",
+			},
+			expected: "my-awesome-package",
 		},
 	}
 
@@ -47,8 +44,3 @@ func TestPackageFullPackageName(t *testing.T) {
 }
 
 // TestHashToken removed - legacy token functionality no longer supported
-
-// Helper function to create string pointer
-func stringPtr(s string) *string {
-	return &s
-}

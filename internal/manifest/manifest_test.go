@@ -140,38 +140,6 @@ func TestManifestValidation(t *testing.T) {
 	}
 }
 
-func TestGetScope(t *testing.T) {
-	tests := []struct {
-		name     string
-		manifest Manifest
-		expected string
-	}{
-		{
-			name:     "scoped package",
-			manifest: Manifest{Name: "@acme/test-rules"},
-			expected: "acme",
-		},
-		{
-			name:     "unscoped package",
-			manifest: Manifest{Name: "test-rules"},
-			expected: "",
-		},
-		{
-			name:     "malformed scope",
-			manifest: Manifest{Name: "@acme"},
-			expected: "",
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			result := tt.manifest.GetScope()
-			if result != tt.expected {
-				t.Errorf("GetScope() = %q, want %q", result, tt.expected)
-			}
-		})
-	}
-}
 
 func TestGetPackageName(t *testing.T) {
 	tests := []struct {
@@ -180,17 +148,17 @@ func TestGetPackageName(t *testing.T) {
 		expected string
 	}{
 		{
-			name:     "scoped package",
+			name:     "scoped package name",
 			manifest: Manifest{Name: "@acme/test-rules"},
-			expected: "test-rules",
+			expected: "@acme/test-rules",
 		},
 		{
-			name:     "unscoped package",
+			name:     "unscoped package name",
 			manifest: Manifest{Name: "test-rules"},
 			expected: "test-rules",
 		},
 		{
-			name:     "malformed scope",
+			name:     "simple package name",
 			manifest: Manifest{Name: "@acme"},
 			expected: "@acme",
 		},
@@ -270,7 +238,7 @@ func TestSaveManifest(t *testing.T) {
 		}
 
 		manifestPath := filepath.Join(tempDir, "save_test.json")
-		err := manifest.Save(manifestPath)
+		err := SaveSinglePackageManifest(manifestPath, &manifest)
 		if err != nil {
 			t.Errorf("unexpected error: %v", err)
 		}
@@ -313,8 +281,8 @@ func TestCreateSample(t *testing.T) {
 		t.Errorf("sample manifest is invalid: %v", err)
 	}
 
-	if sample.Name != "@acme/example-rules" {
-		t.Errorf("sample name = %q, want %q", sample.Name, "@acme/example-rules")
+	if sample.Name != "example-rules" {
+		t.Errorf("sample name = %q, want %q", sample.Name, "example-rules")
 	}
 
 	if sample.Version != "0.1.0" {

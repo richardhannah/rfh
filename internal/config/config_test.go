@@ -59,6 +59,7 @@ func TestLoadConfig(t *testing.T) {
 	// Save original env vars
 	originalDBURL := os.Getenv("DATABASE_URL")
 	originalTokenSalt := os.Getenv("TOKEN_SALT")
+	originalJWTSecret := os.Getenv("JWT_SECRET")
 	originalStoragePath := os.Getenv("STORAGE_PATH")
 	originalPort := os.Getenv("PORT")
 
@@ -66,6 +67,7 @@ func TestLoadConfig(t *testing.T) {
 	defer func() {
 		setOrUnset("DATABASE_URL", originalDBURL)
 		setOrUnset("TOKEN_SALT", originalTokenSalt)
+		setOrUnset("JWT_SECRET", originalJWTSecret)
 		setOrUnset("STORAGE_PATH", originalStoragePath)
 		setOrUnset("PORT", originalPort)
 	}()
@@ -73,6 +75,7 @@ func TestLoadConfig(t *testing.T) {
 	t.Run("loads config with all env vars set", func(t *testing.T) {
 		os.Setenv("DATABASE_URL", "postgres://test")
 		os.Setenv("TOKEN_SALT", "test_salt")
+		os.Setenv("JWT_SECRET", "test_jwt_secret")
 		os.Setenv("STORAGE_PATH", "/tmp/storage")
 		os.Setenv("PORT", "9000")
 
@@ -83,6 +86,9 @@ func TestLoadConfig(t *testing.T) {
 		}
 		if cfg.TokenSalt != "test_salt" {
 			t.Errorf("TokenSalt = %q, want %q", cfg.TokenSalt, "test_salt")
+		}
+		if cfg.JWTSecret != "test_jwt_secret" {
+			t.Errorf("JWTSecret = %q, want %q", cfg.JWTSecret, "test_jwt_secret")
 		}
 		if cfg.StoragePath != "/tmp/storage" {
 			t.Errorf("StoragePath = %q, want %q", cfg.StoragePath, "/tmp/storage")
@@ -95,6 +101,7 @@ func TestLoadConfig(t *testing.T) {
 	t.Run("uses defaults for optional vars", func(t *testing.T) {
 		os.Setenv("DATABASE_URL", "postgres://test")
 		os.Setenv("TOKEN_SALT", "test_salt")
+		os.Setenv("JWT_SECRET", "test_jwt_secret")
 		os.Unsetenv("STORAGE_PATH")
 		os.Unsetenv("PORT")
 
