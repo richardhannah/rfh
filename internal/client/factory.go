@@ -51,8 +51,6 @@ func GetClientForRegistry(cfg config.CLIConfig, registryName string, verbose boo
 
 
 // NewGitRegistryClient creates a new Git-based registry client
-// This will be implemented in Phase 5: Git Client Implementation
 func NewGitRegistryClient(repoURL, gitToken string, verbose bool) (RegistryClient, error) {
-	// This is a placeholder - will be implemented in Phase 5
-	return nil, fmt.Errorf("Git registry client not yet implemented - will be added in Phase 5")
+	return NewGitClient(repoURL, gitToken, verbose)
 }
