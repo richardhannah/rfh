@@ -2,6 +2,7 @@ package cli
 
 import (
 	"bufio"
+	"context"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -93,31 +94,32 @@ func runAdd(packageSpec string) error {
 		return fmt.Errorf("no registry configured. Use 'rfh registry add' to add a registry")
 	}
 
-	reg, exists := cfg.Registries[registryName]
-	if !exists {
+	if _, exists := cfg.Registries[registryName]; !exists {
 		return fmt.Errorf("registry '%s' not found. Use 'rfh registry list' to see available registries", registryName)
 	}
 
-	// Use default token (no overrides)
-	authToken := getDefaultToken(reg)
-
-	// Create client
-	c := client.NewClient(reg.URL, authToken)
-	c.SetVerbose(verbose)
+	// Create client using new factory
+	c, err := client.GetClient(cfg, verbose)
+	if err != nil {
+		return err
+	}
 
 	// Get package version info
 	if verbose {
 		fmt.Printf("🔍 Looking up package version...\n")
 	}
 
-	versionInfo, err := c.GetPackageVersion(pkgRef.Name, pkgRef.Version)
+	ctx, cancel := client.WithTimeout(context.Background())
+	defer cancel()
+
+	versionInfo, err := c.GetPackageVersion(ctx, pkgRef.Name, pkgRef.Version)
 	if err != nil {
 		return fmt.Errorf("failed to get package version: %w", err)
 	}
 
 	// Extract SHA256 from version info
-	sha256, ok := versionInfo["sha256"].(string)
-	if !ok {
+	sha256 := versionInfo.SHA256
+	if sha256 == "" {
 		return fmt.Errorf("package version missing sha256 hash")
 	}
 
@@ -133,7 +135,7 @@ func runAdd(packageSpec string) error {
 		fmt.Printf("📥 Downloading package...\n")
 	}
 
-	if err := c.DownloadBlob(sha256, tempFile); err != nil {
+	if err := c.DownloadBlob(ctx, sha256, tempFile); err != nil {
 		return fmt.Errorf("failed to download package: %w", err)
 	}
 	defer os.Remove(tempFile) // Clean up temp file

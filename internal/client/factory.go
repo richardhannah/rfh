@@ -11,13 +11,8 @@ func NewRegistryClient(registry config.Registry, verbose bool) (RegistryClient, 
 
 	switch registryType {
 	case config.RegistryTypeHTTP:
-		// Create HTTP client using existing Client struct
-		httpClient := NewClient(registry.URL, registry.JWTToken)
-		httpClient.SetVerbose(verbose)
-
-		// Wrap existing HTTP client to implement RegistryClient interface
-		// This will be implemented in Phase 3
-		return NewHTTPRegistryClient(httpClient), nil
+		// Create new HTTP client that implements RegistryClient interface
+		return NewHTTPClient(registry.URL, registry.JWTToken, verbose), nil
 
 	case config.RegistryTypeGit:
 		// Git client will be implemented in later phases
@@ -54,12 +49,6 @@ func GetClientForRegistry(cfg config.CLIConfig, registryName string, verbose boo
 
 // Placeholder functions for clients that will be implemented in later phases
 
-// NewHTTPRegistryClient wraps the existing HTTP client to implement RegistryClient interface
-// This will be implemented in Phase 3: HTTP Client Refactoring
-func NewHTTPRegistryClient(httpClient *Client) RegistryClient {
-	// This is a placeholder - will be implemented in Phase 3
-	panic("NewHTTPRegistryClient not yet implemented - will be added in Phase 3")
-}
 
 // NewGitRegistryClient creates a new Git-based registry client
 // This will be implemented in Phase 5: Git Client Implementation

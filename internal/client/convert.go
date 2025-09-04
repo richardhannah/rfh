@@ -100,3 +100,14 @@ func MapToPackageVersion(m map[string]interface{}) *PackageVersion {
 
 	return pv
 }
+
+// PublishResultToMap converts PublishResult to map for backward compatibility
+func PublishResultToMap(pr *PublishResult) map[string]interface{} {
+	return map[string]interface{}{
+		"name":    pr.Name,
+		"version": pr.Version,
+		"sha256":  pr.SHA256,
+		"url":     pr.URL,
+		"message": pr.Message,
+	}
+}
