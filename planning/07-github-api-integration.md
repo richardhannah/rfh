@@ -1,20 +1,21 @@
 # Phase 7: GitHub API Integration
 
 ## Overview
-Integrate GitHub API to automate pull request creation, fork management, and user authentication. This phase completes the Git registry publishing workflow by automating the final PR creation step.
+Integrate GitHub API using established libraries to automate pull request creation, fork management, and user authentication. This phase completes the Git registry publishing workflow with robust API integration.
 
 ## Scope
-- Implement GitHub API client
-- Add automatic fork creation
-- Implement PR creation
-- Get authenticated user information
-- Handle API rate limiting
-- Add PR status checking
+- Implement GitHub API client using google/go-github library
+- Add automatic fork creation and management
+- Implement comprehensive PR creation with proper formatting
+- Get authenticated user information reliably
+- Handle API rate limiting and errors gracefully  
+- Add PR status checking capabilities
+- Maintain consistency with existing error handling patterns
 
 ## Prerequisites
 - Phase 6: Git Registry Publishing completed
 - GitHub personal access token with appropriate permissions
-- Understanding of GitHub API v3
+- google/go-github library dependency
 
 ## Required GitHub Token Permissions
 - `repo` - Full control of private repositories (if using private registries)
@@ -23,7 +24,14 @@ Integrate GitHub API to automate pull request creation, fork management, and use
 
 ## Implementation Steps
 
-### 1. Create GitHub API Client
+### 1. Add GitHub Library Dependency
+
+```bash
+go get github.com/google/go-github/v56/github
+go get golang.org/x/oauth2
+```
+
+### 2. Create GitHub API Client
 
 **File**: `internal/client/github_api.go` (new file)
 
@@ -31,174 +39,92 @@ Integrate GitHub API to automate pull request creation, fork management, and use
 package client
 
 import (
-    "bytes"
     "context"
-    "encoding/json"
     "fmt"
-    "io/ioutil"
-    "net/http"
     "time"
+    
+    "github.com/google/go-github/v56/github"
+    "golang.org/x/oauth2"
 )
 
 // GitHubClient handles GitHub API operations
 type GitHubClient struct {
-    token      string
-    httpClient *http.Client
-    baseURL    string
-    verbose    bool
+    client  *github.Client
+    verbose bool
 }
 
 // NewGitHubClient creates a new GitHub API client
 func NewGitHubClient(token string, verbose bool) *GitHubClient {
+    ctx := context.Background()
+    ts := oauth2.StaticTokenSource(
+        &oauth2.Token{AccessToken: token},
+    )
+    tc := oauth2.NewClient(ctx, ts)
+    
+    client := github.NewClient(tc)
+    
     return &GitHubClient{
-        token:   token,
-        baseURL: "https://api.github.com",
-        httpClient: &http.Client{
-            Timeout: 30 * time.Second,
-        },
+        client:  client,
         verbose: verbose,
     }
 }
 
-// makeRequest makes an authenticated request to GitHub API
-func (g *GitHubClient) makeRequest(ctx context.Context, method, path string, body interface{}) (*http.Response, error) {
-    url := g.baseURL + path
-    
-    var bodyReader io.Reader
-    if body != nil {
-        jsonBody, err := json.Marshal(body)
-        if err != nil {
-            return nil, fmt.Errorf("failed to marshal body: %w", err)
-        }
-        bodyReader = bytes.NewReader(jsonBody)
-    }
-    
-    req, err := http.NewRequestWithContext(ctx, method, url, bodyReader)
-    if err != nil {
-        return nil, err
-    }
-    
-    // Set headers
-    req.Header.Set("Accept", "application/vnd.github.v3+json")
-    req.Header.Set("Authorization", "Bearer "+g.token)
-    if body != nil {
-        req.Header.Set("Content-Type", "application/json")
-    }
-    
-    if g.verbose {
-        fmt.Printf("🌐 GitHub API: %s %s\n", method, path)
-    }
-    
-    resp, err := g.httpClient.Do(req)
-    if err != nil {
-        return nil, fmt.Errorf("request failed: %w", err)
-    }
-    
-    // Check rate limiting
-    if resp.StatusCode == 403 {
-        if remaining := resp.Header.Get("X-RateLimit-Remaining"); remaining == "0" {
-            reset := resp.Header.Get("X-RateLimit-Reset")
-            return nil, fmt.Errorf("GitHub API rate limit exceeded. Resets at %s", reset)
-        }
-    }
-    
-    return resp, nil
-}
 ```
 
-### 2. Implement User Information Retrieval
+### 3. Implement User Information Retrieval
 
 **File**: `internal/client/github_api.go`
 
 ```go
-// GitHubUser represents a GitHub user
-type GitHubUser struct {
-    Login string `json:"login"`
-    Name  string `json:"name"`
-    Email string `json:"email"`
-}
-
 // GetAuthenticatedUser gets information about the authenticated user
-func (g *GitHubClient) GetAuthenticatedUser(ctx context.Context) (*GitHubUser, error) {
-    resp, err := g.makeRequest(ctx, "GET", "/user", nil)
+func (g *GitHubClient) GetAuthenticatedUser(ctx context.Context) (*github.User, error) {
+    if g.verbose {
+        fmt.Printf("🔍 Getting authenticated user info\n")
+    }
+    
+    user, _, err := g.client.Users.Get(ctx, "")
     if err != nil {
-        return nil, err
-    }
-    defer resp.Body.Close()
-    
-    if resp.StatusCode != http.StatusOK {
-        body, _ := ioutil.ReadAll(resp.Body)
-        return nil, fmt.Errorf("failed to get user info (status %d): %s", 
-            resp.StatusCode, string(body))
-    }
-    
-    var user GitHubUser
-    if err := json.NewDecoder(resp.Body).Decode(&user); err != nil {
-        return nil, fmt.Errorf("failed to decode response: %w", err)
+        return nil, NewRegistryError(ErrUnauthorized, fmt.Sprintf("failed to get user info: %v", err))
     }
     
     if g.verbose {
-        fmt.Printf("✅ Authenticated as: %s\n", user.Login)
+        fmt.Printf("✅ Authenticated as: %s\n", user.GetLogin())
     }
     
-    return &user, nil
+    return user, nil
 }
 ```
 
-### 3. Implement Fork Management
+### 4. Implement Fork Management
 
 **File**: `internal/client/github_api.go`
 
 ```go
-// GitHubRepo represents a GitHub repository
-type GitHubRepo struct {
-    Name          string    `json:"name"`
-    FullName      string    `json:"full_name"`
-    Owner         GitHubUser `json:"owner"`
-    Fork          bool      `json:"fork"`
-    Parent        *GitHubRepo `json:"parent,omitempty"`
-    HTMLURL       string    `json:"html_url"`
-    CloneURL      string    `json:"clone_url"`
-    DefaultBranch string    `json:"default_branch"`
-}
 
 // CreateFork creates a fork of the specified repository
-func (g *GitHubClient) CreateFork(ctx context.Context, owner, repo string) (*GitHubRepo, error) {
-    path := fmt.Sprintf("/repos/%s/%s/forks", owner, repo)
-    
+func (g *GitHubClient) CreateFork(ctx context.Context, owner, repo string) (*github.Repository, error) {
     if g.verbose {
         fmt.Printf("🍴 Creating fork of %s/%s\n", owner, repo)
     }
     
-    resp, err := g.makeRequest(ctx, "POST", path, nil)
+    // Create fork with empty options (uses defaults)
+    fork, _, err := g.client.Repositories.CreateFork(ctx, owner, repo, nil)
     if err != nil {
-        return nil, err
-    }
-    defer resp.Body.Close()
-    
-    if resp.StatusCode != http.StatusAccepted && resp.StatusCode != http.StatusOK {
-        body, _ := ioutil.ReadAll(resp.Body)
-        return nil, fmt.Errorf("failed to create fork (status %d): %s", 
-            resp.StatusCode, string(body))
-    }
-    
-    var fork GitHubRepo
-    if err := json.NewDecoder(resp.Body).Decode(&fork); err != nil {
-        return nil, fmt.Errorf("failed to decode response: %w", err)
+        return nil, NewRegistryError(ErrUnauthorized, fmt.Sprintf("failed to create fork: %v", err))
     }
     
     if g.verbose {
-        fmt.Printf("✅ Fork created: %s\n", fork.FullName)
+        fmt.Printf("✅ Fork created: %s\n", fork.GetFullName())
     }
     
-    // Wait for fork to be ready
+    // Wait for fork to be ready (GitHub needs time to set up the repo)
     time.Sleep(5 * time.Second)
     
-    return &fork, nil
+    return fork, nil
 }
 
 // GetFork checks if a fork exists for the authenticated user
-func (g *GitHubClient) GetFork(ctx context.Context, owner, repo string) (*GitHubRepo, error) {
+func (g *GitHubClient) GetFork(ctx context.Context, owner, repo string) (*github.Repository, error) {
     // Get authenticated user
     user, err := g.GetAuthenticatedUser(ctx)
     if err != nil {
@@ -206,40 +132,26 @@ func (g *GitHubClient) GetFork(ctx context.Context, owner, repo string) (*GitHub
     }
     
     // Check if fork exists
-    path := fmt.Sprintf("/repos/%s/%s", user.Login, repo)
-    
-    resp, err := g.makeRequest(ctx, "GET", path, nil)
+    fork, _, err := g.client.Repositories.Get(ctx, user.GetLogin(), repo)
     if err != nil {
-        return nil, err
-    }
-    defer resp.Body.Close()
-    
-    if resp.StatusCode == http.StatusNotFound {
-        return nil, nil // Fork doesn't exist
-    }
-    
-    if resp.StatusCode != http.StatusOK {
-        body, _ := ioutil.ReadAll(resp.Body)
-        return nil, fmt.Errorf("failed to get fork (status %d): %s", 
-            resp.StatusCode, string(body))
-    }
-    
-    var fork GitHubRepo
-    if err := json.NewDecoder(resp.Body).Decode(&fork); err != nil {
-        return nil, fmt.Errorf("failed to decode response: %w", err)
+        // Check if it's a 404 (fork doesn't exist)
+        if _, ok := err.(*github.ErrorResponse); ok {
+            return nil, nil // Fork doesn't exist
+        }
+        return nil, NewRegistryError(ErrConnectionFailed, fmt.Sprintf("failed to check for fork: %v", err))
     }
     
     // Verify it's actually a fork of the target repo
-    if !fork.Fork || fork.Parent == nil || 
-       fork.Parent.FullName != fmt.Sprintf("%s/%s", owner, repo) {
+    if !fork.GetFork() || fork.GetParent() == nil ||
+       fork.GetParent().GetFullName() != fmt.Sprintf("%s/%s", owner, repo) {
         return nil, nil // Not a fork of the target
     }
     
-    return &fork, nil
+    return fork, nil
 }
 
 // EnsureFork ensures a fork exists, creating one if necessary
-func (g *GitHubClient) EnsureFork(ctx context.Context, owner, repo string) (*GitHubRepo, error) {
+func (g *GitHubClient) EnsureFork(ctx context.Context, owner, repo string) (*github.Repository, error) {
     // Check if fork already exists
     fork, err := g.GetFork(ctx, owner, repo)
     if err != nil {
@@ -248,7 +160,7 @@ func (g *GitHubClient) EnsureFork(ctx context.Context, owner, repo string) (*Git
     
     if fork != nil {
         if g.verbose {
-            fmt.Printf("✅ Fork already exists: %s\n", fork.FullName)
+            fmt.Printf("✅ Fork already exists: %s\n", fork.GetFullName())
         }
         return fork, nil
     }
@@ -258,88 +170,58 @@ func (g *GitHubClient) EnsureFork(ctx context.Context, owner, repo string) (*Git
 }
 ```
 
-### 4. Implement Pull Request Creation
+### 5. Implement Pull Request Creation
 
 **File**: `internal/client/github_api.go`
 
 ```go
-// PullRequestRequest represents a PR creation request
-type PullRequestRequest struct {
-    Title               string `json:"title"`
-    Head                string `json:"head"`
-    Base                string `json:"base"`
-    Body                string `json:"body"`
-    MaintainerCanModify bool   `json:"maintainer_can_modify"`
-    Draft               bool   `json:"draft"`
-}
-
-// PullRequest represents a GitHub pull request
-type PullRequest struct {
-    Number    int        `json:"number"`
-    State     string     `json:"state"`
-    Title     string     `json:"title"`
-    Body      string     `json:"body"`
-    HTMLURL   string     `json:"html_url"`
-    User      GitHubUser `json:"user"`
-    CreatedAt time.Time  `json:"created_at"`
-    UpdatedAt time.Time  `json:"updated_at"`
-}
 
 // CreatePullRequest creates a new pull request
-func (g *GitHubClient) CreatePullRequest(ctx context.Context, owner, repo string, pr *PullRequestRequest) (*PullRequest, error) {
-    path := fmt.Sprintf("/repos/%s/%s/pulls", owner, repo)
-    
+func (g *GitHubClient) CreatePullRequest(ctx context.Context, owner, repo, title, head, base, body string) (*github.PullRequest, error) {
     if g.verbose {
-        fmt.Printf("📝 Creating pull request: %s\n", pr.Title)
-        fmt.Printf("   Base: %s <- Head: %s\n", pr.Base, pr.Head)
+        fmt.Printf("📝 Creating pull request: %s\n", title)
+        fmt.Printf("   Base: %s <- Head: %s\n", base, head)
     }
     
-    resp, err := g.makeRequest(ctx, "POST", path, pr)
+    newPR := &github.NewPullRequest{
+        Title:               github.String(title),
+        Head:                github.String(head),
+        Base:                github.String(base),
+        Body:                github.String(body),
+        MaintainerCanModify: github.Bool(true),
+        Draft:               github.Bool(false),
+    }
+    
+    pr, _, err := g.client.PullRequests.Create(ctx, owner, repo, newPR)
     if err != nil {
-        return nil, err
-    }
-    defer resp.Body.Close()
-    
-    if resp.StatusCode != http.StatusCreated {
-        body, _ := ioutil.ReadAll(resp.Body)
-        return nil, fmt.Errorf("failed to create PR (status %d): %s", 
-            resp.StatusCode, string(body))
-    }
-    
-    var pullRequest PullRequest
-    if err := json.NewDecoder(resp.Body).Decode(&pullRequest); err != nil {
-        return nil, fmt.Errorf("failed to decode response: %w", err)
+        return nil, NewRegistryError(ErrInvalidOperation, fmt.Sprintf("failed to create PR: %v", err))
     }
     
     if g.verbose {
-        fmt.Printf("✅ Pull request created: %s\n", pullRequest.HTMLURL)
+        fmt.Printf("✅ Pull request created: %s\n", pr.GetHTMLURL())
     }
     
-    return &pullRequest, nil
+    return pr, nil
 }
 
 // GetPullRequest gets information about a pull request
-func (g *GitHubClient) GetPullRequest(ctx context.Context, owner, repo string, number int) (*PullRequest, error) {
-    path := fmt.Sprintf("/repos/%s/%s/pulls/%d", owner, repo, number)
-    
-    resp, err := g.makeRequest(ctx, "GET", path, nil)
+func (g *GitHubClient) GetPullRequest(ctx context.Context, owner, repo string, number int) (*github.PullRequest, error) {
+    pr, _, err := g.client.PullRequests.Get(ctx, owner, repo, number)
     if err != nil {
-        return nil, err
-    }
-    defer resp.Body.Close()
-    
-    if resp.StatusCode != http.StatusOK {
-        body, _ := ioutil.ReadAll(resp.Body)
-        return nil, fmt.Errorf("failed to get PR (status %d): %s", 
-            resp.StatusCode, string(body))
+        return nil, NewRegistryError(ErrNotFound, fmt.Sprintf("failed to get PR #%d: %v", number, err))
     }
     
-    var pullRequest PullRequest
-    if err := json.NewDecoder(resp.Body).Decode(&pullRequest); err != nil {
-        return nil, fmt.Errorf("failed to decode response: %w", err)
+    return pr, nil
+}
+
+// GetRateLimit gets current rate limit status
+func (g *GitHubClient) GetRateLimit(ctx context.Context) (*github.RateLimits, error) {
+    rateLimit, _, err := g.client.RateLimits.Get(ctx)
+    if err != nil {
+        return nil, fmt.Errorf("failed to get rate limit: %v", err)
     }
     
-    return &pullRequest, nil
+    return rateLimit, nil
 }
 ```
 

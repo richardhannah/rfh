@@ -1,30 +1,40 @@
 # Phase 4: Git Client Basic Operations
 
 ## Overview
-Implement the foundational Git client that can clone, pull, and navigate Git-based package registries. This phase focuses on repository management and basic Git operations.
+Implement the foundational Git client that can clone, pull, and navigate Git-based package registries. This phase focuses on repository management and basic Git operations while maintaining consistency with the existing HTTP client architecture.
 
 ## Scope
 - Create GitClient struct implementing RegistryClient interface
-- Implement repository cloning and caching
+- Implement repository cloning and caching with optimized structure
 - Add authentication support for private repositories
-- Implement basic health check
+- Implement basic health check with standardized error handling
 - Set up repository structure navigation
+- Ensure interface compatibility with existing client architecture
 
 ## Prerequisites
-- Phase 1: Registry Type Core Architecture completed
+- Phase 1: Registry Type Core Architecture completed  
 - Phase 2: Registry Client Interface completed
-- go-git package added to go.mod
+- Phase 3: HTTP Client Refactoring completed (for interface consistency)
+- Check and add go-git dependency if needed
 
 ## Implementation Steps
 
-### 1. Add go-git Dependency
+### 1. Verify and Add Dependencies
 
-**File**: `go.mod`
+**Check existing dependencies first:**
+
+```bash
+go list -m all | grep git
+```
+
+**Add go-git dependency if needed:**
 
 ```bash
 go get github.com/go-git/go-git/v5
 go get github.com/go-git/go-git/v5/plumbing/transport/http
 ```
+
+**Verify compatibility with existing modules.**
 
 ### 2. Create Git Client Structure
 
@@ -100,20 +110,21 @@ func (c *GitClient) Type() config.RegistryType {
 ```go
 // getGitCacheDir returns the cache directory for a Git repository
 func getGitCacheDir(repoURL string) (string, error) {
-    // Get base cache directory
+    // Get base cache directory (align with existing patterns)
     homeDir, err := os.UserHomeDir()
     if err != nil {
         return "", err
     }
     
-    // Create a hash of the repo URL for the cache directory name
+    // Create a simpler hash of the repo URL
     h := sha256.Sum256([]byte(repoURL))
     dirName := hex.EncodeToString(h[:8])
     
     // Extract repo name for readability
-    parts := strings.Split(repoURL, "/")
-    repoName := strings.TrimSuffix(parts[len(parts)-1], ".git")
+    parts := strings.Split(strings.TrimSuffix(repoURL, ".git"), "/")
+    repoName := parts[len(parts)-1]
     
+    // Use consistent cache structure
     cacheDir := filepath.Join(homeDir, ".rfh", "cache", "git", fmt.Sprintf("%s-%s", repoName, dirName))
     return cacheDir, nil
 }
@@ -188,7 +199,7 @@ func (c *GitClient) cloneRepo(ctx context.Context) error {
             return NewRegistryError(ErrUnauthorized, 
                 "authentication required - provide a Git token for private repositories")
         }
-        return fmt.Errorf("failed to clone repository: %w", err)
+        return NewRegistryError(ErrConnectionFailed, fmt.Sprintf("failed to clone repository: %v", err))
     }
     
     c.repo = repo
@@ -266,13 +277,17 @@ func (c *GitClient) getAuth() transport.AuthMethod {
         return nil
     }
     
-    // GitHub uses "token" or username with token as password
-    // GitLab uses "oauth2" with token as password
+    // Support multiple Git hosting providers
     username := "token"
     
-    // Detect GitLab
-    if strings.Contains(c.repoURL, "gitlab.com") {
+    // Detect provider and use appropriate auth
+    switch {
+    case strings.Contains(c.repoURL, "gitlab.com"):
         username = "oauth2"
+    case strings.Contains(c.repoURL, "bitbucket.org"):
+        username = "x-token-auth"
+    default: // GitHub and others
+        username = "token"
     }
     
     return &http.BasicAuth{
@@ -291,17 +306,29 @@ func (c *GitClient) getAuth() transport.AuthMethod {
 func (c *GitClient) Health(ctx context.Context) error {
     // Try to ensure repository is accessible
     if err := c.ensureRepo(ctx); err != nil {
-        return fmt.Errorf("registry health check failed: %w", err)
+        return NewRegistryError(ErrConnectionFailed, fmt.Sprintf("registry health check failed: %v", err))
     }
     
-    // Verify expected structure exists
+    // Verify expected structure exists (packages directory or index.json)
     packagesDir := filepath.Join(c.cacheDir, "packages")
-    if _, err := os.Stat(packagesDir); os.IsNotExist(err) {
-        return fmt.Errorf("invalid registry structure: packages directory not found")
+    indexPath := filepath.Join(c.cacheDir, "index.json")
+    
+    hasPackages := false
+    hasIndex := false
+    
+    if _, err := os.Stat(packagesDir); err == nil {
+        hasPackages = true
+    }
+    if _, err := os.Stat(indexPath); err == nil {
+        hasIndex = true
+    }
+    
+    if !hasPackages && !hasIndex {
+        return NewRegistryError(ErrInvalidRegistry, "invalid registry structure: neither packages directory nor index.json found")
     }
     
     if c.verbose {
-        fmt.Printf("✅ Git registry is healthy\n")
+        fmt.Printf("✅ Git registry is healthy (packages: %v, index: %v)\n", hasPackages, hasIndex)
     }
     
     return nil
@@ -367,31 +394,54 @@ func (c *GitClient) SetVerbose(verbose bool) {
 }
 ```
 
-### 10. Add Placeholder Methods
+### 10. Add Interface Compliance Methods
 
 **File**: `internal/client/git.go`
 
 ```go
-// Placeholder implementations - to be completed in next phases
+// Interface implementations - completed in subsequent phases
 
 func (c *GitClient) SearchPackages(ctx context.Context, opts SearchOptions) ([]Package, error) {
-    return nil, fmt.Errorf("not implemented yet - see Phase 5")
+    return nil, NewRegistryError(ErrNotImplemented, "Git registry search not yet implemented - see Phase 5")
 }
 
 func (c *GitClient) GetPackage(ctx context.Context, name string) (*Package, error) {
-    return nil, fmt.Errorf("not implemented yet - see Phase 5")
+    return nil, NewRegistryError(ErrNotImplemented, "Git registry package retrieval not yet implemented - see Phase 5")
 }
 
 func (c *GitClient) GetPackageVersion(ctx context.Context, name, version string) (*PackageVersion, error) {
-    return nil, fmt.Errorf("not implemented yet - see Phase 5")
+    return nil, NewRegistryError(ErrNotImplemented, "Git registry version retrieval not yet implemented - see Phase 5")
 }
 
 func (c *GitClient) PublishPackage(ctx context.Context, manifestPath, archivePath string) (*PublishResult, error) {
-    return nil, fmt.Errorf("not implemented yet - see Phase 6")
+    return nil, NewRegistryError(ErrNotImplemented, "Git registry publishing not yet implemented - see Phase 6")
 }
 
-func (c *GitClient) DownloadBlob(ctx context.Context, sha256, destPath string) error {
-    return fmt.Errorf("not implemented yet - see Phase 5")
+func (c *GitClient) DownloadBlob(ctx context.Context, sha256Hash, destPath string) error {
+    return NewRegistryError(ErrNotImplemented, "Git registry blob download not yet implemented - see Phase 5")
+}
+```
+
+### 11. Update Factory to Support Git Client
+
+**File**: `internal/client/factory.go`
+
+```go
+// Update GetClient function to include Git support
+func GetClient(cfg *config.Config, verbose bool) (RegistryClient, error) {
+    registry := cfg.GetCurrentRegistry()
+    if registry == nil {
+        return nil, fmt.Errorf("no active registry configured")
+    }
+
+    switch registry.Type {
+    case config.RegistryTypeHTTP:
+        return NewHTTPClient(registry.URL, registry.JWTToken, verbose), nil
+    case config.RegistryTypeGit:
+        return NewGitClient(registry.URL, registry.GitToken, verbose)
+    default:
+        return nil, fmt.Errorf("unsupported registry type: %s", registry.Type)
+    }
 }
 ```
 
