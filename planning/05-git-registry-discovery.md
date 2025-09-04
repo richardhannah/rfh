@@ -1,18 +1,20 @@
 # Phase 5: Git Registry Search and Discovery
 
 ## Overview
-Implement package discovery operations for Git-based registries, including search, package information retrieval, and archive downloading. This phase focuses on reading and parsing the registry structure.
+Implement package discovery operations for Git-based registries, including search, package information retrieval, and archive downloading. This phase focuses on reading and parsing the registry structure with consistent error handling and caching strategies.
 
 ## Scope
-- Implement registry index parsing
-- Add package search functionality
-- Implement package and version information retrieval
-- Add archive download capability
-- Create registry structure validation
+- Implement optimized registry index parsing with fallback
+- Add efficient package search functionality
+- Implement package and version information retrieval with proper error types
+- Add robust archive download capability with verification
+- Create comprehensive registry structure validation
+- Ensure consistency with HTTP client patterns
 
 ## Prerequisites
 - Phase 4: Git Client Basic Operations completed
-- Git repository structure defined
+- Understanding of registry structure patterns
+- Error handling types established
 
 ## Expected Repository Structure
 
@@ -116,22 +118,26 @@ func (c *GitClient) loadIndex(ctx context.Context) (*GitRegistryIndex, error) {
     
     // Check if index exists
     if _, err := os.Stat(indexPath); os.IsNotExist(err) {
-        // Create empty index if it doesn't exist
-        return &GitRegistryIndex{
-            Version:  "1.0",
-            Packages: make(map[string]GitPackageEntry),
-        }, nil
+        if c.verbose {
+            fmt.Printf("⚠️  Index not found, attempting to rebuild from packages directory\n")
+        }
+        // Try to rebuild index from packages directory
+        return c.rebuildIndex()
     }
     
     // Read index file
     data, err := ioutil.ReadFile(indexPath)
     if err != nil {
-        return nil, fmt.Errorf("failed to read index: %w", err)
+        return nil, NewRegistryError(ErrInvalidRegistry, fmt.Sprintf("failed to read index: %v", err))
     }
     
     var index GitRegistryIndex
     if err := json.Unmarshal(data, &index); err != nil {
-        return nil, fmt.Errorf("failed to parse index: %w", err)
+        if c.verbose {
+            fmt.Printf("⚠️  Index corrupted, rebuilding from packages directory\n")
+        }
+        // If index is corrupted, try to rebuild
+        return c.rebuildIndex()
     }
     
     return &index, nil
@@ -521,16 +527,25 @@ func (c *GitClient) validateRegistryStructure() error {
 func (c *GitClient) rebuildIndex() (*GitRegistryIndex, error) {
     packagesDir := filepath.Join(c.cacheDir, "packages")
     
+    // Check if packages directory exists
+    if _, err := os.Stat(packagesDir); os.IsNotExist(err) {
+        return nil, NewRegistryError(ErrInvalidRegistry, "packages directory not found - not a valid registry")
+    }
+    
     index := &GitRegistryIndex{
         Version:   "1.0",
         UpdatedAt: time.Now(),
         Packages:  make(map[string]GitPackageEntry),
     }
     
+    if c.verbose {
+        fmt.Printf("🔄 Rebuilding index from packages directory\n")
+    }
+    
     // Walk through packages directory
     entries, err := ioutil.ReadDir(packagesDir)
     if err != nil {
-        return nil, fmt.Errorf("failed to read packages directory: %w", err)
+        return nil, NewRegistryError(ErrInvalidRegistry, fmt.Sprintf("failed to read packages directory: %v", err))
     }
     
     for _, entry := range entries {

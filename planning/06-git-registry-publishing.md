@@ -1,20 +1,22 @@
 # Phase 6: Git Registry Publishing
 
 ## Overview
-Implement package publishing for Git-based registries. This phase covers creating branches, committing package files, and preparing for pull request creation. Publishing to Git registries follows a fork-and-PR workflow.
+Implement package publishing for Git-based registries with simplified fork management and robust error handling. This phase covers branch creation, file management, and committing changes while maintaining consistency with existing patterns.
 
 ## Scope
-- Implement repository forking detection
-- Create branch for package publication
-- Add package files to repository
-- Commit changes with descriptive messages
-- Push branch to fork
-- Prepare for PR creation (Phase 7)
+- Implement simplified repository fork management
+- Create branch for package publication with proper naming
+- Add package files to repository structure
+- Commit changes with consistent messaging
+- Push branch to fork with proper authentication
+- Prepare structured information for PR creation
+- Use standardized error types throughout
 
 ## Prerequisites
 - Phase 4: Git Client Basic Operations completed
 - Phase 5: Git Registry Search and Discovery completed
-- Understanding of Git workflow
+- Understanding of Git workflow and GitHub patterns
+- Consistent error handling established
 
 ## Publishing Workflow
 
@@ -85,14 +87,24 @@ func (c *GitClient) detectFork(repoURL string) (*ForkInfo, error) {
     }, nil
 }
 
-// getUsername extracts username from git config or environment
+// getUsername extracts username from environment or git config
 func (c *GitClient) getUsername() string {
-    // Could be set via environment variable
+    // Check environment variables first
     if username := os.Getenv("GITHUB_USERNAME"); username != "" {
         return username
     }
+    if username := os.Getenv("GIT_USER"); username != "" {
+        return username
+    }
     
-    // Or extracted from git token (requires parsing)
+    // Try to read from git config (fallback)
+    cmd := exec.Command("git", "config", "--get", "user.name")
+    if output, err := cmd.Output(); err == nil {
+        if username := strings.TrimSpace(string(output)); username != "" {
+            return username
+        }
+    }
+    
     // This will be improved in Phase 7 with GitHub API
     return ""
 }
@@ -230,7 +242,7 @@ func (c *GitClient) createPublishBranch(repo *git.Repository, packageName, versi
     })
     
     if err != nil && !strings.Contains(err.Error(), "already exists") {
-        return "", fmt.Errorf("failed to create branch: %w", err)
+        return "", NewRegistryError(ErrInvalidOperation, fmt.Sprintf("failed to create branch: %v", err))
     }
     
     // Checkout the new branch
