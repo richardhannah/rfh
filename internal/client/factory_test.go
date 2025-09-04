@@ -57,18 +57,21 @@ func TestGetClientForRegistry(t *testing.T) {
 }
 
 func TestNewRegistryClient(t *testing.T) {
-	t.Run("git registry returns not implemented", func(t *testing.T) {
+	t.Run("git registry creates client successfully", func(t *testing.T) {
 		registry := config.Registry{
 			URL:  "https://github.com/org/repo",
 			Type: config.RegistryTypeGit,
 		}
 
-		_, err := NewRegistryClient(registry, false)
-		if err == nil {
-			t.Error("expected error for git registry (not yet implemented)")
+		client, err := NewRegistryClient(registry, false)
+		if err != nil {
+			t.Errorf("expected no error for git registry, got: %v", err)
 		}
-		if err.Error() != "Git registry client not yet implemented - will be added in Phase 5" {
-			t.Errorf("unexpected error: %v", err)
+		if client == nil {
+			t.Error("expected non-nil git client")
+		}
+		if client.Type() != config.RegistryTypeGit {
+			t.Errorf("expected git client type, got: %v", client.Type())
 		}
 	})
 
