@@ -61,3 +61,27 @@ Feature: Registry Type Backward Compatibility
     And the config should contain registry "modern" with type "git"
     # Ensure JWT token is preserved
     And the config should contain "jwt_token = 'oldtoken'"
+
+  Scenario: Legacy client code continues to work with new HTTP client
+    Given I have a registry "legacy-http" configured at "http://localhost:8080"
+    # This registry has no type field, testing backward compatibility
+    And "legacy-http" is the active registry
+    When I run "rfh search package"
+    Then the command should succeed
+    And the output should match the expected legacy format
+    
+  Scenario: Map-based responses are converted correctly with legacy wrapper
+    Given I have a registry "legacy-maps" configured at "http://localhost:8080" with type "remote-http"
+    And "legacy-maps" is the active registry
+    And the registry returns structured package data
+    When I run "rfh search test --format json" (if format option exists)
+    Then the JSON output should be valid
+    And the JSON should contain package objects with legacy map structure
+    And all expected fields should be present (name, version, description, etc.)
+
+  Scenario: Legacy authentication flow works with refactored HTTP client
+    Given I have a registry "legacy-auth" configured at "http://localhost:8080"
+    And the registry has legacy JWT token configuration
+    When authentication operations are performed
+    Then they should work with the new HTTPClient implementation
+    And maintain full compatibility with existing token handling

@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -111,24 +112,23 @@ func publishSingleArchive(archivePath string) error {
 		return err
 	}
 
-	// Get effective token (flag, registry token, or JWT token)
-	authToken, err := getEffectiveToken(cfg, reg)
-	if err != nil {
-		return err
-	}
-
 	if verbose {
 		fmt.Printf("📦 Publishing %s v%s\n", packageManifest.Name, packageManifest.Version)
 		fmt.Printf("🌐 Registry: %s (%s)\n", registryName, reg.URL)
 		fmt.Printf("📄 Archive: %s\n", archivePath)
 	}
 
-	// Create client
-	c := client.NewClient(reg.URL, authToken)
-	c.SetVerbose(verbose)
+	// Create client using new factory
+	c, err := client.GetClient(cfg, verbose)
+	if err != nil {
+		return err
+	}
 
 	// Test registry connection
-	if err := c.Health(); err != nil {
+	ctx, cancel := client.WithTimeout(context.Background())
+	defer cancel()
+	
+	if err := c.Health(ctx); err != nil {
 		return fmt.Errorf("registry health check failed: %w", err)
 	}
 
@@ -142,18 +142,14 @@ func publishSingleArchive(archivePath string) error {
 
 	// Publish package
 	fmt.Printf("🚀 Publishing %s v%s to %s...\n", packageManifest.Name, packageManifest.Version, reg.URL)
-	result, err := c.PublishPackage(tempManifestPath, archivePath)
+	result, err := c.PublishPackage(ctx, tempManifestPath, archivePath)
 	if err != nil {
 		return fmt.Errorf("publish failed: %w", err)
 	}
 
 	// Show success message
-	if version, ok := result["version"].(string); ok {
-		fmt.Printf("📌 Version: %s\n", version)
-	}
-	if sha, ok := result["sha256"].(string); ok {
-		fmt.Printf("🔒 SHA256: %s\n", sha)
-	}
+	fmt.Printf("📌 Version: %s\n", result.Version)
+	fmt.Printf("🔒 SHA256: %s\n", result.SHA256)
 
 	if verbose {
 		fmt.Printf("📋 Response: %+v\n", result)

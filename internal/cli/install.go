@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -245,26 +246,28 @@ func installSinglePackage(projectRoot, packageName, packageVersion string) error
 		return fmt.Errorf("no registry configured. Use 'rfh registry add' to add a registry")
 	}
 
-	reg, exists := cfg.Registries[registryName]
-	if !exists {
+	if _, exists := cfg.Registries[registryName]; !exists {
 		return fmt.Errorf("registry '%s' not found. Use 'rfh registry list' to see available registries", registryName)
 	}
 
-	authToken := getDefaultToken(reg)
+	// Create client using new factory
+	c, err := client.GetClient(cfg, verbose)
+	if err != nil {
+		return err
+	}
 
-	// Create client
-	c := client.NewClient(reg.URL, authToken)
-	c.SetVerbose(verbose)
+	ctx, cancel := client.WithTimeout(context.Background())
+	defer cancel()
 
 	// Get package version info
-	versionInfo, err := c.GetPackageVersion(pkgRef.Name, pkgRef.Version)
+	versionInfo, err := c.GetPackageVersion(ctx, pkgRef.Name, pkgRef.Version)
 	if err != nil {
 		return fmt.Errorf("failed to get package version: %w", err)
 	}
 
 	// Extract SHA256 from version info
-	sha256, ok := versionInfo["sha256"].(string)
-	if !ok {
+	sha256 := versionInfo.SHA256
+	if sha256 == "" {
 		return fmt.Errorf("package version missing sha256 hash")
 	}
 
@@ -277,7 +280,7 @@ func installSinglePackage(projectRoot, packageName, packageVersion string) error
 	// Download package
 	tempFile := filepath.Join(os.TempDir(), fmt.Sprintf("%s-%s.tgz", pkgRef.Name, pkgRef.Version))
 
-	if err := c.DownloadBlob(sha256, tempFile); err != nil {
+	if err := c.DownloadBlob(ctx, sha256, tempFile); err != nil {
 		return fmt.Errorf("failed to download package: %w", err)
 	}
 	defer os.Remove(tempFile) // Clean up temp file

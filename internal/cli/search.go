@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"context"
 	"fmt"
 	"strings"
 
@@ -66,23 +67,29 @@ func runSearch(query string) error {
 		}
 	}
 
-	// Get effective token (flag, registry token, or JWT token)
-	authToken, err := getEffectiveToken(cfg, reg)
+	// Create client using new factory
+	c, err := client.GetClient(cfg, verbose)
 	if err != nil {
 		return err
 	}
 
-	// Create client
-	c := client.NewClient(reg.URL, authToken)
-	c.SetVerbose(verbose)
-
-	// Search packages
-	results, err := c.SearchPackages(query, searchTag, searchTarget, searchLimit)
+	// Search packages using new interface
+	ctx, cancel := client.WithTimeout(context.Background())
+	defer cancel()
+	
+	opts := client.SearchOptions{
+		Query:  query,
+		Tag:    searchTag,
+		Target: searchTarget,
+		Limit:  searchLimit,
+	}
+	
+	packages, err := c.SearchPackages(ctx, opts)
 	if err != nil {
 		return fmt.Errorf("search failed: %w", err)
 	}
 
-	if len(results) == 0 {
+	if len(packages) == 0 {
 		fmt.Printf("No rulesets found matching '%s'\n", query)
 		if searchTag != "" || searchTarget != "" {
 			fmt.Printf("Try removing filters or using different search terms.\n")
@@ -91,12 +98,12 @@ func runSearch(query string) error {
 	}
 
 	// Display results
-	fmt.Printf("📋 Found %d ruleset(s):\n\n", len(results))
+	fmt.Printf("📋 Found %d ruleset(s):\n\n", len(packages))
 
-	for _, result := range results {
-		name, _ := result["name"].(string)
-		version, _ := result["version"].(string)
-		description, _ := result["description"].(string)
+	for _, pkg := range packages {
+		name := pkg.Name
+		version := pkg.Latest
+		description := pkg.Description
 
 		fmt.Printf("📦 %s@%s\n", name, version)
 
@@ -104,30 +111,14 @@ func runSearch(query string) error {
 			fmt.Printf("   %s\n", description)
 		}
 
-		// Display targets
-		if targets, ok := result["targets"].([]interface{}); ok && len(targets) > 0 {
-			var targetStrs []string
-			for _, t := range targets {
-				if str, ok := t.(string); ok {
-					targetStrs = append(targetStrs, str)
-				}
-			}
-			if len(targetStrs) > 0 {
-				fmt.Printf("   🎯 Targets: %s\n", strings.Join(targetStrs, ", "))
-			}
+		// Display versions
+		if len(pkg.Versions) > 1 {
+			fmt.Printf("   📋 Versions: %s\n", strings.Join(pkg.Versions, ", "))
 		}
 
 		// Display tags
-		if tags, ok := result["tags"].([]interface{}); ok && len(tags) > 0 {
-			var tagStrs []string
-			for _, t := range tags {
-				if str, ok := t.(string); ok {
-					tagStrs = append(tagStrs, str)
-				}
-			}
-			if len(tagStrs) > 0 {
-				fmt.Printf("   🏷️  Tags: %s\n", strings.Join(tagStrs, ", "))
-			}
+		if len(pkg.Tags) > 0 {
+			fmt.Printf("   🏷️  Tags: %s\n", strings.Join(pkg.Tags, ", "))
 		}
 
 		fmt.Printf("\n")
