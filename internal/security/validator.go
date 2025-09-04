@@ -57,19 +57,19 @@ func NewPackageValidator(config *SecurityConfig) *PackageValidator {
 
 	// Create a strict markdown policy - only allow safe markdown elements
 	policy := bluemonday.NewPolicy()
-	
+
 	// Allow basic markdown formatting
 	policy.AllowElements("h1", "h2", "h3", "h4", "h5", "h6", "p", "br", "hr")
 	policy.AllowElements("strong", "b", "em", "i", "code", "pre", "blockquote")
 	policy.AllowElements("ul", "ol", "li", "dl", "dt", "dd")
 	policy.AllowElements("table", "thead", "tbody", "tr", "th", "td")
-	
+
 	// Allow links but sanitize them
 	policy.AllowAttrs("href").OnElements("a")
 	policy.RequireNoReferrerOnLinks(true)
 	policy.RequireNoFollowOnLinks(true)
 	policy.AddTargetBlankToFullyQualifiedLinks(true)
-	
+
 	// Forbid dangerous elements - no scripts, objects, embeds, etc.
 	// This is already the default with a strict policy
 
@@ -124,13 +124,13 @@ func (v *PackageValidator) ValidateArchive(archivePath, extractDir string) error
 
 		// Check file size
 		if header.Size > v.config.MaxFileSize {
-			return fmt.Errorf("file '%s' too large (%d bytes, max %d)", 
+			return fmt.Errorf("file '%s' too large (%d bytes, max %d)",
 				header.Name, header.Size, v.config.MaxFileSize)
 		}
 
 		totalSize += header.Size
 		if totalSize > v.config.MaxTotalSize {
-			return fmt.Errorf("archive too large (%d bytes, max %d)", 
+			return fmt.Errorf("archive too large (%d bytes, max %d)",
 				totalSize, v.config.MaxTotalSize)
 		}
 
@@ -181,7 +181,7 @@ func (v *PackageValidator) validateFilePath(filePath, extractDir string) error {
 // validateFileType checks if the file extension is allowed
 func (v *PackageValidator) validateFileType(filePath string) error {
 	ext := strings.ToLower(filepath.Ext(filePath))
-	
+
 	// Allow directories (no extension)
 	if ext == "" {
 		return nil
@@ -239,12 +239,12 @@ func (v *PackageValidator) checkExecutableHeaders(content []byte, filename strin
 
 	// Check for common executable signatures
 	signatures := map[string][]byte{
-		"ELF":        {0x7F, 0x45, 0x4C, 0x46}, // ELF executables
-		"PE":         {0x4D, 0x5A},             // PE executables (MZ header)
-		"Mach-O 32":  {0xFE, 0xED, 0xFA, 0xCE}, // Mach-O 32-bit
-		"Mach-O 64":  {0xFE, 0xED, 0xFA, 0xCF}, // Mach-O 64-bit
-		"Java":       {0xCA, 0xFE, 0xBA, 0xBE}, // Java class files
-		"Shebang":    {0x23, 0x21},             // #! scripts
+		"ELF":       {0x7F, 0x45, 0x4C, 0x46}, // ELF executables
+		"PE":        {0x4D, 0x5A},             // PE executables (MZ header)
+		"Mach-O 32": {0xFE, 0xED, 0xFA, 0xCE}, // Mach-O 32-bit
+		"Mach-O 64": {0xFE, 0xED, 0xFA, 0xCF}, // Mach-O 64-bit
+		"Java":      {0xCA, 0xFE, 0xBA, 0xBE}, // Java class files
+		"Shebang":   {0x23, 0x21},             // #! scripts
 	}
 
 	for sigName, sig := range signatures {
@@ -270,11 +270,11 @@ func (v *PackageValidator) validateMarkdownContent(content []byte) error {
 	// Check if the content becomes significantly different after sanitization
 	original := string(content)
 	sanitized := v.policy.Sanitize(original)
-	
+
 	// If the sanitized version is very different, it likely contained dangerous content
 	originalLines := strings.Split(original, "\n")
 	sanitizedLines := strings.Split(sanitized, "\n")
-	
+
 	// Allow some difference due to HTML cleanup, but reject major changes
 	if len(sanitizedLines) < len(originalLines)/2 {
 		return fmt.Errorf("markdown content contains potentially dangerous elements")
@@ -309,12 +309,12 @@ func (v *PackageValidator) validateMarkdownContent(content []byte) error {
 func isTextFile(filename string) bool {
 	ext := strings.ToLower(filepath.Ext(filename))
 	textExts := []string{".md", ".txt", ".json", ".yaml", ".yml", ".toml", ".ini", ".mdc"}
-	
+
 	for _, textExt := range textExts {
 		if ext == textExt {
 			return true
 		}
 	}
-	
+
 	return false
 }

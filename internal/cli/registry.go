@@ -37,11 +37,11 @@ Examples:
 		name := args[0]
 		url := args[1]
 		registryType, _ := cmd.Flags().GetString("type")
-		
+
 		if registryType == "" {
 			registryType = string(config.RegistryTypeHTTP)
 		}
-		
+
 		return runRegistryAdd(name, url, config.RegistryType(registryType))
 	},
 }
@@ -74,16 +74,16 @@ func runRegistryAdd(name, url string, registryType config.RegistryType) error {
 	if err := config.ValidateRegistryType(registryType); err != nil {
 		return err
 	}
-	
+
 	// Validate URL based on type
 	if registryType == config.RegistryTypeGit {
-		if !strings.HasPrefix(url, "https://github.com/") && 
-		   !strings.HasPrefix(url, "https://gitlab.com/") &&
-		   !strings.HasPrefix(url, "git@") {
+		if !strings.HasPrefix(url, "https://github.com/") &&
+			!strings.HasPrefix(url, "https://gitlab.com/") &&
+			!strings.HasPrefix(url, "git@") {
 			fmt.Printf("⚠️  Warning: Git registry URL may not be valid\n")
 		}
 	}
-	
+
 	cfg, err := config.LoadCLI()
 	if err != nil {
 		return fmt.Errorf("failed to load config: %w", err)
@@ -140,19 +140,19 @@ func runRegistryList() error {
 		if cfg.Current == name {
 			marker = "* "
 		}
-		
+
 		registryType := reg.GetEffectiveType()
-		
+
 		fmt.Printf("%s%s (%s)\n", marker, name, registryType)
 		fmt.Printf("    URL: %s\n", reg.URL)
-		
+
 		// Show appropriate token status based on type
 		if registryType == config.RegistryTypeHTTP && reg.JWTToken != "" {
 			fmt.Printf("    JWT Token: [configured]\n")
 		} else if registryType == config.RegistryTypeGit && reg.GitToken != "" {
 			fmt.Printf("    Git Token: [configured]\n")
 		}
-		
+
 		fmt.Printf("\n")
 	}
 
@@ -239,7 +239,7 @@ func runRegistryRemove(name string) error {
 
 func init() {
 	registryAddCmd.Flags().String("type", "remote-http", "Registry type (remote-http or git)")
-	
+
 	registryCmd.AddCommand(registryAddCmd)
 	registryCmd.AddCommand(registryListCmd)
 	registryCmd.AddCommand(registryUseCmd)

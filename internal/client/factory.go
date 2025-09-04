@@ -8,21 +8,21 @@ import (
 // NewRegistryClient creates the appropriate client based on registry type
 func NewRegistryClient(registry config.Registry, verbose bool) (RegistryClient, error) {
 	registryType := registry.GetEffectiveType()
-	
+
 	switch registryType {
 	case config.RegistryTypeHTTP:
 		// Create HTTP client using existing Client struct
 		httpClient := NewClient(registry.URL, registry.JWTToken)
 		httpClient.SetVerbose(verbose)
-		
+
 		// Wrap existing HTTP client to implement RegistryClient interface
 		// This will be implemented in Phase 3
 		return NewHTTPRegistryClient(httpClient), nil
-		
+
 	case config.RegistryTypeGit:
 		// Git client will be implemented in later phases
 		return NewGitRegistryClient(registry.URL, registry.GitToken, verbose)
-		
+
 	default:
 		return nil, fmt.Errorf("unsupported registry type: %s", registryType)
 	}
@@ -33,12 +33,12 @@ func GetClient(cfg config.CLIConfig, verbose bool) (RegistryClient, error) {
 	if cfg.Current == "" {
 		return nil, fmt.Errorf("no active registry configured")
 	}
-	
+
 	registry, exists := cfg.Registries[cfg.Current]
 	if !exists {
 		return nil, fmt.Errorf("active registry '%s' not found in configuration", cfg.Current)
 	}
-	
+
 	return NewRegistryClient(registry, verbose)
 }
 
@@ -48,7 +48,7 @@ func GetClientForRegistry(cfg config.CLIConfig, registryName string, verbose boo
 	if !exists {
 		return nil, fmt.Errorf("registry '%s' not found", registryName)
 	}
-	
+
 	return NewRegistryClient(registry, verbose)
 }
 

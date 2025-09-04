@@ -68,22 +68,23 @@ func Parse(versionStr string) (*Version, error) {
 // String returns the string representation of the version
 func (v *Version) String() string {
 	result := fmt.Sprintf("%d.%d.%d", v.Major, v.Minor, v.Patch)
-	
+
 	if v.Pre != "" {
 		result += "-" + v.Pre
 	}
-	
+
 	if v.Build != "" {
 		result += "+" + v.Build
 	}
-	
+
 	return result
 }
 
 // Compare compares two versions and returns:
 // -1 if v < other
-//  0 if v == other  
-//  1 if v > other
+//
+//	0 if v == other
+//	1 if v > other
 func (v *Version) Compare(other *Version) int {
 	// Compare major.minor.patch
 	if v.Major != other.Major {
@@ -232,8 +233,9 @@ func IncrementMajorVersion(versionStr string) (string, error) {
 
 // CompareVersions compares two version strings and returns:
 // -1 if version1 < version2
-//  0 if version1 == version2
-//  1 if version1 > version2
+//
+//	0 if version1 == version2
+//	1 if version1 > version2
 func CompareVersions(version1, version2 string) (int, error) {
 	v1, err := Parse(version1)
 	if err != nil {
@@ -261,8 +263,8 @@ func GetNextVersions(currentVersion string) (patch, minor, major string, err err
 		return "", "", "", fmt.Errorf("invalid version: %w", err)
 	}
 
-	return v.IncrementPatch().String(), 
-		   v.IncrementMinor().String(), 
-		   v.IncrementMajor().String(), 
-		   nil
+	return v.IncrementPatch().String(),
+		v.IncrementMinor().String(),
+		v.IncrementMajor().String(),
+		nil
 }

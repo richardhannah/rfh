@@ -27,7 +27,6 @@ type PackageVersion struct {
 	CreatedAt   time.Time      `db:"created_at" json:"created_at"`
 }
 
-
 // PackageInfo combines package and version info for API responses
 type PackageInfo struct {
 	Package

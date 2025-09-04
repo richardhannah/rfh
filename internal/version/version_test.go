@@ -111,8 +111,8 @@ func TestParse(t *testing.T) {
 				return
 			}
 			if !tt.wantErr {
-				if got.Major != tt.want.Major || got.Minor != tt.want.Minor || 
-				   got.Patch != tt.want.Patch || got.Pre != tt.want.Pre || got.Build != tt.want.Build {
+				if got.Major != tt.want.Major || got.Minor != tt.want.Minor ||
+					got.Patch != tt.want.Patch || got.Pre != tt.want.Pre || got.Build != tt.want.Build {
 					t.Errorf("Parse() = %+v, want %+v", got, tt.want)
 				}
 			}
@@ -177,14 +177,14 @@ func TestVersion_Compare(t *testing.T) {
 		{name: "1.0.0 vs 1.1.0", version1: "1.0.0", version2: "1.1.0", want: -1},
 		{name: "2.0.0 vs 1.0.0", version1: "2.0.0", version2: "1.0.0", want: 1},
 		{name: "1.0.0 vs 2.0.0", version1: "1.0.0", version2: "2.0.0", want: -1},
-		
+
 		// Pre-release comparisons
 		{name: "1.0.0-alpha vs 1.0.0", version1: "1.0.0-alpha", version2: "1.0.0", want: -1},
 		{name: "1.0.0 vs 1.0.0-alpha", version1: "1.0.0", version2: "1.0.0-alpha", want: 1},
 		{name: "1.0.0-alpha vs 1.0.0-beta", version1: "1.0.0-alpha", version2: "1.0.0-beta", want: -1},
 		{name: "1.0.0-beta vs 1.0.0-alpha", version1: "1.0.0-beta", version2: "1.0.0-alpha", want: 1},
 		{name: "1.0.0-alpha vs 1.0.0-alpha", version1: "1.0.0-alpha", version2: "1.0.0-alpha", want: 0},
-		
+
 		// Build metadata should be ignored
 		{name: "1.0.0+build1 vs 1.0.0+build2", version1: "1.0.0+build1", version2: "1.0.0+build2", want: 0},
 		{name: "1.0.0+build vs 1.0.0", version1: "1.0.0+build", version2: "1.0.0", want: 0},
@@ -200,7 +200,7 @@ func TestVersion_Compare(t *testing.T) {
 			if err != nil {
 				t.Fatalf("Parse(%s) failed: %v", tt.version2, err)
 			}
-			
+
 			if got := v1.Compare(v2); got != tt.want {
 				t.Errorf("Version.Compare() = %v, want %v", got, tt.want)
 			}
@@ -210,8 +210,8 @@ func TestVersion_Compare(t *testing.T) {
 
 func TestVersion_Increment(t *testing.T) {
 	tests := []struct {
-		name     string
-		version  string
+		name      string
+		version   string
 		wantPatch string
 		wantMinor string
 		wantMajor string
@@ -445,8 +445,8 @@ func TestIsValidVersion(t *testing.T) {
 
 func TestGetNextVersions(t *testing.T) {
 	tests := []struct {
-		name    string
-		version string
+		name      string
+		version   string
 		wantPatch string
 		wantMinor string
 		wantMajor string

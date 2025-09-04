@@ -124,7 +124,7 @@ func TestManifestValidation(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			err := tt.manifest.Validate()
-			
+
 			if tt.expectErr {
 				if err == nil {
 					t.Errorf("expected error but got none")
@@ -139,7 +139,6 @@ func TestManifestValidation(t *testing.T) {
 		})
 	}
 }
-
 
 func TestGetPackageName(t *testing.T) {
 	tests := []struct {
@@ -276,7 +275,7 @@ func TestSaveManifest(t *testing.T) {
 
 func TestCreateSample(t *testing.T) {
 	sample := CreateSample()
-	
+
 	if err := sample.Validate(); err != nil {
 		t.Errorf("sample manifest is invalid: %v", err)
 	}
@@ -292,8 +291,8 @@ func TestCreateSample(t *testing.T) {
 
 // Helper function to check if error is of specific type
 func isErrorType(err, target error) bool {
-	return err.Error() == target.Error() || 
-		   (target == ErrInvalidManifest && err.Error() != "" && err.Error() != ErrInvalidName.Error() && err.Error() != ErrInvalidVersion.Error()) ||
-		   (target == ErrInvalidName && err.Error() != "" && err.Error() != ErrInvalidManifest.Error() && err.Error() != ErrInvalidVersion.Error()) ||
-		   (target == ErrInvalidVersion && err.Error() != "" && err.Error() != ErrInvalidManifest.Error() && err.Error() != ErrInvalidName.Error())
+	return err.Error() == target.Error() ||
+		(target == ErrInvalidManifest && err.Error() != "" && err.Error() != ErrInvalidName.Error() && err.Error() != ErrInvalidVersion.Error()) ||
+		(target == ErrInvalidName && err.Error() != "" && err.Error() != ErrInvalidManifest.Error() && err.Error() != ErrInvalidVersion.Error()) ||
+		(target == ErrInvalidVersion && err.Error() != "" && err.Error() != ErrInvalidManifest.Error() && err.Error() != ErrInvalidName.Error())
 }

@@ -13,7 +13,7 @@ jobs:
     
     strategy:
       matrix:
-        go-version: [1.24.x]
+        go-version: [1.24.4]
     
     steps:
     - name: Set up Go ${{ matrix.go-version }}
@@ -49,7 +49,6 @@ jobs:
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v5
       with:
-        file: ./coverage.out
         flags: unittests
         name: codecov-umbrella
         fail_ci_if_error: false
@@ -61,7 +60,7 @@ jobs:
     
     strategy:
       matrix:
-        go-version: [1.24.x]
+        go-version: [1.24.4]
     
     steps:
     - name: Set up Go ${{ matrix.go-version }}
@@ -119,7 +118,7 @@ jobs:
     - name: Set up Go
       uses: actions/setup-go@v4
       with:
-        go-version: 1.24.x
+        go-version: 1.24.4
     
     - name: Run golangci-lint
       uses: golangci/golangci-lint-action@v8

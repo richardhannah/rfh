@@ -2,8 +2,8 @@ package cli
 
 import (
 	"fmt"
-	"strings"
 	"rulestack/internal/config"
+	"strings"
 )
 
 // getEffectiveToken returns the token to use for API calls
@@ -78,16 +78,16 @@ func isAuthCommand(commandName string) bool {
 	authCommands := []string{
 		"auth",
 		"auth login",
-		"auth logout", 
+		"auth logout",
 		"auth register",
 		"auth whoami",
 	}
-	
+
 	for _, cmd := range authCommands {
 		if strings.HasPrefix(commandName, cmd) {
 			return true
 		}
 	}
-	
+
 	return false
 }

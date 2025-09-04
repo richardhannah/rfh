@@ -5,8 +5,9 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/spf13/cobra"
 	"rulestack/internal/manifest"
+
+	"github.com/spf13/cobra"
 )
 
 // projectrootCmd represents the projectroot command (temporary diagnostic tool)
@@ -97,7 +98,6 @@ func findProjectRootWithPath() (string, string, error) {
 
 	return "", "", fmt.Errorf("no rulestack.json found in directory tree")
 }
-
 
 func init() {
 	rootCmd.AddCommand(projectrootCmd)

@@ -7,10 +7,11 @@ import (
 	"strings"
 	"syscall"
 
-	"github.com/spf13/cobra"
-	"golang.org/x/term"
 	"rulestack/internal/client"
 	"rulestack/internal/config"
+
+	"github.com/spf13/cobra"
+	"golang.org/x/term"
 )
 
 // Command line flags for non-interactive auth
@@ -365,12 +366,12 @@ func init() {
 	authCmd.AddCommand(loginCmd)
 	authCmd.AddCommand(logoutCmd)
 	authCmd.AddCommand(whoamiCmd)
-	
+
 	// Add flags for non-interactive authentication
 	registerCmd.Flags().StringVar(&authUsername, "username", "", "username for registration (non-interactive)")
 	registerCmd.Flags().StringVar(&authEmail, "email", "", "email for registration (non-interactive)")
 	registerCmd.Flags().StringVar(&authPassword, "password", "", "password for registration (non-interactive)")
-	
+
 	loginCmd.Flags().StringVar(&authUsername, "username", "", "username for login (non-interactive)")
 	loginCmd.Flags().StringVar(&authPassword, "password", "", "password for login (non-interactive)")
 }

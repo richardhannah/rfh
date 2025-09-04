@@ -10,8 +10,9 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/bmatcuk/doublestar/v4"
 	"rulestack/internal/security"
+
+	"github.com/bmatcuk/doublestar/v4"
 )
 
 // ArchiveInfo contains information about a created archive
@@ -238,7 +239,7 @@ func validateExtractionPath(filePath, destDir string) error {
 	destPath := filepath.Join(destDir, filePath)
 	cleanDest := filepath.Clean(destPath)
 	cleanDestDir := filepath.Clean(destDir)
-	
+
 	if !strings.HasPrefix(cleanDest, cleanDestDir) {
 		return fmt.Errorf("path escapes destination directory: %s", filePath)
 	}
@@ -275,26 +276,26 @@ func PackFromDirectory(sourceDir string, outputPath string) (*ArchiveInfo, error
 		if err != nil {
 			return err
 		}
-		
+
 		// Skip directories
 		if info.IsDir() {
 			return nil
 		}
-		
+
 		// Skip getting relative path as we don't need it here
-		
+
 		files = append(files, path)
 		return nil
 	})
-	
+
 	if err != nil {
 		return nil, fmt.Errorf("failed to walk directory %s: %w", sourceDir, err)
 	}
-	
+
 	if len(files) == 0 {
 		return nil, fmt.Errorf("no files found in directory: %s", sourceDir)
 	}
-	
+
 	// Use the existing Pack function but we need to handle the paths differently
 	// Let's create the archive manually
 	return packFiles(files, sourceDir, outputPath)
@@ -320,14 +321,14 @@ func packFiles(filePaths []string, baseDir string, outputPath string) (*ArchiveI
 	// Hash calculator for final SHA256
 	hasher := sha256.New()
 	multiWriter := io.MultiWriter(outputFile, hasher)
-	
+
 	// Reset and create new writers with hash calculation
 	outputFile.Seek(0, 0)
 	outputFile.Truncate(0)
-	
+
 	gzWriter = gzip.NewWriter(multiWriter)
 	defer gzWriter.Close()
-	
+
 	tarWriter = tar.NewWriter(gzWriter)
 	defer tarWriter.Close()
 

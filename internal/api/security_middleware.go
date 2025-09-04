@@ -14,9 +14,10 @@ import (
 	"sync"
 	"time"
 
-	"github.com/microcosm-cc/bluemonday"
 	"rulestack/internal/auth"
 	"rulestack/internal/db"
+
+	"github.com/microcosm-cc/bluemonday"
 )
 
 // Context keys for user data
@@ -30,7 +31,7 @@ const (
 // Enhanced auth middleware with JWT and role-based access support
 func (s *Server) enhancedAuthMiddleware(registry *RouteRegistry) func(http.Handler) http.Handler {
 	jwtManager := auth.NewJWTManager(s.Config.JWTSecret, auth.DevelopmentTokenDuration)
-	
+
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			// Skip OPTIONS requests
@@ -61,7 +62,7 @@ func (s *Server) enhancedAuthMiddleware(registry *RouteRegistry) func(http.Handl
 			// Extract Authorization header
 			authHeader := r.Header.Get("Authorization")
 			fmt.Fprintf(os.Stderr, "DEBUG AUTH: %s %s - Authorization header: %s\n", r.Method, r.URL.Path, authHeader)
-			
+
 			if authHeader == "" {
 				fmt.Fprintf(os.Stderr, "DEBUG AUTH: No Authorization header found\n")
 				writeError(w, http.StatusUnauthorized, "Authorization header required")
@@ -95,7 +96,7 @@ func (s *Server) enhancedAuthMiddleware(registry *RouteRegistry) func(http.Handl
 			// Try JWT authentication first
 			if claims, err := jwtManager.ValidateToken(token); err == nil {
 				fmt.Fprintf(os.Stderr, "DEBUG AUTH: JWT token validation successful for user: %s, role: %s\n", claims.Username, claims.Role)
-				
+
 				// JWT token is valid, get user and session from database
 				tokenHash := jwtManager.GetTokenHash(token)
 				if u, sess, err := s.DB.ValidateUserSession(tokenHash); err == nil {
@@ -118,7 +119,7 @@ func (s *Server) enhancedAuthMiddleware(registry *RouteRegistry) func(http.Handl
 			// Check role-based access
 			if routeMetadata.RequiredRole != "" {
 				fmt.Fprintf(os.Stderr, "DEBUG AUTH: Route requires role: %s, user has role: %s\n", routeMetadata.RequiredRole, user.Role)
-				
+
 				hasAccess := false
 				switch routeMetadata.RequiredRole {
 				case "user":
@@ -231,10 +232,10 @@ func newRateLimiter() *rateLimiter {
 		visitors: make(map[string]*visitor),
 		cleanup:  make(chan string, 100),
 	}
-	
+
 	// Cleanup goroutine
 	go rl.cleanupVisitors()
-	
+
 	return rl
 }
 
@@ -275,7 +276,7 @@ func (rl *rateLimiter) allow(ip string, limit int) bool {
 	now := time.Now()
 	elapsed := now.Sub(v.lastSeen)
 	tokensToAdd := int(elapsed.Minutes())
-	
+
 	v.tokens += tokensToAdd
 	if v.tokens > limit {
 		v.tokens = limit
@@ -292,12 +293,12 @@ func (rl *rateLimiter) allow(ip string, limit int) bool {
 
 func (s *Server) rateLimitMiddleware(registry *RouteRegistry) func(http.Handler) http.Handler {
 	limiter := newRateLimiter()
-	
+
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			// Get client IP
 			ip := getClientIP(r)
-			
+
 			// Check if route has rate limit
 			if registry != nil {
 				if metadata, found := registry.GetRouteMetadata(r.URL.Path, r.Method); found {
@@ -334,12 +335,12 @@ func (s *Server) securityHeadersMiddleware(next http.Handler) http.Handler {
 func (s *Server) loggingMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
-		
+
 		// Wrap ResponseWriter to capture status code
 		wrapped := &responseWriter{ResponseWriter: w, statusCode: http.StatusOK}
-		
+
 		next.ServeHTTP(wrapped, r)
-		
+
 		duration := time.Since(start)
 		log.Printf("[%s] %s %s - %d (%v) - %s",
 			getClientIP(r),
@@ -390,13 +391,13 @@ func getClientIP(r *http.Request) string {
 		ips := strings.Split(xff, ",")
 		return strings.TrimSpace(ips[0])
 	}
-	
+
 	// Check for X-Real-IP header
 	xri := r.Header.Get("X-Real-IP")
 	if xri != "" {
 		return xri
 	}
-	
+
 	// Fall back to RemoteAddr
 	ip := r.RemoteAddr
 	if strings.Contains(ip, ":") {

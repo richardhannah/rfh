@@ -33,10 +33,10 @@ type Manifest = PackageManifest
 type ManifestFile = PackageManifestFile
 
 var (
-	ErrInvalidManifest    = errors.New("invalid manifest")
-	ErrInvalidName        = errors.New("invalid package name")
-	ErrInvalidVersion     = errors.New("invalid version")
-	ErrEmptyManifest      = errors.New("manifest file cannot be empty")
+	ErrInvalidManifest = errors.New("invalid manifest")
+	ErrInvalidName     = errors.New("invalid package name")
+	ErrInvalidVersion  = errors.New("invalid version")
+	ErrEmptyManifest   = errors.New("manifest file cannot be empty")
 )
 
 // nameRegex matches valid package names (with or without scope)
@@ -89,7 +89,6 @@ func (pm *ProjectManifest) Validate() error {
 	if !versionRegex.MatchString(pm.Version) {
 		return fmt.Errorf("%w: version must be semantic version (x.y.z)", ErrInvalidVersion)
 	}
-
 
 	if pm.Dependencies == nil {
 		return fmt.Errorf("%w: dependencies field is required (can be empty object)", ErrInvalidManifest)
@@ -145,11 +144,11 @@ func LoadFirstPackageManifest(path string) (*PackageManifest, error) {
 	if err != nil {
 		return nil, err
 	}
-	
+
 	if len(manifests) == 0 {
 		return nil, ErrEmptyManifest
 	}
-	
+
 	return &manifests[0], nil
 }
 
@@ -158,7 +157,7 @@ func SavePackageManifests(path string, manifests PackageManifestFile) error {
 	if len(manifests) == 0 {
 		return ErrEmptyManifest
 	}
-	
+
 	// Validate all manifests
 	for i, manifest := range manifests {
 		if err := manifest.Validate(); err != nil {

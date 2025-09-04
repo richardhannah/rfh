@@ -54,12 +54,12 @@ type AuthResponse struct {
 
 // UserProfile represents user profile data
 type UserProfile struct {
-	ID        int       `json:"id"`
-	Username  string    `json:"username"`
-	Email     string    `json:"email"`
-	Role      string    `json:"role"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	ID        int        `json:"id"`
+	Username  string     `json:"username"`
+	Email     string     `json:"email"`
+	Role      string     `json:"role"`
+	CreatedAt time.Time  `json:"created_at"`
+	UpdatedAt time.Time  `json:"updated_at"`
 	LastLogin *time.Time `json:"last_login"`
 }
 

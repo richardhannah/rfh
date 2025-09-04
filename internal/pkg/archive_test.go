@@ -85,11 +85,11 @@ func TestPack(t *testing.T) {
 
 	// Create test files
 	testFiles := map[string]string{
-		"file1.txt":           "content1",
-		"subdir/file2.txt":    "content2",
-		"rules/rule1.md":      "# Rule 1",
-		"rules/rule2.md":      "# Rule 2",
-		"other/ignored.txt":   "ignored",
+		"file1.txt":         "content1",
+		"subdir/file2.txt":  "content2",
+		"rules/rule1.md":    "# Rule 1",
+		"rules/rule2.md":    "# Rule 2",
+		"other/ignored.txt": "ignored",
 	}
 
 	for path, content := range testFiles {

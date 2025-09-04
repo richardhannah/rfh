@@ -40,7 +40,7 @@ func TestGetEnv(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			// Clean up before test
 			os.Unsetenv(tt.key)
-			
+
 			// Set environment variable if specified
 			if tt.envValue != "" {
 				os.Setenv(tt.key, tt.envValue)

@@ -82,7 +82,7 @@ func (db *DB) GetPackageVersion(name string, version string) (*PackageVersion, e
 
 	fmt.Printf("[DEBUG] GetPackageVersion SQL query: %s\n", query)
 	fmt.Printf("[DEBUG] GetPackageVersion parameters: [%s, %s]\n", name, version)
-	
+
 	var pkgVersion PackageVersion
 	err := db.Get(&pkgVersion, query, name, version)
 	if err != nil {

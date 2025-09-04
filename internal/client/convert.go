@@ -31,7 +31,7 @@ func PackageVersionToMap(pv *PackageVersion) map[string]interface{} {
 // MapToPackage converts map to Package struct
 func MapToPackage(m map[string]interface{}) *Package {
 	p := &Package{}
-	
+
 	if name, ok := m["name"].(string); ok {
 		p.Name = name
 	}
@@ -60,14 +60,14 @@ func MapToPackage(m map[string]interface{}) *Package {
 	if updatedAt, ok := m["updated_at"].(time.Time); ok {
 		p.UpdatedAt = updatedAt
 	}
-	
+
 	return p
 }
 
 // MapToPackageVersion converts map to PackageVersion struct
 func MapToPackageVersion(m map[string]interface{}) *PackageVersion {
 	pv := &PackageVersion{}
-	
+
 	if name, ok := m["name"].(string); ok {
 		pv.Name = name
 	}
@@ -97,6 +97,6 @@ func MapToPackageVersion(m map[string]interface{}) *PackageVersion {
 	if metadata, ok := m["metadata"].(map[string]interface{}); ok {
 		pv.Metadata = metadata
 	}
-	
+
 	return pv
 }

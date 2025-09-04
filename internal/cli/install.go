@@ -52,12 +52,12 @@ type InstallResult struct {
 
 // PackageRequirement represents a package that needs to be processed
 type PackageRequirement struct {
-	Name            string
-	RequiredVersion string
+	Name             string
+	RequiredVersion  string
 	InstalledVersion string
-	Action          string // "install", "update", "skip"
-	PackageDir      string // Path to installed package directory
-	Details         string // Additional details about the operation
+	Action           string // "install", "update", "skip"
+	PackageDir       string // Path to installed package directory
+	Details          string // Additional details about the operation
 }
 
 // runInstall implements the install command logic
@@ -174,7 +174,7 @@ func findInstalledPackage(rulestackDir, packageName string) (string, string, err
 			// packagename.1.2.3
 			candidateName := strings.Join(parts[:len(parts)-3], ".")
 			candidateVersion := strings.Join(parts[len(parts)-3:], ".")
-			
+
 			if candidateName == packageName {
 				packageDir := filepath.Join(rulestackDir, dirName)
 				return candidateVersion, packageDir, nil
@@ -276,7 +276,7 @@ func installSinglePackage(projectRoot, packageName, packageVersion string) error
 
 	// Download package
 	tempFile := filepath.Join(os.TempDir(), fmt.Sprintf("%s-%s.tgz", pkgRef.Name, pkgRef.Version))
-	
+
 	if err := c.DownloadBlob(sha256, tempFile); err != nil {
 		return fmt.Errorf("failed to download package: %w", err)
 	}
@@ -307,7 +307,7 @@ func installSinglePackage(projectRoot, packageName, packageVersion string) error
 // reportInstallResults prints a comprehensive report of installation results
 func reportInstallResults(results []InstallResult) {
 	fmt.Printf("\n📦 Installation Summary:\n")
-	
+
 	installed := 0
 	updated := 0
 	skipped := 0
@@ -331,7 +331,7 @@ func reportInstallResults(results []InstallResult) {
 	}
 
 	fmt.Printf("\nSummary: %d installed, %d updated, %d skipped, %d failed\n", installed, updated, skipped, failed)
-	
+
 	if failed > 0 {
 		fmt.Printf("⚠️  Some packages failed to install. Check network connectivity and registry access.\n")
 	}

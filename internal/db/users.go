@@ -63,15 +63,15 @@ func (r *UserRole) UnmarshalJSON(data []byte) error {
 
 // User represents a user account
 type User struct {
-	ID           int       `json:"id" db:"id"`
-	Username     string    `json:"username" db:"username"`
-	Email        string    `json:"email" db:"email"`
-	PasswordHash string    `json:"-" db:"password_hash"`
-	Role         UserRole  `json:"role" db:"role"`
-	CreatedAt    time.Time `json:"created_at" db:"created_at"`
-	UpdatedAt    time.Time `json:"updated_at" db:"updated_at"`
+	ID           int        `json:"id" db:"id"`
+	Username     string     `json:"username" db:"username"`
+	Email        string     `json:"email" db:"email"`
+	PasswordHash string     `json:"-" db:"password_hash"`
+	Role         UserRole   `json:"role" db:"role"`
+	CreatedAt    time.Time  `json:"created_at" db:"created_at"`
+	UpdatedAt    time.Time  `json:"updated_at" db:"updated_at"`
 	LastLogin    *time.Time `json:"last_login" db:"last_login"`
-	IsActive     bool      `json:"is_active" db:"is_active"`
+	IsActive     bool       `json:"is_active" db:"is_active"`
 }
 
 // UserSession represents a user authentication session
@@ -300,7 +300,7 @@ func (r UserRole) HasPermission(action string) bool {
 	if r == RoleRoot {
 		return true
 	}
-	
+
 	switch action {
 	case "read":
 		return r == RoleUser || r == RolePublisher || r == RoleAdmin

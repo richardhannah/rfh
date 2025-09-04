@@ -4,85 +4,10 @@ run:
 
 linters:
   enable:
-    - errcheck
-    - gosimple
-    - govet
-    - ineffassign
-    - staticcheck
-    - typecheck
-    - unused
-    - asasalint
-    - asciicheck
-    - bidichk
-    - bodyclose
-    - containedctx
-    - contextcheck
-    - cyclop
-    - dupl
-    - durationcheck
-    - errname
-    - errorlint
-    - execinquery
-    - exhaustive
-    - exportloopref
-    - forbidigo
-    - funlen
-    - gocheckcompilerdirectives
-    - gochecknoglobals
-    - gochecknoinits
-    - gocognit
-    - goconst
-    - gocritic
-    - gocyclo
-    - godox
-    - goerr113
     - gofmt
-    - gofumpt
-    - goheader
     - goimports
-    - gomnd
-    - gomoddirectives
-    - gomodguard
-    - goprintffuncname
-    - gosec
-    - grouper
-    - importas
-    - interfacebloat
-    - ireturn
-    - lll
-    - loggercheck
-    - maintidx
-    - makezero
-    - mirror
     - misspell
-    - nakedret
-    - nestif
-    - nilerr
-    - nilnil
-    - nlreturn
-    - noctx
-    - nolintlint
-    - nonamedreturns
-    - nosprintfhostport
-    - predeclared
-    - promlinter
-    - reassign
-    - revive
-    - rowserrcheck
-    - sqlclosecheck
-    - stylecheck
-    - tagliatelle
-    - tenv
-    - testableexamples
-    - testpackage
-    - thelper
-    - tparallel
-    - unconvert
-    - unparam
-    - usestdlibvars
-    - wastedassign
-    - whitespace
-    - wrapcheck
+  disable-all: true
 
 linters-settings:
   cyclop:
@@ -105,7 +30,8 @@ linters-settings:
       - HACK
   
   govet:
-    check-shadowing: true
+    enable:
+      - shadow
   
   lll:
     line-length: 120

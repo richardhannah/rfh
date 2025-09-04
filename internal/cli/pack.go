@@ -8,9 +8,9 @@ import (
 
 var (
 	outputPath     string
-	fileOverride   string  // Single file override
-	packageName    string  // Non-interactive package name
-	packageVersion string  // Non-interactive package version
+	fileOverride   string // Single file override
+	packageName    string // Non-interactive package name
+	packageVersion string // Non-interactive package version
 )
 
 // packCmd represents the pack command
@@ -46,17 +46,17 @@ Examples:
 		if fileOverride == "" {
 			return fmt.Errorf("--file flag is required")
 		}
-		
+
 		// Validate that the file is a .mdc file
 		if !isValidMdcFile(fileOverride) {
 			return fmt.Errorf("file must be a valid .mdc file: %s", fileOverride)
 		}
-		
+
 		// Check if non-interactive mode
 		if packageName != "" {
 			return runNonInteractivePack(fileOverride)
 		}
-		
+
 		return runInteractivePack(fileOverride)
 	},
 }
@@ -70,7 +70,7 @@ func runInteractivePack(fileName string) error {
 func init() {
 	packCmd.Flags().StringVarP(&outputPath, "output", "o", "", "output archive path")
 	packCmd.Flags().StringVarP(&fileOverride, "file", "f", "", ".mdc file to pack (required)")
-	
+
 	// Non-interactive mode flags
 	packCmd.Flags().StringVarP(&packageName, "package", "p", "", "package name (enables non-interactive mode)")
 	packCmd.Flags().StringVarP(&packageVersion, "version", "", "", "package version (auto-increments for existing packages, defaults to 1.0.0 for new packages)")

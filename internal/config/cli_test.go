@@ -10,7 +10,7 @@ func TestConfigDir(t *testing.T) {
 	t.Run("default config dir", func(t *testing.T) {
 		// Clear RFH_CONFIG to test default behavior
 		os.Unsetenv("RFH_CONFIG")
-		
+
 		dir, err := ConfigDir()
 		if err != nil {
 			t.Errorf("ConfigDir() returned error: %v", err)
@@ -97,7 +97,7 @@ func TestLoadCLI(t *testing.T) {
 		// Create config directory and file
 		configDir := filepath.Join(tempDir, ".rfh")
 		configPath := filepath.Join(configDir, "config.toml")
-		
+
 		err := os.MkdirAll(configDir, 0755)
 		if err != nil {
 			t.Fatalf("failed to create config dir: %v", err)
@@ -159,7 +159,7 @@ url = "https://registry.example.com"
 		// Create config directory and invalid file
 		configDir := filepath.Join(tempDir, ".rfh")
 		configPath := filepath.Join(configDir, "config.toml")
-		
+
 		err := os.MkdirAll(configDir, 0755)
 		if err != nil {
 			t.Fatalf("failed to create config dir: %v", err)

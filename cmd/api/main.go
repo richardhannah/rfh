@@ -1,10 +1,11 @@
 package main
 
 import (
-	"github.com/gorilla/mux"
 	"log"
 	"net/http"
 	"os"
+
+	"github.com/gorilla/mux"
 
 	"rulestack/internal/api"
 	"rulestack/internal/config"
@@ -58,26 +59,26 @@ func ensureRootUser(database *db.DB) error {
 			SELECT 1 FROM rulestack.users WHERE role = 'root'
 		)
 	`).Scan(&exists)
-	
+
 	if err != nil {
 		return err
 	}
-	
+
 	if exists {
 		log.Println("Root user already exists")
 		return nil
 	}
-	
+
 	// Create the root user with hardcoded defaults
 	log.Println("Creating default root user...")
-	
+
 	user := &db.CreateUserRequest{
 		Username: "root",
 		Email:    "root@rulestack.init",
 		Password: "root1234",
 		Role:     db.RoleRoot,
 	}
-	
+
 	// Use the existing CreateUser method to create the root user
 	_, err = database.CreateUser(*user)
 	if err != nil {
@@ -88,7 +89,7 @@ func ensureRootUser(database *db.DB) error {
 		}
 		return err
 	}
-	
+
 	log.Println("Root user created successfully")
 	return nil
 }

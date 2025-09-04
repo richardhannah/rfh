@@ -5,14 +5,15 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/golang-jwt/jwt/v5"
 	"rulestack/internal/db"
+
+	"github.com/golang-jwt/jwt/v5"
 )
 
 // JWTClaims represents the JWT token claims
 type JWTClaims struct {
-	UserID   int       `json:"user_id"`
-	Username string    `json:"username"`
+	UserID   int         `json:"user_id"`
+	Username string      `json:"username"`
 	Role     db.UserRole `json:"role"`
 	jwt.RegisteredClaims
 }

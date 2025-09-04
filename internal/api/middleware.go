@@ -31,7 +31,7 @@ func panicRecoveryMiddleware(next http.Handler) http.Handler {
 				// Log the panic (in a real app, use proper logging)
 				// Print to stderr so it shows in Docker logs
 				fmt.Fprintf(os.Stderr, "PANIC in %s %s: %v\n", r.Method, r.URL.Path, err)
-				
+
 				// Return 500 error
 				w.Header().Set("Content-Type", "application/json")
 				w.WriteHeader(http.StatusInternalServerError)

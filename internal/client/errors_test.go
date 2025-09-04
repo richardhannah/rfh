@@ -34,7 +34,7 @@ func TestRegistryError(t *testing.T) {
 		if err.Details == nil {
 			t.Error("Details map should be initialized")
 		}
-		
+
 		err.Details["retry_after"] = 60
 		if err.Details["retry_after"] != 60 {
 			t.Error("Details map should be writable")

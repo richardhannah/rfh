@@ -6,9 +6,10 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/gorilla/mux"
 	"rulestack/internal/auth"
 	"rulestack/internal/db"
+
+	"github.com/gorilla/mux"
 )
 
 // registerHandler handles user registration

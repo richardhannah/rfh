@@ -38,8 +38,8 @@ type PackageRef struct {
 
 // LockManifest represents the rulestack.lock.json file
 type LockManifest struct {
-	Version      string                       `json:"version"`
-	Packages     map[string]LockPackageEntry  `json:"packages"`
+	Version  string                      `json:"version"`
+	Packages map[string]LockPackageEntry `json:"packages"`
 }
 
 type LockPackageEntry struct {
@@ -72,7 +72,7 @@ func runAdd(packageSpec string) error {
 	// Check if package already exists
 	rulestackDir := filepath.Join(projectRoot, ".rulestack")
 	packageDir := filepath.Join(rulestackDir, fmt.Sprintf("%s.%s", pkgRef.Name, pkgRef.Version))
-	
+
 	if _, err := os.Stat(packageDir); err == nil {
 		// Package exists, prompt user
 		if !confirmOverwrite(pkgRef.FullName()) {
@@ -109,7 +109,7 @@ func runAdd(packageSpec string) error {
 	if verbose {
 		fmt.Printf("🔍 Looking up package version...\n")
 	}
-	
+
 	versionInfo, err := c.GetPackageVersion(pkgRef.Name, pkgRef.Version)
 	if err != nil {
 		return fmt.Errorf("failed to get package version: %w", err)
@@ -128,11 +128,11 @@ func runAdd(packageSpec string) error {
 
 	// Download package
 	tempFile := filepath.Join(os.TempDir(), fmt.Sprintf("%s-%s.tgz", pkgRef.Name, pkgRef.Version))
-	
+
 	if verbose {
 		fmt.Printf("📥 Downloading package...\n")
 	}
-	
+
 	if err := c.DownloadBlob(sha256, tempFile); err != nil {
 		return fmt.Errorf("failed to download package: %w", err)
 	}
@@ -142,7 +142,7 @@ func runAdd(packageSpec string) error {
 	if verbose {
 		fmt.Printf("📂 Extracting package...\n")
 	}
-	
+
 	if err := pkg.Unpack(tempFile, packageDir); err != nil {
 		return fmt.Errorf("failed to extract package: %w", err)
 	}
@@ -187,14 +187,14 @@ func parsePackageRef(spec string) (*PackageRef, error) {
 	if len(parts) != 2 {
 		return nil, fmt.Errorf("invalid package format: use name@version")
 	}
-	
+
 	name := parts[0]
 	version := parts[1]
 
 	if name == "" {
 		return nil, fmt.Errorf("package name cannot be empty")
 	}
-	
+
 	if version == "" {
 		return nil, fmt.Errorf("package version cannot be empty")
 	}
@@ -236,13 +236,13 @@ func findProjectRoot() (string, error) {
 // confirmOverwrite prompts the user to confirm overwriting an existing package
 func confirmOverwrite(packageName string) bool {
 	fmt.Printf("⚠️  Package %s already exists. Do you want to reinstall it? (y/N): ", packageName)
-	
+
 	scanner := bufio.NewScanner(os.Stdin)
 	if scanner.Scan() {
 		response := strings.ToLower(strings.TrimSpace(scanner.Text()))
 		return response == "y" || response == "yes"
 	}
-	
+
 	return false
 }
 
@@ -301,8 +301,8 @@ func loadOrCreateLockManifest(path, projectRoot string) (*LockManifest, error) {
 	if _, err := os.Stat(path); os.IsNotExist(err) {
 		// Create new lock manifest
 		return &LockManifest{
-			Version:     "1.0.0",
-			Packages:    make(map[string]LockPackageEntry),
+			Version:  "1.0.0",
+			Packages: make(map[string]LockPackageEntry),
 		}, nil
 	}
 
@@ -339,7 +339,7 @@ func saveLockManifest(path string, lockManifest *LockManifest) error {
 func updateClaudeFile(projectRoot string, pkgRef *PackageRef) error {
 	claudePath := filepath.Join(projectRoot, "CLAUDE.md")
 	templatePath := filepath.Join(projectRoot, "CLAUDE.TEMPLATE.md")
-	
+
 	// If CLAUDE.md doesn't exist, copy from template
 	if _, err := os.Stat(claudePath); os.IsNotExist(err) {
 		if _, err := os.Stat(templatePath); err == nil {
@@ -365,27 +365,27 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 			}
 		}
 	}
-	
+
 	// Read current CLAUDE.md content
 	content, err := os.ReadFile(claudePath)
 	if err != nil {
 		return fmt.Errorf("failed to read CLAUDE.md: %w", err)
 	}
-	
+
 	lines := strings.Split(string(content), "\n")
-	
+
 	// Find actual rule files in the package directory
 	packageDir := filepath.Join(projectRoot, ".rulestack", fmt.Sprintf("%s.%s", pkgRef.Name, pkgRef.Version))
 	ruleFiles, err := findRuleFiles(packageDir)
 	if err != nil {
 		return fmt.Errorf("failed to find rule files in package: %w", err)
 	}
-	
+
 	if len(ruleFiles) == 0 {
 		// No rule files found, skip CLAUDE.md update
 		return nil
 	}
-	
+
 	// Generate rule lines for all found rule files
 	var newRuleLines []string
 	for _, ruleFile := range ruleFiles {
@@ -393,7 +393,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 		relPath := filepath.Join(fmt.Sprintf("%s.%s", pkgRef.Name, pkgRef.Version), ruleFile)
 		newRuleLines = append(newRuleLines, fmt.Sprintf("- @.rulestack/%s", strings.ReplaceAll(relPath, "\\", "/")))
 	}
-	
+
 	// Check if any of these rules are already present
 	existingRules := make(map[string]bool)
 	for _, line := range lines {
@@ -401,7 +401,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 			existingRules[strings.TrimSpace(line)] = true
 		}
 	}
-	
+
 	// Filter out already existing rules
 	var rulesToAdd []string
 	for _, ruleeLine := range newRuleLines {
@@ -409,22 +409,22 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 			rulesToAdd = append(rulesToAdd, ruleeLine)
 		}
 	}
-	
+
 	if len(rulesToAdd) == 0 {
 		// All rules already exist, no need to add anything
 		return nil
 	}
-	
+
 	// Find where to insert the new rule
 	var updatedLines []string
 	inserted := false
-	
+
 	for i, line := range lines {
 		// Look for the Active Rules section header
-		if strings.Contains(line, "### Active Rules (Rulestack core)") || 
-		   strings.Contains(line, "## Active Rules (Rulestack core)") {
+		if strings.Contains(line, "### Active Rules (Rulestack core)") ||
+			strings.Contains(line, "## Active Rules (Rulestack core)") {
 			updatedLines = append(updatedLines, line)
-			
+
 			// Add all existing rules after the header
 			j := i + 1
 			for j < len(lines) {
@@ -451,7 +451,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 				}
 				inserted = true
 			}
-			
+
 			// Add remaining lines after the rules section
 			for j < len(lines) {
 				updatedLines = append(updatedLines, lines[j])
@@ -462,7 +462,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 			updatedLines = append(updatedLines, line)
 		}
 	}
-	
+
 	// If we couldn't find the section, append to the end
 	if !inserted {
 		updatedLines = append(updatedLines, "", "## Active Rules (Rulestack core)")
@@ -470,25 +470,25 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 			updatedLines = append(updatedLines, ruleToAdd)
 		}
 	}
-	
+
 	// Write updated content back to file
 	updatedContent := strings.Join(updatedLines, "\n")
 	if err := os.WriteFile(claudePath, []byte(updatedContent), 0644); err != nil {
 		return fmt.Errorf("failed to update CLAUDE.md: %w", err)
 	}
-	
+
 	return nil
 }
 
 // findRuleFiles finds all .md files in the package directory that are likely rule files
 func findRuleFiles(packageDir string) ([]string, error) {
 	var ruleFiles []string
-	
+
 	err := filepath.Walk(packageDir, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
-		
+
 		// Only consider .md and .mdc files
 		if !info.IsDir() && (strings.HasSuffix(strings.ToLower(info.Name()), ".md") || strings.HasSuffix(strings.ToLower(info.Name()), ".mdc")) {
 			// Get relative path from package directory
@@ -498,9 +498,9 @@ func findRuleFiles(packageDir string) ([]string, error) {
 			}
 			ruleFiles = append(ruleFiles, relPath)
 		}
-		
+
 		return nil
 	})
-	
+
 	return ruleFiles, err
 }

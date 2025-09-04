@@ -4,13 +4,13 @@ import "fmt"
 
 // Common registry error types
 var (
-	ErrPackageNotFound  = fmt.Errorf("package not found")
-	ErrVersionNotFound  = fmt.Errorf("version not found")
-	ErrUnauthorized     = fmt.Errorf("unauthorized")
-	ErrRateLimited      = fmt.Errorf("rate limited")
-	ErrNetworkError     = fmt.Errorf("network error")
-	ErrInvalidManifest  = fmt.Errorf("invalid manifest")
-	ErrPublishFailed    = fmt.Errorf("publish failed")
+	ErrPackageNotFound = fmt.Errorf("package not found")
+	ErrVersionNotFound = fmt.Errorf("version not found")
+	ErrUnauthorized    = fmt.Errorf("unauthorized")
+	ErrRateLimited     = fmt.Errorf("rate limited")
+	ErrNetworkError    = fmt.Errorf("network error")
+	ErrInvalidManifest = fmt.Errorf("invalid manifest")
+	ErrPublishFailed   = fmt.Errorf("publish failed")
 )
 
 // RegistryError provides detailed error information

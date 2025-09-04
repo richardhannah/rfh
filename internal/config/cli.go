@@ -17,10 +17,10 @@ const (
 
 type Registry struct {
 	URL      string       `toml:"url"`
-	Type     RegistryType `toml:"type"`                   // New field
-	Username string       `toml:"username,omitempty"`     // Username for this registry
-	JWTToken string       `toml:"jwt_token,omitempty"`    // JWT token for this registry
-	GitToken string       `toml:"git_token,omitempty"`    // New field for git auth
+	Type     RegistryType `toml:"type"`                // New field
+	Username string       `toml:"username,omitempty"`  // Username for this registry
+	JWTToken string       `toml:"jwt_token,omitempty"` // JWT token for this registry
+	GitToken string       `toml:"git_token,omitempty"` // New field for git auth
 }
 
 type CLIConfig struct {
@@ -36,7 +36,7 @@ func ConfigDir() (string, error) {
 	if rfhConfig := os.Getenv("RFH_CONFIG"); rfhConfig != "" {
 		return rfhConfig, nil
 	}
-	
+
 	// Fall back to default ~/.rfh location
 	home, err := os.UserHomeDir()
 	if err != nil {

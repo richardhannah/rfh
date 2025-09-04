@@ -28,7 +28,7 @@ type PackageVersion struct {
 	Dependencies map[string]string      `json:"dependencies"`
 	SHA256       string                 `json:"sha256"`
 	Size         int64                  `json:"size"`
-	PublishedAt  time.Time             `json:"published_at"`
+	PublishedAt  time.Time              `json:"published_at"`
 	Metadata     map[string]interface{} `json:"metadata"`
 }
 
@@ -37,7 +37,7 @@ type PublishResult struct {
 	Name    string `json:"name"`
 	Version string `json:"version"`
 	SHA256  string `json:"sha256"`
-	URL     string `json:"url,omitempty"`     // For HTTP registries
-	PRUrl   string `json:"pr_url,omitempty"`  // For Git registries
+	URL     string `json:"url,omitempty"`    // For HTTP registries
+	PRUrl   string `json:"pr_url,omitempty"` // For Git registries
 	Message string `json:"message"`
 }

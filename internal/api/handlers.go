@@ -67,26 +67,24 @@ func (s *Server) getPackageHandler(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, pkg)
 }
 
-
 // getPackageVersionHandler gets specific package version
 func (s *Server) getPackageVersionHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	name := vars["name"]
 	version := vars["version"]
-	
+
 	fmt.Printf("[DEBUG] getPackageVersionHandler called with name='%s', version='%s'\n", name, version)
-	
+
 	pkgVersion, err := s.DB.GetPackageVersion(name, version)
 	if err != nil {
 		fmt.Printf("[ERROR] GetPackageVersion failed: %v\n", err)
 		writeError(w, http.StatusNotFound, "Package version not found")
 		return
 	}
-	
+
 	fmt.Printf("[DEBUG] Found package version: %+v\n", pkgVersion)
 	writeJSON(w, http.StatusOK, pkgVersion)
 }
-
 
 // publishPackageHandler handles package publishing
 func (s *Server) publishPackageHandler(w http.ResponseWriter, r *http.Request) {
@@ -98,7 +96,7 @@ func (s *Server) publishPackageHandler(w http.ResponseWriter, r *http.Request) {
 		writeError(w, http.StatusUnauthorized, "Authentication required")
 		return
 	}
-	
+
 	fmt.Fprintf(os.Stderr, "DEBUG PUBLISH: User authenticated: %s (ID: %d, Role: %s)\n", user.Username, user.ID, user.Role)
 
 	// Parse multipart form

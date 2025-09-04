@@ -15,7 +15,6 @@ import (
 	"rulestack/internal/pkg"
 )
 
-
 // publishCmd represents the publish command
 var publishCmd = &cobra.Command{
 	Use:   "publish",
@@ -38,7 +37,7 @@ Requires authentication token to be configured in the registry.`,
 
 func runPublishStaged() error {
 	stagingDir := ".rulestack/staged"
-	
+
 	// Check if staging directory exists
 	if _, err := os.Stat(stagingDir); os.IsNotExist(err) {
 		return fmt.Errorf("no staged archives found. Use 'rfh pack' to create archives first")
@@ -88,7 +87,7 @@ func publishSingleArchive(archivePath string) error {
 	if err != nil {
 		return fmt.Errorf("failed to extract manifest from archive: %w", err)
 	}
-	
+
 	// Parse the manifest
 	var packageManifest manifest.PackageManifest
 	if err := json.Unmarshal(manifestData, &packageManifest); err != nil {
@@ -176,15 +175,15 @@ func sanitizePackageName(name string) string {
 	safeName = strings.ReplaceAll(safeName, "<", "-")
 	safeName = strings.ReplaceAll(safeName, ">", "-")
 	safeName = strings.ReplaceAll(safeName, "|", "-")
-	
+
 	// Remove any leading/trailing spaces or dashes
 	safeName = strings.Trim(safeName, " -")
-	
+
 	// Ensure we have a valid name
 	if safeName == "" {
 		safeName = "unnamed-package"
 	}
-	
+
 	return safeName
 }
 

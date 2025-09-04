@@ -7,7 +7,7 @@ import (
 
 // Lockfile represents the rfh.lock file format
 type Lockfile struct {
-	Registry string                    `json:"registry"`
+	Registry string                   `json:"registry"`
 	Packages map[string]LockfileEntry `json:"packages"`
 }
 
