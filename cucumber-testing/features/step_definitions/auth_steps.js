@@ -149,11 +149,30 @@ Then('the command should exit with zero status', function () {
 });
 
 Given('I have a clean config file with no registries', async function () {
-  // Reset the config to a clean state using RFH commands
-  await this.resetConfig();
+  // Ensure the cucumber config directory exists 
+  await fs.ensureDir(this.testConfigDir);
   
   // Ensure configPath points to the shared test config location
   this.configPath = path.join(this.testConfigDir, 'config.toml');
+  
+  // Create a completely clean config file with no registries
+  const emptyConfig = `# Empty config for testing - no registries configured
+current = ""
+
+[registries]
+`;
+  await fs.writeFile(this.configPath, emptyConfig);
+  
+  // Reset internal state flags
+  this.registryConfigured = false;
+  this.currentUser = null;
+  this.rootJwtToken = null;
+  if (this.testUsers) {
+    this.testUsers.clear();
+  }
+  
+  // Small delay to ensure file is written
+  await new Promise(resolve => setTimeout(resolve, 100));
 });
 
 Given('I have a config with current registry {string}', async function (registryName) {

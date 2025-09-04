@@ -2,6 +2,7 @@ package cli
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/spf13/cobra"
 
@@ -20,22 +21,28 @@ configure multiple registries including public and private ones.`,
 
 // registryAddCmd adds a new registry
 var registryAddCmd = &cobra.Command{
-	Use:   "add <name> <url>",
+	Use:   "add <name> <url> [--type remote-http|git]",
 	Short: "Add a new registry",
 	Long: `Add a new registry configuration.
 
+Registry Types:
+  remote-http - Traditional HTTP-based registry (default)
+  git        - Git repository-based registry
+
 Examples:
   rfh registry add public https://registry.rulestack.dev
-  rfh registry add company https://rulestack.company.com
-  rfh registry add local http://localhost:8080
-
-Authentication tokens are obtained via 'rfh auth login'.`,
+  rfh registry add github https://github.com/org/registry --type git`,
 	Args: cobra.ExactArgs(2),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		name := args[0]
 		url := args[1]
-
-		return runRegistryAdd(name, url)
+		registryType, _ := cmd.Flags().GetString("type")
+		
+		if registryType == "" {
+			registryType = string(config.RegistryTypeHTTP)
+		}
+		
+		return runRegistryAdd(name, url, config.RegistryType(registryType))
 	},
 }
 
@@ -62,15 +69,30 @@ The active registry is used when no --registry flag is specified.`,
 	},
 }
 
-func runRegistryAdd(name, url string) error {
+func runRegistryAdd(name, url string, registryType config.RegistryType) error {
+	// Validate registry type
+	if err := config.ValidateRegistryType(registryType); err != nil {
+		return err
+	}
+	
+	// Validate URL based on type
+	if registryType == config.RegistryTypeGit {
+		if !strings.HasPrefix(url, "https://github.com/") && 
+		   !strings.HasPrefix(url, "https://gitlab.com/") &&
+		   !strings.HasPrefix(url, "git@") {
+			fmt.Printf("⚠️  Warning: Git registry URL may not be valid\n")
+		}
+	}
+	
 	cfg, err := config.LoadCLI()
 	if err != nil {
 		return fmt.Errorf("failed to load config: %w", err)
 	}
 
-	// Add registry
+	// Add registry with type
 	cfg.Registries[name] = config.Registry{
-		URL: url,
+		URL:  url,
+		Type: registryType,
 	}
 
 	// Set as current if it's the first one
@@ -85,12 +107,17 @@ func runRegistryAdd(name, url string) error {
 
 	fmt.Printf("✅ Added registry '%s'\n", name)
 	fmt.Printf("🌐 URL: %s\n", url)
+	fmt.Printf("📋 Type: %s\n", registryType)
 
 	if cfg.Current == name {
 		fmt.Printf("⭐ Set as active registry\n")
 	}
 
-	fmt.Printf("💡 Use 'rfh auth login' to authenticate with this registry\n")
+	if registryType == config.RegistryTypeHTTP {
+		fmt.Printf("💡 Use 'rfh auth login' to authenticate with this registry\n")
+	} else if registryType == config.RegistryTypeGit {
+		fmt.Printf("💡 Set git_token in config or use GITHUB_TOKEN environment variable for authentication\n")
+	}
 
 	return nil
 }
@@ -103,7 +130,7 @@ func runRegistryList() error {
 
 	if len(cfg.Registries) == 0 {
 		fmt.Printf("No registries configured.\n")
-		fmt.Printf("Add a registry with: rfh registry add <name> <url> [token]\n")
+		fmt.Printf("Add a registry with: rfh registry add <name> <url> [--type remote-http|git]\n")
 		return nil
 	}
 
@@ -113,12 +140,19 @@ func runRegistryList() error {
 		if cfg.Current == name {
 			marker = "* "
 		}
-
-		fmt.Printf("%s%s\n", marker, name)
+		
+		registryType := reg.GetEffectiveType()
+		
+		fmt.Printf("%s%s (%s)\n", marker, name, registryType)
 		fmt.Printf("    URL: %s\n", reg.URL)
-		if reg.JWTToken != "" {
+		
+		// Show appropriate token status based on type
+		if registryType == config.RegistryTypeHTTP && reg.JWTToken != "" {
 			fmt.Printf("    JWT Token: [configured]\n")
+		} else if registryType == config.RegistryTypeGit && reg.GitToken != "" {
+			fmt.Printf("    Git Token: [configured]\n")
 		}
+		
 		fmt.Printf("\n")
 	}
 
@@ -204,6 +238,8 @@ func runRegistryRemove(name string) error {
 }
 
 func init() {
+	registryAddCmd.Flags().String("type", "remote-http", "Registry type (remote-http or git)")
+	
 	registryCmd.AddCommand(registryAddCmd)
 	registryCmd.AddCommand(registryListCmd)
 	registryCmd.AddCommand(registryUseCmd)

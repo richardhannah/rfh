@@ -97,6 +97,55 @@ Then('the config should contain registry {string} with URL {string}', async func
   expect(configContent, `Config should contain url = '${url}'\nActual config:\n${configContent}`).to.include(`url = '${url}'`);
 });
 
+// New step definitions for registry types
+Then('the config should contain registry {string} with type {string}', async function (registryName, registryType) {
+  await new Promise(resolve => setTimeout(resolve, 100));
+  
+  const configExists = await fs.pathExists(this.configPath);
+  expect(configExists, `Config file should exist at ${this.configPath}`).to.be.true;
+  
+  const configContent = await fs.readFile(this.configPath, 'utf8');
+  expect(configContent, `Config should contain [registries.${registryName}]\nActual config:\n${configContent}`).to.include(`[registries.${registryName}]`);
+  expect(configContent, `Config should contain type = '${registryType}'\nActual config:\n${configContent}`).to.include(`type = '${registryType}'`);
+});
+
+Given('I have a registry {string} configured at {string} with type {string}', async function (name, url, type) {
+  await this.runCommand(`rfh registry add ${name} ${url} --type ${type}`);
+  if (this.lastExitCode !== 0) {
+    throw new Error(`Failed to add registry ${name}: ${this.lastCommandError || this.lastCommandOutput}`);
+  }
+  
+  // Small delay to ensure file is written
+  await new Promise(resolve => setTimeout(resolve, 200));
+});
+
+Then('I should see an error containing {string}', function (expectedError) {
+  const output = this.lastCommandError || this.lastCommandOutput;
+  expect(output.toLowerCase()).to.include(expectedError.toLowerCase());
+});
+
+// Step definition for creating config files with specific content
+Given('a config file with content:', async function (docString) {
+  await fs.ensureDir(this.testConfigDir);
+  await fs.writeFile(this.configPath, docString);
+  
+  // Small delay to ensure file is written
+  await new Promise(resolve => setTimeout(resolve, 100));
+});
+
+// Generic step for checking config contains text
+Then('the config should contain {string}', async function (expectedText) {
+  await new Promise(resolve => setTimeout(resolve, 100));
+  
+  const configExists = await fs.pathExists(this.configPath);
+  expect(configExists, `Config file should exist at ${this.configPath}`).to.be.true;
+  
+  const configContent = await fs.readFile(this.configPath, 'utf8');
+  expect(configContent, `Config should contain "${expectedText}"\nActual config:\n${configContent}`).to.include(expectedText);
+});
+
+// Exit status checks - duplicates removed (defined in other step files)
+
 // Token storage step removed - JWT tokens are obtained via 'rfh auth login'
 
 Then('{string} should be the current active registry', async function (name) {

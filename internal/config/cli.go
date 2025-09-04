@@ -1,16 +1,26 @@
 package config
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 
 	"github.com/pelletier/go-toml/v2"
 )
 
+type RegistryType string
+
+const (
+	RegistryTypeHTTP RegistryType = "remote-http"
+	RegistryTypeGit  RegistryType = "git"
+)
+
 type Registry struct {
-	URL      string `toml:"url"`
-	Username string `toml:"username,omitempty"` // Username for this registry
-	JWTToken string `toml:"jwt_token,omitempty"` // JWT token for this registry
+	URL      string       `toml:"url"`
+	Type     RegistryType `toml:"type"`                   // New field
+	Username string       `toml:"username,omitempty"`     // Username for this registry
+	JWTToken string       `toml:"jwt_token,omitempty"`    // JWT token for this registry
+	GitToken string       `toml:"git_token,omitempty"`    // New field for git auth
 }
 
 type CLIConfig struct {
@@ -71,6 +81,14 @@ func LoadCLI() (CLIConfig, error) {
 		config.Registries = make(map[string]Registry)
 	}
 
+	// Migrate existing registries to have explicit type
+	for name, reg := range config.Registries {
+		if reg.Type == "" {
+			reg.Type = RegistryTypeHTTP
+			config.Registries[name] = reg
+		}
+	}
+
 	return config, nil
 }
 
@@ -92,4 +110,22 @@ func SaveCLI(config CLIConfig) error {
 	}
 
 	return os.WriteFile(configPath, data, 0o600)
+}
+
+// ValidateRegistryType checks if a registry type is valid
+func ValidateRegistryType(t RegistryType) error {
+	switch t {
+	case RegistryTypeHTTP, RegistryTypeGit:
+		return nil
+	default:
+		return fmt.Errorf("unsupported registry type: %s", t)
+	}
+}
+
+// GetEffectiveType returns the effective type for a registry
+func (r Registry) GetEffectiveType() RegistryType {
+	if r.Type == "" {
+		return RegistryTypeHTTP
+	}
+	return r.Type
 }
