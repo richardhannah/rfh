@@ -1,11 +1,12 @@
 # Phase 7: GitHub API Integration
 
 ## Overview
-Integrate GitHub API using established libraries to automate pull request creation, fork management, and user authentication. This phase completes the Git registry publishing workflow with robust API integration.
+Integrate GitHub API minimally to automate pull request creation and user authentication while using go-git for all Git operations. This phase completes the Git registry publishing workflow with lightweight API integration.
 
 ## Scope
-- Implement GitHub API client using google/go-github library
-- Add automatic fork creation and management
+- Implement minimal GitHub API client using google/go-github library  
+- Use go-git library for all Git operations (cloning, branching, commits, pushes)
+- Add automatic fork detection and creation via GitHub API
 - Implement comprehensive PR creation with proper formatting
 - Get authenticated user information reliably
 - Handle API rate limiting and errors gracefully  
@@ -16,6 +17,7 @@ Integrate GitHub API using established libraries to automate pull request creati
 - Phase 6: Git Registry Publishing completed
 - GitHub personal access token with appropriate permissions
 - google/go-github library dependency
+- go-git library (confirmed working with GitHub/Gitea)
 
 ## Required GitHub Token Permissions
 - `repo` - Full control of private repositories (if using private registries)
@@ -27,9 +29,14 @@ Integrate GitHub API using established libraries to automate pull request creati
 ### 1. Add GitHub Library Dependency
 
 ```bash
-go get github.com/google/go-github/v56/github
+go get github.com/google/go-github/v67/github
 go get golang.org/x/oauth2
 ```
+
+**Note**: All Git operations (cloning, branching, commits, pushes) will use the go-git library which has been confirmed to work with GitHub personal access tokens. The GitHub API will only be used for:
+- Fork detection and creation
+- Pull request creation
+- User authentication information
 
 ### 2. Create GitHub API Client
 
@@ -43,7 +50,7 @@ import (
     "fmt"
     "time"
     
-    "github.com/google/go-github/v56/github"
+    "github.com/google/go-github/v67/github"
     "golang.org/x/oauth2"
 )
 
