@@ -40,7 +40,7 @@ repo-root/
 
 ### 1. Define Registry Index Structure
 
-**File**: `internal/client/git_types.go` (new file)
+**File**: `internal/client/git_types.go` (new file) or add to `internal/client/git.go`
 
 ```go
 package client
@@ -104,7 +104,7 @@ type GitManifest struct {
 ```go
 import (
     "encoding/json"
-    "io/ioutil"
+    "os"
 )
 
 // loadIndex loads and parses the registry index
@@ -126,7 +126,7 @@ func (c *GitClient) loadIndex(ctx context.Context) (*GitRegistryIndex, error) {
     }
     
     // Read index file
-    data, err := ioutil.ReadFile(indexPath)
+    data, err := os.ReadFile(indexPath)
     if err != nil {
         return nil, NewRegistryError(ErrInvalidRegistry, fmt.Sprintf("failed to read index: %v", err))
     }
@@ -151,7 +151,7 @@ func (c *GitClient) loadPackageMetadata(packageName string) (*GitPackageMetadata
         return nil, NewRegistryError(ErrPackageNotFound, packageName)
     }
     
-    data, err := ioutil.ReadFile(metadataPath)
+    data, err := os.ReadFile(metadataPath)
     if err != nil {
         return nil, fmt.Errorf("failed to read package metadata: %w", err)
     }
@@ -173,7 +173,7 @@ func (c *GitClient) loadManifest(packageName, version string) (*GitManifest, err
             fmt.Sprintf("%s@%s", packageName, version))
     }
     
-    data, err := ioutil.ReadFile(manifestPath)
+    data, err := os.ReadFile(manifestPath)
     if err != nil {
         return nil, fmt.Errorf("failed to read manifest: %w", err)
     }
@@ -390,6 +390,8 @@ func (c *GitClient) GetPackageVersion(ctx context.Context, name, version string)
 ```go
 import (
     "io"
+    "crypto/sha256"
+    "encoding/hex"
 )
 
 // DownloadBlob downloads a package archive by SHA256 hash
@@ -482,20 +484,14 @@ func (c *GitClient) copyFile(src, dst string) error {
         return err
     }
     
-    source, err := os.Open(src)
+    // Read source file
+    data, err := os.ReadFile(src)
     if err != nil {
         return err
     }
-    defer source.Close()
     
-    destination, err := os.Create(dst)
-    if err != nil {
-        return err
-    }
-    defer destination.Close()
-    
-    _, err = io.Copy(destination, source)
-    return err
+    // Write to destination
+    return os.WriteFile(dst, data, 0644)
 }
 ```
 
@@ -543,7 +539,7 @@ func (c *GitClient) rebuildIndex() (*GitRegistryIndex, error) {
     }
     
     // Walk through packages directory
-    entries, err := ioutil.ReadDir(packagesDir)
+    entries, err := os.ReadDir(packagesDir)
     if err != nil {
         return nil, NewRegistryError(ErrInvalidRegistry, fmt.Sprintf("failed to read packages directory: %v", err))
     }

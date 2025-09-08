@@ -4,11 +4,14 @@ import (
 	"context"
 	"crypto/sha256"
 	"encoding/hex"
+	"encoding/json"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing/transport"
@@ -306,18 +309,142 @@ func (c *GitClient) SetVerbose(verbose bool) {
 	c.verbose = verbose
 }
 
-// Interface implementations - completed in subsequent phases
+// Interface implementations - Phase 5: Git Registry Discovery
 
 func (c *GitClient) SearchPackages(ctx context.Context, opts SearchOptions) ([]Package, error) {
-	return nil, NewRegistryError(ErrNotImplemented, "Git registry search not yet implemented - see Phase 5")
+	if c.verbose {
+		fmt.Printf("🔍 Searching packages with query: %s\n", opts.Query)
+	}
+
+	// Load registry index
+	index, err := c.loadIndex(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to load registry index: %w", err)
+	}
+
+	var results []Package
+	count := 0
+
+	for _, entry := range index.Packages {
+		// Apply search filters
+		if !c.matchesSearch(entry, opts) {
+			continue
+		}
+
+		// Convert to Package struct
+		pkg := Package{
+			Name:        entry.Name,
+			Description: entry.Description,
+			Latest:      entry.Latest,
+			Tags:        entry.Tags,
+			UpdatedAt:   entry.UpdatedAt,
+		}
+
+		// Load versions from metadata if available
+		if metadata, err := c.loadPackageMetadata(entry.Name); err == nil {
+			pkg.Versions = make([]string, len(metadata.Versions))
+			for i, v := range metadata.Versions {
+				pkg.Versions[i] = v.Version
+			}
+		}
+
+		results = append(results, pkg)
+		count++
+
+		// Apply limit
+		if opts.Limit > 0 && count >= opts.Limit {
+			break
+		}
+	}
+
+	if c.verbose {
+		fmt.Printf("✅ Found %d packages\n", len(results))
+	}
+
+	return results, nil
 }
 
 func (c *GitClient) GetPackage(ctx context.Context, name string) (*Package, error) {
-	return nil, NewRegistryError(ErrNotImplemented, "Git registry package retrieval not yet implemented - see Phase 5")
+	if c.verbose {
+		fmt.Printf("📦 Getting package: %s\n", name)
+	}
+
+	// Ensure repository is up to date
+	if err := c.ensureRepo(ctx); err != nil {
+		return nil, err
+	}
+
+	// Check if package exists
+	if !c.packageExists(name) {
+		return nil, NewRegistryError(ErrPackageNotFound, name)
+	}
+
+	// Load package metadata
+	metadata, err := c.loadPackageMetadata(name)
+	if err != nil {
+		return nil, err
+	}
+
+	// Convert to Package struct
+	pkg := &Package{
+		Name:        metadata.Name,
+		Description: metadata.Description,
+		Latest:      metadata.Latest,
+		Tags:        metadata.Tags,
+		UpdatedAt:   metadata.UpdatedAt,
+		Versions:    make([]string, len(metadata.Versions)),
+	}
+
+	for i, v := range metadata.Versions {
+		pkg.Versions[i] = v.Version
+	}
+
+	if c.verbose {
+		fmt.Printf("✅ Found package with %d versions\n", len(pkg.Versions))
+	}
+
+	return pkg, nil
 }
 
 func (c *GitClient) GetPackageVersion(ctx context.Context, name, version string) (*PackageVersion, error) {
-	return nil, NewRegistryError(ErrNotImplemented, "Git registry version retrieval not yet implemented - see Phase 5")
+	if c.verbose {
+		fmt.Printf("📦 Getting package version: %s@%s\n", name, version)
+	}
+
+	// Ensure repository is up to date
+	if err := c.ensureRepo(ctx); err != nil {
+		return nil, err
+	}
+
+	// Check if version exists
+	if !c.versionExists(name, version) {
+		return nil, NewRegistryError(ErrVersionNotFound,
+			fmt.Sprintf("%s@%s", name, version))
+	}
+
+	// Load manifest
+	manifest, err := c.loadManifest(name, version)
+	if err != nil {
+		return nil, err
+	}
+
+	// Convert to PackageVersion struct
+	pv := &PackageVersion{
+		Name:         manifest.Name,
+		Version:      manifest.Version,
+		Description:  manifest.Description,
+		Dependencies: manifest.Dependencies,
+		SHA256:       manifest.SHA256,
+		Size:         manifest.Size,
+		PublishedAt:  manifest.PublishedAt,
+		Metadata:     manifest.Metadata,
+	}
+
+	if c.verbose {
+		fmt.Printf("✅ Found version published at %s\n", pv.PublishedAt.Format(time.RFC3339))
+	}
+
+	return pv, nil
 }
 
 func (c *GitClient) PublishPackage(ctx context.Context, manifestPath, archivePath string) (*PublishResult, error) {
@@ -325,5 +452,277 @@ func (c *GitClient) PublishPackage(ctx context.Context, manifestPath, archivePat
 }
 
 func (c *GitClient) DownloadBlob(ctx context.Context, sha256Hash, destPath string) error {
-	return NewRegistryError(ErrNotImplemented, "Git registry blob download not yet implemented - see Phase 5")
+	if c.verbose {
+		fmt.Printf("📥 Downloading blob: %s\n", sha256Hash)
+	}
+
+	// Ensure repository is up to date
+	if err := c.ensureRepo(ctx); err != nil {
+		return err
+	}
+
+	// Find the archive file by hash
+	archivePath, err := c.findArchiveByHash(sha256Hash)
+	if err != nil {
+		return err
+	}
+
+	// Copy file to destination
+	if err := c.copyFile(archivePath, destPath); err != nil {
+		return fmt.Errorf("failed to copy archive: %w", err)
+	}
+
+	if c.verbose {
+		fmt.Printf("✅ Downloaded to %s\n", destPath)
+	}
+
+	return nil
+}
+
+// Phase 5 Helper Methods
+
+// loadIndex loads and parses the registry index
+func (c *GitClient) loadIndex(ctx context.Context) (*GitRegistryIndex, error) {
+	// Ensure repository is up to date
+	if err := c.ensureRepo(ctx); err != nil {
+		return nil, err
+	}
+
+	indexPath := c.getIndexPath()
+
+	// Check if index exists
+	if _, err := os.Stat(indexPath); os.IsNotExist(err) {
+		if c.verbose {
+			fmt.Printf("⚠️  Index not found, attempting to rebuild from packages directory\n")
+		}
+		// Try to rebuild index from packages directory
+		return c.rebuildIndex()
+	}
+
+	// Read index file
+	data, err := os.ReadFile(indexPath)
+	if err != nil {
+		return nil, NewRegistryError(ErrInvalidRegistry, fmt.Sprintf("failed to read index: %v", err))
+	}
+
+	var index GitRegistryIndex
+	if err := json.Unmarshal(data, &index); err != nil {
+		if c.verbose {
+			fmt.Printf("⚠️  Index corrupted, rebuilding from packages directory\n")
+		}
+		// If index is corrupted, try to rebuild
+		return c.rebuildIndex()
+	}
+
+	return &index, nil
+}
+
+// loadPackageMetadata loads metadata for a specific package
+func (c *GitClient) loadPackageMetadata(packageName string) (*GitPackageMetadata, error) {
+	metadataPath := filepath.Join(c.getPackagePath(packageName), "metadata.json")
+
+	if _, err := os.Stat(metadataPath); os.IsNotExist(err) {
+		return nil, NewRegistryError(ErrPackageNotFound, packageName)
+	}
+
+	data, err := os.ReadFile(metadataPath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read package metadata: %w", err)
+	}
+
+	var metadata GitPackageMetadata
+	if err := json.Unmarshal(data, &metadata); err != nil {
+		return nil, fmt.Errorf("failed to parse package metadata: %w", err)
+	}
+
+	return &metadata, nil
+}
+
+// loadManifest loads manifest for a specific version
+func (c *GitClient) loadManifest(packageName, version string) (*GitManifest, error) {
+	manifestPath := filepath.Join(c.getVersionPath(packageName, version), "manifest.json")
+
+	if _, err := os.Stat(manifestPath); os.IsNotExist(err) {
+		return nil, NewRegistryError(ErrVersionNotFound,
+			fmt.Sprintf("%s@%s", packageName, version))
+	}
+
+	data, err := os.ReadFile(manifestPath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read manifest: %w", err)
+	}
+
+	var manifest GitManifest
+	if err := json.Unmarshal(data, &manifest); err != nil {
+		return nil, fmt.Errorf("failed to parse manifest: %w", err)
+	}
+
+	return &manifest, nil
+}
+
+// matchesSearch checks if a package matches search criteria
+func (c *GitClient) matchesSearch(entry GitPackageEntry, opts SearchOptions) bool {
+	// Query match (case-insensitive)
+	if opts.Query != "" {
+		query := strings.ToLower(opts.Query)
+		name := strings.ToLower(entry.Name)
+		desc := strings.ToLower(entry.Description)
+
+		if !strings.Contains(name, query) && !strings.Contains(desc, query) {
+			return false
+		}
+	}
+
+	// Tag filter
+	if opts.Tag != "" {
+		found := false
+		for _, tag := range entry.Tags {
+			if tag == opts.Tag {
+				found = true
+				break
+			}
+		}
+		if !found {
+			return false
+		}
+	}
+
+	// Target filter (could be in metadata/tags)
+	if opts.Target != "" {
+		// For now, check if target is in tags
+		found := false
+		for _, tag := range entry.Tags {
+			if strings.Contains(tag, opts.Target) {
+				found = true
+				break
+			}
+		}
+		if !found {
+			return false
+		}
+	}
+
+	return true
+}
+
+// findArchiveByHash searches for an archive file by its SHA256 hash
+func (c *GitClient) findArchiveByHash(sha256Hash string) (string, error) {
+	packagesDir := filepath.Join(c.cacheDir, "packages")
+
+	var foundPath string
+	err := filepath.Walk(packagesDir, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+
+		// Look for archive.tar.gz files
+		if filepath.Base(path) == "archive.tar.gz" {
+			// Calculate hash of file
+			hash, err := c.calculateFileHash(path)
+			if err != nil {
+				return nil // Skip this file
+			}
+
+			if hash == sha256Hash {
+				foundPath = path
+				return io.EOF // Stop walking
+			}
+		}
+
+		return nil
+	})
+
+	if err != nil && err != io.EOF {
+		return "", fmt.Errorf("error searching for archive: %w", err)
+	}
+
+	if foundPath == "" {
+		return "", fmt.Errorf("archive with hash %s not found", sha256Hash)
+	}
+
+	return foundPath, nil
+}
+
+// calculateFileHash calculates SHA256 hash of a file
+func (c *GitClient) calculateFileHash(filePath string) (string, error) {
+	file, err := os.Open(filePath)
+	if err != nil {
+		return "", err
+	}
+	defer file.Close()
+
+	h := sha256.New()
+	if _, err := io.Copy(h, file); err != nil {
+		return "", err
+	}
+
+	return hex.EncodeToString(h.Sum(nil)), nil
+}
+
+// copyFile copies a file from source to destination
+func (c *GitClient) copyFile(src, dst string) error {
+	// Create destination directory if needed
+	if err := os.MkdirAll(filepath.Dir(dst), 0755); err != nil {
+		return err
+	}
+
+	// Read source file
+	data, err := os.ReadFile(src)
+	if err != nil {
+		return err
+	}
+
+	// Write to destination
+	return os.WriteFile(dst, data, 0644)
+}
+
+// rebuildIndex rebuilds the index from the packages directory
+func (c *GitClient) rebuildIndex() (*GitRegistryIndex, error) {
+	packagesDir := filepath.Join(c.cacheDir, "packages")
+
+	// Check if packages directory exists
+	if _, err := os.Stat(packagesDir); os.IsNotExist(err) {
+		return nil, NewRegistryError(ErrInvalidRegistry, "packages directory not found - not a valid registry")
+	}
+
+	index := &GitRegistryIndex{
+		Version:   "1.0",
+		UpdatedAt: time.Now(),
+		Packages:  make(map[string]GitPackageEntry),
+	}
+
+	if c.verbose {
+		fmt.Printf("🔄 Rebuilding index from packages directory\n")
+	}
+
+	// Walk through packages directory
+	entries, err := os.ReadDir(packagesDir)
+	if err != nil {
+		return nil, NewRegistryError(ErrInvalidRegistry, fmt.Sprintf("failed to read packages directory: %v", err))
+	}
+
+	for _, entry := range entries {
+		if !entry.IsDir() {
+			continue
+		}
+
+		packageName := entry.Name()
+
+		// Try to load metadata
+		metadata, err := c.loadPackageMetadata(packageName)
+		if err != nil {
+			continue // Skip packages without metadata
+		}
+
+		index.Packages[packageName] = GitPackageEntry{
+			Name:        metadata.Name,
+			Description: metadata.Description,
+			Latest:      metadata.Latest,
+			Tags:        metadata.Tags,
+			UpdatedAt:   metadata.UpdatedAt,
+		}
+		index.PackageCount++
+	}
+
+	return index, nil
 }

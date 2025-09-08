@@ -263,10 +263,6 @@ Then('core rules should be downloaded to {string}', async function (path) {
   expect(exists, `Core rules directory ${path} should exist`).to.be.true;
 });
 
-Then('the file {string} should exist', async function (filePath) {
-  const exists = await this.fileExists(filePath);
-  expect(exists, `File ${filePath} should exist`).to.be.true;
-});
 
 // Setup steps for existing files
 Given('a file {string} already exists', async function (fileName) {
