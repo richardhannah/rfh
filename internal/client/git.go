@@ -448,7 +448,68 @@ func (c *GitClient) GetPackageVersion(ctx context.Context, name, version string)
 }
 
 func (c *GitClient) PublishPackage(ctx context.Context, manifestPath, archivePath string) (*PublishResult, error) {
-	return nil, NewRegistryError(ErrNotImplemented, "Git registry publishing not yet implemented - see Phase 6")
+	if c.verbose {
+		fmt.Printf("📦 Publishing package to Git registry\n")
+	}
+
+	// Detect fork information
+	fork, err := c.detectFork(c.repoURL)
+	if err != nil {
+		return nil, fmt.Errorf("failed to detect fork: %w", err)
+	}
+
+	// Ensure fork is ready
+	forkRepo, err := c.ensureFork(ctx, fork)
+	if err != nil {
+		return nil, fmt.Errorf("failed to prepare fork: %w", err)
+	}
+
+	// Parse manifest for package info
+	manifestData, _ := os.ReadFile(manifestPath)
+	var manifest GitManifest
+	json.Unmarshal(manifestData, &manifest)
+
+	// Create publish branch
+	branchName, err := c.createPublishBranch(forkRepo, manifest.Name, manifest.Version)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create branch: %w", err)
+	}
+
+	// Add package files
+	if err := c.addPackageFiles(forkRepo, manifestPath, archivePath); err != nil {
+		return nil, fmt.Errorf("failed to add package files: %w", err)
+	}
+
+	// Update registry index
+	if err := c.updateRegistryIndex(forkRepo, &manifest); err != nil {
+		return nil, fmt.Errorf("failed to update index: %w", err)
+	}
+
+	// Create commit
+	_, err = c.createCommit(forkRepo, &manifest)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create commit: %w", err)
+	}
+
+	// Push branch
+	if err := c.pushBranch(ctx, forkRepo, branchName); err != nil {
+		return nil, fmt.Errorf("failed to push branch: %w", err)
+	}
+
+	// PR creation will be in Phase 7
+	prURL := fmt.Sprintf("https://github.com/%s/%s/compare/main...%s:%s",
+		strings.Split(fork.OriginalURL, "/")[3],
+		fork.RepoName,
+		fork.Username,
+		branchName)
+
+	return &PublishResult{
+		Name:    manifest.Name,
+		Version: manifest.Version,
+		SHA256:  manifest.SHA256,
+		PRUrl:   prURL,
+		Message: fmt.Sprintf("Branch '%s' pushed. Visit %s to create PR", branchName, prURL),
+	}, nil
 }
 
 func (c *GitClient) DownloadBlob(ctx context.Context, sha256Hash, destPath string) error {

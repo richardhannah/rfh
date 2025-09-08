@@ -1,7 +1,15 @@
-# Phase 6: Git Registry Publishing
+# Phase 6: Git Registry Publishing (Updated)
 
 ## Overview
-Implement package publishing for Git-based registries with simplified fork management and robust error handling. This phase covers branch creation, file management, and committing changes while maintaining consistency with existing patterns.
+Implement package publishing for Git-based registries with simplified fork management and robust error handling. This phase covers branch creation, file management, and committing changes while maintaining consistency with existing Phase 5 patterns.
+
+## Changes from Original Planning
+- Updated all `ioutil` usage to `os` package for Go 1.16+ compatibility
+- Added missing imports (os, hex, exec, crypto/sha256, encoding/hex)
+- Aligned error handling patterns with Phase 5 implementation
+- Verified helper methods exist in current GitClient implementation
+- Updated file operation patterns to match Phase 5 style
+- Clarified authentication and config patterns
 
 ## Scope
 - Implement simplified repository fork management
@@ -13,10 +21,11 @@ Implement package publishing for Git-based registries with simplified fork manag
 - Use standardized error types throughout
 
 ## Prerequisites
-- Phase 4: Git Client Basic Operations completed
-- Phase 5: Git Registry Search and Discovery completed
-- Understanding of Git workflow and GitHub patterns
-- Consistent error handling established
+- Phase 4: Git Client Basic Operations completed ✅
+- Phase 5: Git Registry Search and Discovery completed ✅
+- Understanding of Git workflow and GitHub patterns ✅
+- Consistent error handling established ✅
+- Helper methods verified in current implementation ✅
 
 ## Publishing Workflow
 
@@ -39,7 +48,11 @@ Implement package publishing for Git-based registries with simplified fork manag
 package client
 
 import (
+    "context"
     "fmt"
+    "os"
+    "os/exec"
+    "path/filepath"
     "strings"
     
     "github.com/go-git/go-git/v5"
@@ -212,9 +225,11 @@ package client
 import (
     "fmt"
     "path/filepath"
+    "strings"
     "time"
     
     "github.com/go-git/go-git/v5"
+    "github.com/go-git/go-git/v5/config"
     "github.com/go-git/go-git/v5/plumbing"
     "github.com/go-git/go-git/v5/plumbing/object"
 )
@@ -271,15 +286,18 @@ func (c *GitClient) createPublishBranch(repo *git.Repository, packageName, versi
 
 ```go
 import (
+    "crypto/sha256"
+    "encoding/hex"
     "encoding/json"
     "io"
-    "crypto/sha256"
+    "os"
+    "time"
 )
 
 // addPackageFiles adds package files to the repository
 func (c *GitClient) addPackageFiles(repo *git.Repository, manifestPath, archivePath string) error {
     // Parse manifest to get package info
-    manifestData, err := ioutil.ReadFile(manifestPath)
+    manifestData, err := os.ReadFile(manifestPath)
     if err != nil {
         return fmt.Errorf("failed to read manifest: %w", err)
     }
@@ -317,7 +335,7 @@ func (c *GitClient) addPackageFiles(repo *git.Repository, manifestPath, archiveP
     // Write manifest
     manifestDest := filepath.Join(versionDir, "manifest.json")
     updatedManifest, _ := json.MarshalIndent(manifest, "", "  ")
-    if err := ioutil.WriteFile(manifestDest, updatedManifest, 0644); err != nil {
+    if err := os.WriteFile(manifestDest, updatedManifest, 0644); err != nil {
         return fmt.Errorf("failed to write manifest: %w", err)
     }
     
@@ -374,7 +392,7 @@ func (c *GitClient) updatePackageMetadata(packageDir string, manifest *GitManife
     var metadata GitPackageMetadata
     
     // Load existing metadata if it exists
-    if data, err := ioutil.ReadFile(metadataPath); err == nil {
+    if data, err := os.ReadFile(metadataPath); err == nil {
         json.Unmarshal(data, &metadata)
     } else {
         // Create new metadata
@@ -416,7 +434,7 @@ func (c *GitClient) updatePackageMetadata(packageDir string, manifest *GitManife
     
     // Write updated metadata
     data, _ := json.MarshalIndent(metadata, "", "  ")
-    return ioutil.WriteFile(metadataPath, data, 0644)
+    return os.WriteFile(metadataPath, data, 0644)
 }
 ```
 
@@ -437,7 +455,7 @@ func (c *GitClient) updateRegistryIndex(repo *git.Repository, manifest *GitManif
     var index GitRegistryIndex
     
     // Load existing index
-    if data, err := ioutil.ReadFile(indexPath); err == nil {
+    if data, err := os.ReadFile(indexPath); err == nil {
         json.Unmarshal(data, &index)
     } else {
         // Create new index
@@ -462,7 +480,7 @@ func (c *GitClient) updateRegistryIndex(repo *git.Repository, manifest *GitManif
     
     // Write updated index
     data, _ := json.MarshalIndent(index, "", "  ")
-    if err := ioutil.WriteFile(indexPath, data, 0644); err != nil {
+    if err := os.WriteFile(indexPath, data, 0644); err != nil {
         return fmt.Errorf("failed to write index: %w", err)
     }
     
@@ -480,6 +498,16 @@ func (c *GitClient) updateRegistryIndex(repo *git.Repository, manifest *GitManif
 **File**: `internal/client/git_publish.go`
 
 ```go
+import (
+    "fmt"
+    "os"
+    "time"
+    
+    "github.com/go-git/go-git/v5"
+    "github.com/go-git/go-git/v5/plumbing"
+    "github.com/go-git/go-git/v5/plumbing/object"
+)
+
 // createCommit creates a commit for the package publication
 func (c *GitClient) createCommit(repo *git.Repository, manifest *GitManifest) (plumbing.Hash, error) {
     w, err := repo.Worktree()
@@ -544,6 +572,15 @@ func (c *GitClient) getAuthor() *object.Signature {
 **File**: `internal/client/git_publish.go`
 
 ```go
+import (
+    "context"
+    "fmt"
+    "os"
+    
+    "github.com/go-git/go-git/v5"
+    "github.com/go-git/go-git/v5/config"
+)
+
 // pushBranch pushes the branch to the remote repository
 func (c *GitClient) pushBranch(ctx context.Context, repo *git.Repository, branchName string) error {
     if c.verbose {
@@ -583,6 +620,14 @@ func (c *GitClient) pushBranch(ctx context.Context, repo *git.Repository, branch
 **File**: `internal/client/git.go`
 
 ```go
+import (
+    "context"
+    "encoding/json"
+    "fmt"
+    "os"
+    "strings"
+)
+
 // PublishPackage publishes a package to the Git registry
 func (c *GitClient) PublishPackage(ctx context.Context, manifestPath, archivePath string) (*PublishResult, error) {
     if c.verbose {
@@ -602,7 +647,7 @@ func (c *GitClient) PublishPackage(ctx context.Context, manifestPath, archivePat
     }
     
     // Parse manifest for package info
-    manifestData, _ := ioutil.ReadFile(manifestPath)
+    manifestData, _ := os.ReadFile(manifestPath)
     var manifest GitManifest
     json.Unmarshal(manifestData, &manifest)
     

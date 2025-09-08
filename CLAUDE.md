@@ -23,3 +23,5 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Active Rules (Rulestack core)
 - @.rulestack/golang-standard.1.0.0/golang-rules.mdc
+- remember to run cucumber tests with the run-tests script
+- when running on windows - use powershell scripts
