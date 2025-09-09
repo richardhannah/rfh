@@ -14,6 +14,8 @@ import (
 	"time"
 
 	"github.com/go-git/go-git/v5"
+	"github.com/go-git/go-git/v5/config"
+	"github.com/go-git/go-git/v5/plumbing/object"
 	"github.com/go-git/go-git/v5/plumbing/transport"
 	"github.com/go-git/go-git/v5/plumbing/transport/http"
 	"github.com/google/go-github/v67/github"
@@ -941,4 +943,321 @@ func (c *GitClient) rebuildIndex() (*GitRegistryIndex, error) {
 	}
 
 	return index, nil
+}
+
+// InitializeRegistry creates the initial structure for an empty Git registry
+func (c *GitClient) InitializeRegistry(ctx context.Context) error {
+	if c.verbose {
+		fmt.Printf("🔧 Initializing Git registry at %s\n", c.repoURL)
+		fmt.Printf("📁 Cache directory: %s\n", c.cacheDir)
+	}
+
+	// 1. Try to clone existing repository first, then initialize if needed
+	if c.verbose {
+		fmt.Printf("📋 Step 1: Attempting to clone existing repository...\n")
+	}
+	
+	// Clean up any existing cache directory first
+	if err := os.RemoveAll(c.cacheDir); err != nil {
+		return fmt.Errorf("failed to clean cache directory: %w", err)
+	}
+	
+	// Try to clone the existing repository
+	cloneAuth := &http.BasicAuth{Username: "git", Password: c.gitToken}
+	repo, err := git.PlainClone(c.cacheDir, false, &git.CloneOptions{
+		URL:  c.repoURL,
+		Auth: cloneAuth,
+	})
+	
+	if err != nil {
+		if c.verbose {
+			fmt.Printf("📋 Clone failed (likely empty repository): %v\n", err)
+			fmt.Printf("📋 Creating new local repository...\n")
+		}
+		// If clone fails, create new repository
+		if err := c.initLocalEmptyRepo(); err != nil {
+			return fmt.Errorf("failed to initialize local repository: %w", err)
+		}
+		repo, err = git.PlainOpen(c.cacheDir)
+		if err != nil {
+			return fmt.Errorf("failed to open local repository: %w", err)
+		}
+	} else if c.verbose {
+		fmt.Printf("✅ Successfully cloned existing repository\n")
+	}
+
+	// 2. Get worktree for the repository
+	w, err := repo.Worktree()
+	if err != nil {
+		return fmt.Errorf("failed to get worktree: %w", err)
+	}
+	if c.verbose {
+		fmt.Printf("✅ Repository worktree ready\n")
+	}
+
+	if c.verbose {
+		fmt.Printf("📋 Step 3: Creating initial structure and files...\n")
+	}
+	if err := c.createInitialStructure(w); err != nil {
+		return fmt.Errorf("failed to create initial structure: %w", err)
+	}
+	if c.verbose {
+		fmt.Printf("✅ Initial structure and commit created\n")
+	}
+
+	// 3. Push to remote repository
+	if c.verbose {
+		fmt.Printf("📋 Step 4: Pushing to remote repository...\n")
+	}
+	if err := c.pushToRemote(ctx, repo); err != nil {
+		return fmt.Errorf("failed to push to remote: %w", err)
+	}
+
+	if c.verbose {
+		fmt.Printf("✅ Repository initialized successfully\n")
+	}
+
+	return nil
+}
+
+// initLocalEmptyRepo creates a clean local Git repository
+func (c *GitClient) initLocalEmptyRepo() error {
+	// Clean up any existing cache directory
+	if err := os.RemoveAll(c.cacheDir); err != nil {
+		return fmt.Errorf("failed to clean cache directory: %w", err)
+	}
+
+	// Create cache directory
+	if err := os.MkdirAll(c.cacheDir, 0755); err != nil {
+		return fmt.Errorf("failed to create cache directory: %w", err)
+	}
+
+	// Initialize new Git repository
+	if c.verbose {
+		fmt.Printf("📁 Creating local repository at %s\n", c.cacheDir)
+	}
+
+	_, err := git.PlainInit(c.cacheDir, false)
+	if err != nil {
+		return fmt.Errorf("failed to initialize git repository: %w", err)
+	}
+
+	return nil
+}
+
+// createInitialStructure creates the initial registry directory structure and files
+func (c *GitClient) createInitialStructure(w *git.Worktree) error {
+	if c.verbose {
+		fmt.Printf("📋 Creating initial registry structure\n")
+	}
+
+	// Create packages directory
+	packagesDir := filepath.Join(c.cacheDir, "packages")
+	if c.verbose {
+		fmt.Printf("📁 Creating packages directory: %s\n", packagesDir)
+	}
+	if err := os.MkdirAll(packagesDir, 0755); err != nil {
+		return fmt.Errorf("failed to create packages directory: %w", err)
+	}
+
+	// Create initial index.json
+	if c.verbose {
+		fmt.Printf("📄 Creating index.json...\n")
+	}
+	index := &GitRegistryIndex{
+		Version:      "1.0",
+		UpdatedAt:    time.Now(),
+		PackageCount: 0,
+		Packages:     make(map[string]GitPackageEntry),
+	}
+
+	indexData, err := json.MarshalIndent(index, "", "  ")
+	if err != nil {
+		return fmt.Errorf("failed to marshal index: %w", err)
+	}
+
+	indexPath := filepath.Join(c.cacheDir, "index.json")
+	if err := os.WriteFile(indexPath, indexData, 0644); err != nil {
+		return fmt.Errorf("failed to write index.json: %w", err)
+	}
+	if c.verbose {
+		fmt.Printf("✅ index.json created at %s\n", indexPath)
+	}
+
+	// Create README.md
+	readme := `# RuleStack Registry
+
+This is a RuleStack package registry initialized with the rfh CLI.
+
+## Structure
+
+- ` + "`packages/`" + ` - Contains all published packages
+- ` + "`index.json`" + ` - Registry index with package metadata
+
+## Usage
+
+To publish packages to this registry:
+
+1. Add this registry to your rfh configuration
+2. Set it as your active registry
+3. Use ` + "`rfh pack`" + ` to create package archives
+4. Use ` + "`rfh publish`" + ` to publish packages
+
+For more information, visit: https://github.com/richardhannah/rfh
+`
+
+	readmePath := filepath.Join(c.cacheDir, "README.md")
+	if c.verbose {
+		fmt.Printf("📄 Creating README.md...\n")
+	}
+	if err := os.WriteFile(readmePath, []byte(readme), 0644); err != nil {
+		return fmt.Errorf("failed to write README.md: %w", err)
+	}
+	if c.verbose {
+		fmt.Printf("✅ README.md created at %s\n", readmePath)
+	}
+
+	// Add all files to Git
+	if c.verbose {
+		fmt.Printf("📋 Adding files to git staging...\n")
+	}
+	if _, err := w.Add("."); err != nil {
+		return fmt.Errorf("failed to add files to git: %w", err)
+	}
+	if c.verbose {
+		fmt.Printf("✅ Files staged for commit\n")
+	}
+
+	// Create initial commit
+	if c.verbose {
+		fmt.Printf("📋 Creating initial commit...\n")
+	}
+	commitHash, err := w.Commit("Initial registry structure", &git.CommitOptions{
+		Author: &object.Signature{
+			Name:  "RuleStack CLI",
+			Email: "noreply@rulestack.dev",
+			When:  time.Now(),
+		},
+	})
+	if err != nil {
+		return fmt.Errorf("failed to create initial commit: %w", err)
+	}
+	if c.verbose {
+		fmt.Printf("✅ Initial commit created: %s\n", commitHash.String()[:8])
+	}
+
+	// Validate that files actually exist
+	if c.verbose {
+		fmt.Printf("📋 Validating created files...\n")
+		if _, err := os.Stat(filepath.Join(c.cacheDir, "index.json")); err != nil {
+			fmt.Printf("⚠️  index.json not found: %v\n", err)
+		} else {
+			fmt.Printf("✅ index.json exists\n")
+		}
+		
+		if _, err := os.Stat(filepath.Join(c.cacheDir, "README.md")); err != nil {
+			fmt.Printf("⚠️  README.md not found: %v\n", err)
+		} else {
+			fmt.Printf("✅ README.md exists\n")
+		}
+		
+		if _, err := os.Stat(filepath.Join(c.cacheDir, "packages")); err != nil {
+			fmt.Printf("⚠️  packages directory not found: %v\n", err)
+		} else {
+			fmt.Printf("✅ packages directory exists\n")
+		}
+	}
+
+	return nil
+}
+
+// pushToRemote pushes the local repository to the remote origin
+func (c *GitClient) pushToRemote(ctx context.Context, repo *git.Repository) error {
+	if c.verbose {
+		fmt.Printf("🚀 Pushing initial structure to remote repository\n")
+		fmt.Printf("📋 Remote URL: %s\n", c.repoURL)
+	}
+
+	// Add remote origin (if not already exists from clone)
+	if c.verbose {
+		fmt.Printf("📋 Checking/adding remote origin...\n")
+	}
+	_, err := repo.Remote("origin")
+	if err != nil {
+		// Remote doesn't exist, add it
+		_, err = repo.CreateRemote(&config.RemoteConfig{
+			Name: "origin",
+			URLs: []string{c.repoURL},
+		})
+		if err != nil {
+			if c.verbose {
+				fmt.Printf("⚠️  Failed to add remote origin: %v\n", err)
+			}
+		} else if c.verbose {
+			fmt.Printf("✅ Remote origin added\n")
+		}
+	} else if c.verbose {
+		fmt.Printf("✅ Remote origin already exists\n")
+	}
+
+	// Configure authentication
+	if c.verbose {
+		fmt.Printf("📋 Configuring authentication...\n")
+	}
+	auth := &http.BasicAuth{
+		Username: "git",
+		Password: c.gitToken,
+	}
+
+	// Skip fetch since we either cloned or are creating new content
+
+	// Check what we're about to push
+	if c.verbose {
+		fmt.Printf("📋 Checking repository state before push...\n")
+		ref, err := repo.Head()
+		if err != nil {
+			fmt.Printf("⚠️  Could not get HEAD: %v\n", err)
+		} else {
+			fmt.Printf("📋 HEAD commit: %s\n", ref.Hash().String()[:8])
+		}
+		
+		// Check if we have any commits
+		iter, err := repo.Log(&git.LogOptions{})
+		if err != nil {
+			fmt.Printf("⚠️  Could not get log: %v\n", err)
+		} else {
+			commitCount := 0
+			err = iter.ForEach(func(c *object.Commit) error {
+				commitCount++
+				return nil
+			})
+			fmt.Printf("📋 Local commits: %d\n", commitCount)
+			iter.Close()
+		}
+	}
+
+	// Push to remote
+	if c.verbose {
+		fmt.Printf("📋 Pushing to remote (main branch)...\n")
+	}
+	err = repo.PushContext(ctx, &git.PushOptions{
+		RemoteName: "origin",
+		RefSpecs:   []config.RefSpec{config.RefSpec("refs/heads/main:refs/heads/main")},
+		Auth:       auth,
+		Progress:   os.Stdout,
+	})
+	if err != nil {
+		errStr := err.Error()
+		if c.verbose {
+			fmt.Printf("⚠️  Push error: %s\n", errStr)
+		}
+		
+		// Don't mask any errors - show the real problem
+		return fmt.Errorf("failed to push to remote: %w", err)
+	}
+
+	if c.verbose {
+		fmt.Printf("✅ Successfully pushed to remote repository\n")
+	}
+	return nil
 }

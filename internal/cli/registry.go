@@ -1,11 +1,13 @@
 package cli
 
 import (
+	"context"
 	"fmt"
 	"strings"
 
 	"github.com/spf13/cobra"
 
+	"rulestack/internal/client"
 	"rulestack/internal/config"
 )
 
@@ -188,6 +190,32 @@ func runRegistryUse(name string) error {
 	return nil
 }
 
+// registryInitCmd initializes an empty Git registry
+var registryInitCmd = &cobra.Command{
+	Use:   "init --token <github-token>",
+	Short: "Initialize empty Git registry with default structure",
+	Long: `Initialize the active Git registry with the default package structure and store authentication token.
+
+This command will:
+1. Store the GitHub token for the active registry
+2. Create initial repository structure (packages/, index.json, README.md)
+3. Make an initial commit to the remote repository
+
+The command operates on the currently active registry. Use 'rfh registry use <name>' to change the active registry.
+
+Example:
+  rfh registry add my-rules https://github.com/org/rules --type git
+  rfh registry init --token ghp_xxxxxxxxxxxx`,
+	Args: cobra.NoArgs,
+	RunE: func(cmd *cobra.Command, args []string) error {
+		token, _ := cmd.Flags().GetString("token")
+		if token == "" {
+			return fmt.Errorf("--token flag is required")
+		}
+		return runRegistryInit(token)
+	},
+}
+
 // registryRemoveCmd removes a registry
 var registryRemoveCmd = &cobra.Command{
 	Use:   "remove <name>",
@@ -237,11 +265,74 @@ func runRegistryRemove(name string) error {
 	return nil
 }
 
+func runRegistryInit(token string) error {
+	// 1. Load config
+	cfg, err := config.LoadCLI()
+	if err != nil {
+		return fmt.Errorf("failed to load config: %w", err)
+	}
+
+	// 2. Get current active registry
+	registryName, registry, err := getCurrentRegistry(cfg)
+	if err != nil {
+		return err
+	}
+
+	// 3. Validate registry is Git type
+	if registry.GetEffectiveType() != config.RegistryTypeGit {
+		return fmt.Errorf("active registry '%s' is not a Git registry (type: %s). Only Git registries can be initialized", registryName, registry.GetEffectiveType())
+	}
+
+	fmt.Printf("🔧 Initializing Git registry '%s'...\n", registryName)
+	fmt.Printf("🌐 URL: %s\n", registry.URL)
+
+	// 4. Store token in config and save immediately
+	registry.GitToken = token
+	cfg.Registries[registryName] = registry
+	
+	if err := config.SaveCLI(cfg); err != nil {
+		return fmt.Errorf("failed to save config: %w", err)
+	}
+	fmt.Printf("🔑 Token stored in config\n")
+
+	// 5. Initialize repository structure
+	err = initializeGitRegistryStructure(registryName, &registry)
+	if err != nil {
+		// Token is already saved, so give appropriate feedback
+		fmt.Printf("⚠️  Repository structure initialization failed: %v\n", err)
+		fmt.Printf("💡 Token has been saved. You can retry initialization later.\n")
+		return fmt.Errorf("failed to initialize registry structure: %w", err)
+	}
+
+	// 6. Success feedback
+	fmt.Printf("✅ Registry '%s' initialized successfully\n", registryName)
+	fmt.Printf("📁 Default structure created in remote repository\n")
+	fmt.Printf("💡 Registry is now ready for publishing packages\n")
+
+	return nil
+}
+
+func initializeGitRegistryStructure(registryName string, registry *config.Registry) error {
+	// Create temporary GitClient with the token
+	c, err := client.NewGitClient(registry.URL, registry.GitToken, verbose)
+	if err != nil {
+		return fmt.Errorf("failed to create Git client: %w", err)
+	}
+
+	ctx, cancel := client.WithTimeout(context.Background())
+	defer cancel()
+
+	fmt.Printf("🚀 Setting up repository structure...\n")
+	return c.InitializeRegistry(ctx)
+}
+
 func init() {
 	registryAddCmd.Flags().String("type", "remote-http", "Registry type (remote-http or git)")
+	registryInitCmd.Flags().String("token", "", "GitHub personal access token (required)")
 
 	registryCmd.AddCommand(registryAddCmd)
 	registryCmd.AddCommand(registryListCmd)
 	registryCmd.AddCommand(registryUseCmd)
+	registryCmd.AddCommand(registryInitCmd)
 	registryCmd.AddCommand(registryRemoveCmd)
 }
