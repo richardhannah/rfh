@@ -16,6 +16,7 @@ import (
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing/transport"
 	"github.com/go-git/go-git/v5/plumbing/transport/http"
+	"github.com/google/go-github/v67/github"
 
 	rfhconfig "rulestack/internal/config"
 )
@@ -447,69 +448,223 @@ func (c *GitClient) GetPackageVersion(ctx context.Context, name, version string)
 	return pv, nil
 }
 
+// PublishPackage publishes a package to the Git registry (Phase 7 - Direct Collaborator Mode)
+// This completely replaces the Phase 6 fork-based implementation
 func (c *GitClient) PublishPackage(ctx context.Context, manifestPath, archivePath string) (*PublishResult, error) {
 	if c.verbose {
-		fmt.Printf("📦 Publishing package to Git registry\n")
-	}
-
-	// Detect fork information
-	fork, err := c.detectFork(c.repoURL)
-	if err != nil {
-		return nil, fmt.Errorf("failed to detect fork: %w", err)
-	}
-
-	// Ensure fork is ready
-	forkRepo, err := c.ensureFork(ctx, fork)
-	if err != nil {
-		return nil, fmt.Errorf("failed to prepare fork: %w", err)
+		fmt.Printf("📦 Publishing package to Git registry (direct collaborator mode)\n")
 	}
 
 	// Parse manifest for package info
-	manifestData, _ := os.ReadFile(manifestPath)
+	manifestData, err := os.ReadFile(manifestPath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read manifest: %w", err)
+	}
 	var manifest GitManifest
-	json.Unmarshal(manifestData, &manifest)
+	if err := json.Unmarshal(manifestData, &manifest); err != nil {
+		return nil, fmt.Errorf("failed to parse manifest: %w", err)
+	}
 
-	// Create publish branch
-	branchName, err := c.createPublishBranch(forkRepo, manifest.Name, manifest.Version)
+	// Work directly with the target repository (no fork management)
+	repo, err := c.cloneRepository(ctx, c.repoURL)
+	if err != nil {
+		return nil, fmt.Errorf("failed to prepare repository: %w", err)
+	}
+
+	// Create publish branch (reuse existing Phase 6 helper)
+	branchName, err := c.createPublishBranch(repo, manifest.Name, manifest.Version)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create branch: %w", err)
 	}
 
-	// Add package files
-	if err := c.addPackageFiles(forkRepo, manifestPath, archivePath); err != nil {
+	// Add package files (reuse existing Phase 6 helper)
+	if err := c.addPackageFiles(repo, manifestPath, archivePath); err != nil {
 		return nil, fmt.Errorf("failed to add package files: %w", err)
 	}
 
-	// Update registry index
-	if err := c.updateRegistryIndex(forkRepo, &manifest); err != nil {
+	// Update registry index (reuse existing Phase 6 helper)
+	if err := c.updateRegistryIndex(repo, &manifest); err != nil {
 		return nil, fmt.Errorf("failed to update index: %w", err)
 	}
 
-	// Create commit
-	_, err = c.createCommit(forkRepo, &manifest)
+	// Create commit (reuse existing Phase 6 helper)
+	_, err = c.createCommit(repo, &manifest)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create commit: %w", err)
 	}
 
-	// Push branch
-	if err := c.pushBranch(ctx, forkRepo, branchName); err != nil {
+	// Push branch to origin (same repository)
+	if err := c.pushBranch(ctx, repo, branchName); err != nil {
 		return nil, fmt.Errorf("failed to push branch: %w", err)
 	}
 
-	// PR creation will be in Phase 7
-	prURL := fmt.Sprintf("https://github.com/%s/%s/compare/main...%s:%s",
-		strings.Split(fork.OriginalURL, "/")[3],
-		fork.RepoName,
-		fork.Username,
-		branchName)
+	// Create pull request via GitHub API (same repository)
+	pr, err := c.createPullRequestForPackage(ctx, branchName, &manifest)
+	if err != nil {
+		// If GitHub API fails, provide manual URL for same repository
+		owner, repoName, _ := parseGitHubURL(c.repoURL)
+		manualURL := fmt.Sprintf("https://github.com/%s/%s/compare/main...%s",
+			owner, repoName, branchName) // Same repo - direct collaborator access
+
+		if c.verbose {
+			fmt.Printf("⚠️ GitHub API PR creation failed: %v\n", err)
+			fmt.Printf("💡 Branch pushed successfully. Create PR manually: %s\n", manualURL)
+		}
+
+		return &PublishResult{
+			Name:    manifest.Name,
+			Version: manifest.Version,
+			SHA256:  manifest.SHA256,
+			PRUrl:   manualURL,
+			Message: fmt.Sprintf("Branch pushed. Create PR manually: %s", manualURL),
+		}, nil
+	}
 
 	return &PublishResult{
 		Name:    manifest.Name,
 		Version: manifest.Version,
 		SHA256:  manifest.SHA256,
-		PRUrl:   prURL,
-		Message: fmt.Sprintf("Branch '%s' pushed. Visit %s to create PR", branchName, prURL),
+		PRUrl:   pr.GetHTMLURL(),
+		Message: fmt.Sprintf("Pull request created successfully: %s", pr.GetHTMLURL()),
 	}, nil
+}
+
+// cloneRepository clones the target repository directly (no fork management)
+func (c *GitClient) cloneRepository(ctx context.Context, repoURL string) (*git.Repository, error) {
+	// Create cache directory for the repository
+	cacheDir := c.cacheDir
+
+	// Check if repository already cloned
+	if _, err := os.Stat(filepath.Join(cacheDir, ".git")); err == nil {
+		// Open existing repository
+		repo, err := git.PlainOpen(cacheDir)
+		if err != nil {
+			return nil, fmt.Errorf("failed to open repository: %w", err)
+		}
+
+		// Update from remote
+		if err := c.updateRepository(ctx, repo); err != nil {
+			return nil, err
+		}
+
+		return repo, nil
+	}
+
+	// Clone repository
+	if c.verbose {
+		fmt.Printf("📥 Cloning repository: %s\n", repoURL)
+	}
+
+	cloneOpts := &git.CloneOptions{
+		URL:      repoURL,
+		Progress: nil,
+	}
+
+	if c.verbose {
+		cloneOpts.Progress = os.Stdout
+	}
+
+	if c.gitToken != "" {
+		cloneOpts.Auth = c.getAuth()
+	}
+
+	repo, err := git.PlainCloneContext(ctx, cacheDir, false, cloneOpts)
+	if err != nil {
+		return nil, fmt.Errorf("failed to clone repository: %w", err)
+	}
+
+	return repo, nil
+}
+
+// updateRepository updates the repository from remote
+func (c *GitClient) updateRepository(ctx context.Context, repo *git.Repository) error {
+	if c.verbose {
+		fmt.Printf("🔄 Updating repository from remote\n")
+	}
+
+	// Fetch latest changes
+	fetchOpts := &git.FetchOptions{
+		RemoteName: "origin",
+	}
+
+	if c.gitToken != "" {
+		fetchOpts.Auth = c.getAuth()
+	}
+
+	err := repo.FetchContext(ctx, fetchOpts)
+	if err != nil && err != git.NoErrAlreadyUpToDate {
+		return fmt.Errorf("failed to fetch from remote: %w", err)
+	}
+
+	return nil
+}
+
+// createPullRequestForPackage creates a PR for package publication (same repository)
+func (c *GitClient) createPullRequestForPackage(ctx context.Context, branchName string, manifest *GitManifest) (*github.PullRequest, error) {
+	// Parse repository URL directly
+	owner, repo, err := parseGitHubURL(c.repoURL)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse repository URL: %w", err)
+	}
+
+	// Create GitHub client
+	githubClient := NewGitHubClient(c.gitToken, c.verbose)
+
+	// Verify collaborator access
+	if err := githubClient.CheckCollaboratorAccess(ctx, owner, repo); err != nil {
+		return nil, fmt.Errorf("access check failed: %w", err)
+	}
+
+	// Get repository information
+	repository, err := githubClient.GetRepository(ctx, owner, repo)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get repository info: %w", err)
+	}
+
+	// Get authenticated user
+	user, err := githubClient.GetAuthenticatedUser(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get user info: %w", err)
+	}
+
+	// Create PR body
+	body := fmt.Sprintf(`## 📦 Package Publication Request
+
+**Package**: %s  
+**Version**: %s  
+**Description**: %s
+
+### Package Details
+- **SHA256**: %s
+- **Size**: %d bytes
+- **Publisher**: %s
+
+### Changes
+- Added package files to `+"`packages/%s/versions/%s/`"+`
+- Updated package metadata  
+- Updated registry index
+
+---
+*This pull request was automatically generated by RuleStack CLI*`,
+		manifest.Name,
+		manifest.Version,
+		manifest.Description,
+		manifest.SHA256,
+		manifest.Size,
+		user.GetLogin(),
+		manifest.Name,
+		manifest.Version)
+
+	// Create pull request (same repository: branch -> main)
+	title := fmt.Sprintf("Publish %s@%s", manifest.Name, manifest.Version)
+	baseBranch := repository.GetDefaultBranch()
+
+	pr, err := githubClient.CreatePullRequest(ctx, owner, repo, title, branchName, baseBranch, body)
+	if err != nil {
+		return nil, err
+	}
+
+	return pr, nil
 }
 
 func (c *GitClient) DownloadBlob(ctx context.Context, sha256Hash, destPath string) error {

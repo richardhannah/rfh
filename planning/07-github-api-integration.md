@@ -1,44 +1,55 @@
-# Phase 7: GitHub API Integration
+# Phase 7: GitHub API Integration (Direct Collaborator Mode)
 
 ## Overview
-Integrate GitHub API minimally to automate pull request creation and user authentication while using go-git for all Git operations. This phase completes the Git registry publishing workflow with lightweight API integration.
+**Completely replace** Phase 6 Git Registry Publishing with GitHub API integration for automatic pull request creation. This phase assumes users are collaborators with write access to registry repositories, eliminating the need for fork management and significantly simplifying the implementation.
+
+## Changes from Original Planning (Major Simplification)
+- **No Fork Management**: Users are collaborators with direct write access
+- **Direct Repository Access**: Work directly on main registry repository
+- **Same-Repo PRs**: Create PRs from branch to main on the same repository
+- **Simplified Authentication**: Only need GitHub API for PR creation and user info
+- **Complete Replacement**: Replace Phase 6 PublishPackage method entirely
+- **Remove All Fork Logic**: Eliminate fork detection, creation, and management completely
 
 ## Scope
-- Implement minimal GitHub API client using google/go-github library  
-- Use go-git library for all Git operations (cloning, branching, commits, pushes)
-- Add automatic fork detection and creation via GitHub API
-- Implement comprehensive PR creation with proper formatting
-- Get authenticated user information reliably
-- Handle API rate limiting and errors gracefully  
-- Add PR status checking capabilities
-- Maintain consistency with existing error handling patterns
+- **Replace Phase 6 PublishPackage method completely**
+- Add GitHub API client for pull request creation only
+- Create PRs directly from publish branches to main branch (same repository)
+- Get authenticated user information for PR author details
+- Handle API rate limiting and authentication gracefully
+- **Remove all fork-related code from Phase 6**
+- Maintain existing Phase 6 helper methods (createPublishBranch, addPackageFiles, etc.)
+- Direct repository cloning and branch management only
 
 ## Prerequisites
-- Phase 6: Git Registry Publishing completed
-- GitHub personal access token with appropriate permissions
-- google/go-github library dependency
-- go-git library (confirmed working with GitHub/Gitea)
+- Phase 6: Git Registry Publishing completed ✅
+- Users have collaborator/write access to registry repositories ✅
+- GitHub personal access token with collaborator permissions ✅
+- google/go-github library dependency (to be added)
+- Existing go-git integration confirmed working ✅
 
 ## Required GitHub Token Permissions
-- `repo` - Full control of private repositories (if using private registries)
-- `public_repo` - Access to public repositories
-- `workflow` - Update GitHub Action workflows (if needed)
+- `repo` - Write access to repositories (collaborator level)
+- OR `public_repo` - Write access to public repositories (collaborator level)
+- **Note**: Users must be added as collaborators to registry repositories
 
 ## Implementation Steps
 
-### 1. Add GitHub Library Dependency
+### 1. Add GitHub Library Dependency (Required)
 
 ```bash
 go get github.com/google/go-github/v67/github
 go get golang.org/x/oauth2
 ```
 
-**Note**: All Git operations (cloning, branching, commits, pushes) will use the go-git library which has been confirmed to work with GitHub personal access tokens. The GitHub API will only be used for:
-- Fork detection and creation
-- Pull request creation
-- User authentication information
+**Implementation Note**: These dependencies will be added as part of Phase 7 implementation.
 
-### 2. Create GitHub API Client
+**Note**: All Git operations (cloning, branching, commits, pushes) will use the go-git library which has been confirmed to work with GitHub personal access tokens. The GitHub API will only be used for:
+- Pull request creation (same repository)
+- User authentication information
+- **No fork management needed** - users work directly on registry repositories
+
+### 2. Enhance GitClient with GitHub API Integration
 
 **File**: `internal/client/github_api.go` (new file)
 
@@ -55,6 +66,7 @@ import (
 )
 
 // GitHubClient handles GitHub API operations
+// Integrates with existing GitClient from Phase 6
 type GitHubClient struct {
     client  *github.Client
     verbose bool
@@ -102,98 +114,84 @@ func (g *GitHubClient) GetAuthenticatedUser(ctx context.Context) (*github.User, 
 }
 ```
 
-### 4. Implement Fork Management
+### 4. Direct Repository Access (Replace Fork Management)
 
-**File**: `internal/client/github_api.go`
+**File**: `internal/client/github_api.go` (add repository parsing helper)
 
 ```go
-
-// CreateFork creates a fork of the specified repository
-func (g *GitHubClient) CreateFork(ctx context.Context, owner, repo string) (*github.Repository, error) {
-    if g.verbose {
-        fmt.Printf("🍴 Creating fork of %s/%s\n", owner, repo)
+// parseGitHubURL extracts owner and repo from GitHub URL
+func parseGitHubURL(repoURL string) (owner, repo string, err error) {
+    if !strings.Contains(repoURL, "github.com") {
+        return "", "", fmt.Errorf("not a GitHub URL")
     }
     
-    // Create fork with empty options (uses defaults)
-    fork, _, err := g.client.Repositories.CreateFork(ctx, owner, repo, nil)
-    if err != nil {
-        return nil, NewRegistryError(ErrUnauthorized, fmt.Sprintf("failed to create fork: %v", err))
+    // Handle different URL formats
+    repoURL = strings.TrimSuffix(repoURL, ".git")
+    
+    // Parse URL - handle both https://github.com/owner/repo and git@github.com:owner/repo
+    var parts []string
+    if strings.Contains(repoURL, "github.com/") {
+        parts = strings.Split(repoURL, "/")
+    } else if strings.Contains(repoURL, "github.com:") {
+        parts = strings.Split(strings.Replace(repoURL, ":", "/", -1), "/")
+    } else {
+        return "", "", fmt.Errorf("invalid GitHub URL format")
     }
     
-    if g.verbose {
-        fmt.Printf("✅ Fork created: %s\n", fork.GetFullName())
+    if len(parts) < 2 {
+        return "", "", fmt.Errorf("invalid GitHub URL format")
     }
     
-    // Wait for fork to be ready (GitHub needs time to set up the repo)
-    time.Sleep(5 * time.Second)
+    // Find github.com in parts and extract owner/repo
+    for i, part := range parts {
+        if part == "github.com" && i+2 < len(parts) {
+            owner = parts[i+1]
+            repo = parts[i+2]
+            break
+        }
+    }
     
-    return fork, nil
+    if owner == "" || repo == "" {
+        return "", "", fmt.Errorf("could not parse owner/repo from URL")
+    }
+    
+    return owner, repo, nil
 }
 
-// GetFork checks if a fork exists for the authenticated user
-func (g *GitHubClient) GetFork(ctx context.Context, owner, repo string) (*github.Repository, error) {
-    // Get authenticated user
-    user, err := g.GetAuthenticatedUser(ctx)
+// GetRepository gets repository information (no fork needed)
+func (g *GitHubClient) GetRepository(ctx context.Context, owner, repo string) (*github.Repository, error) {
+    repository, _, err := g.client.Repositories.Get(ctx, owner, repo)
     if err != nil {
-        return nil, err
+        return nil, NewRegistryError(ErrNotFound, fmt.Sprintf("failed to get repository %s/%s: %v", owner, repo, err))
     }
     
-    // Check if fork exists
-    fork, _, err := g.client.Repositories.Get(ctx, user.GetLogin(), repo)
-    if err != nil {
-        // Check if it's a 404 (fork doesn't exist)
-        if _, ok := err.(*github.ErrorResponse); ok {
-            return nil, nil // Fork doesn't exist
-        }
-        return nil, NewRegistryError(ErrConnectionFailed, fmt.Sprintf("failed to check for fork: %v", err))
+    if g.verbose {
+        fmt.Printf("📁 Repository: %s (default branch: %s)\n", 
+            repository.GetFullName(), repository.GetDefaultBranch())
     }
     
-    // Verify it's actually a fork of the target repo
-    if !fork.GetFork() || fork.GetParent() == nil ||
-       fork.GetParent().GetFullName() != fmt.Sprintf("%s/%s", owner, repo) {
-        return nil, nil // Not a fork of the target
-    }
-    
-    return fork, nil
-}
-
-// EnsureFork ensures a fork exists, creating one if necessary
-func (g *GitHubClient) EnsureFork(ctx context.Context, owner, repo string) (*github.Repository, error) {
-    // Check if fork already exists
-    fork, err := g.GetFork(ctx, owner, repo)
-    if err != nil {
-        return nil, err
-    }
-    
-    if fork != nil {
-        if g.verbose {
-            fmt.Printf("✅ Fork already exists: %s\n", fork.GetFullName())
-        }
-        return fork, nil
-    }
-    
-    // Create fork
-    return g.CreateFork(ctx, owner, repo)
+    return repository, nil
 }
 ```
 
-### 5. Implement Pull Request Creation
+### 5. Implement Same-Repository Pull Request Creation
 
 **File**: `internal/client/github_api.go`
 
 ```go
-
-// CreatePullRequest creates a new pull request
-func (g *GitHubClient) CreatePullRequest(ctx context.Context, owner, repo, title, head, base, body string) (*github.PullRequest, error) {
+// CreatePullRequest creates a new pull request on the same repository
+// This is for collaborators creating PRs from branch to main on the same repo
+func (g *GitHubClient) CreatePullRequest(ctx context.Context, owner, repo, title, branchName, baseBranch, body string) (*github.PullRequest, error) {
     if g.verbose {
         fmt.Printf("📝 Creating pull request: %s\n", title)
-        fmt.Printf("   Base: %s <- Head: %s\n", base, head)
+        fmt.Printf("   Repository: %s/%s\n", owner, repo)
+        fmt.Printf("   Branch: %s -> %s\n", branchName, baseBranch)
     }
     
     newPR := &github.NewPullRequest{
         Title:               github.String(title),
-        Head:                github.String(head),
-        Base:                github.String(base),
+        Head:                github.String(branchName), // Just branch name (same repo)
+        Base:                github.String(baseBranch), // Usually "main"
         Body:                github.String(body),
         MaintainerCanModify: github.Bool(true),
         Draft:               github.Bool(false),
@@ -201,11 +199,19 @@ func (g *GitHubClient) CreatePullRequest(ctx context.Context, owner, repo, title
     
     pr, _, err := g.client.PullRequests.Create(ctx, owner, repo, newPR)
     if err != nil {
+        // Check for common errors
+        if strings.Contains(err.Error(), "pull request already exists") {
+            return nil, fmt.Errorf("pull request already exists for branch %s", branchName)
+        }
+        if strings.Contains(err.Error(), "No commits between") {
+            return nil, fmt.Errorf("no commits found on branch %s", branchName)
+        }
         return nil, NewRegistryError(ErrInvalidOperation, fmt.Sprintf("failed to create PR: %v", err))
     }
     
     if g.verbose {
         fmt.Printf("✅ Pull request created: %s\n", pr.GetHTMLURL())
+        fmt.Printf("   PR #%d: %s\n", pr.GetNumber(), pr.GetTitle())
     }
     
     return pr, nil
@@ -221,14 +227,25 @@ func (g *GitHubClient) GetPullRequest(ctx context.Context, owner, repo string, n
     return pr, nil
 }
 
-// GetRateLimit gets current rate limit status
-func (g *GitHubClient) GetRateLimit(ctx context.Context) (*github.RateLimits, error) {
-    rateLimit, _, err := g.client.RateLimits.Get(ctx)
+// CheckCollaboratorAccess verifies user has write access to the repository
+func (g *GitHubClient) CheckCollaboratorAccess(ctx context.Context, owner, repo string) error {
+    user, err := g.GetAuthenticatedUser(ctx)
     if err != nil {
-        return nil, fmt.Errorf("failed to get rate limit: %v", err)
+        return err
     }
     
-    return rateLimit, nil
+    // Check if user is a collaborator with write access
+    _, _, err = g.client.Repositories.GetPermissionLevel(ctx, owner, repo, user.GetLogin())
+    if err != nil {
+        return NewRegistryError(ErrUnauthorized, 
+            fmt.Sprintf("user %s does not have access to %s/%s", user.GetLogin(), owner, repo))
+    }
+    
+    if g.verbose {
+        fmt.Printf("✅ User %s has access to %s/%s\n", user.GetLogin(), owner, repo)
+    }
+    
+    return nil
 }
 ```
 
@@ -286,149 +303,78 @@ func (c *GitClient) createPullRequestForPackage(ctx context.Context, branchName 
     // Create GitHub client
     github := NewGitHubClient(c.gitToken, c.verbose)
     
-    // Get authenticated user
-    user, err := github.GetAuthenticatedUser(ctx)
-    if err != nil {
-        return nil, fmt.Errorf("failed to get user info: %w", err)
-    }
-    
-    // Ensure fork exists
-    fork, err := github.EnsureFork(ctx, owner, repo)
-    if err != nil {
-        return nil, fmt.Errorf("failed to ensure fork: %w", err)
-    }
-    
-    // Create PR body
-    body := fmt.Sprintf(`## 📦 Package Publication Request
-
-**Package**: %s
-**Version**: %s
-**Description**: %s
-
-### Package Details
-- **SHA256**: %s
-- **Size**: %d bytes
-- **Publisher**: %s
-
-### Changes
-- Added package files to ` + "`packages/%s/versions/%s/`" + `
-- Updated package metadata
-- Updated registry index
-
----
-*This pull request was automatically generated by RuleStack CLI*`,
-        manifest.Name,
-        manifest.Version,
-        manifest.Description,
-        manifest.SHA256,
-        manifest.Size,
-        user.Login,
-        manifest.Name,
-        manifest.Version)
-    
-    // Create PR request
-    prRequest := &PullRequestRequest{
-        Title: fmt.Sprintf("Publish %s@%s", manifest.Name, manifest.Version),
-        Head:  fmt.Sprintf("%s:%s", user.Login, branchName),
-        Base:  fork.Parent.DefaultBranch,
-        Body:  body,
-        MaintainerCanModify: true,
-        Draft: false,
-    }
-    
-    // Create pull request
-    pr, err := github.CreatePullRequest(ctx, owner, repo, prRequest)
-    if err != nil {
-        // Check if PR already exists
-        if strings.Contains(err.Error(), "pull request already exists") {
-            return nil, fmt.Errorf("pull request already exists for this branch")
-        }
-        return nil, err
-    }
-    
-    return pr, nil
+    // This method is REMOVED - replaced by createPullRequestForPackage in the main git.go file
+    // See the complete replacement PublishPackage method below
 }
 ```
 
-### 6. Update Main Publish Method
+### 6. Replace Phase 6 PublishPackage Method Completely
 
-**File**: Update `internal/client/git.go`
+**File**: Update `internal/client/git.go` (complete replacement of Phase 6 method)
 
 ```go
-// PublishPackage publishes a package to the Git registry (updated)
+// PublishPackage publishes a package to the Git registry (Phase 7 - Direct Collaborator Mode)
+// This completely replaces the Phase 6 fork-based implementation
 func (c *GitClient) PublishPackage(ctx context.Context, manifestPath, archivePath string) (*PublishResult, error) {
     if c.verbose {
-        fmt.Printf("📦 Publishing package to Git registry\n")
+        fmt.Printf("📦 Publishing package to Git registry (direct collaborator mode)\n")
     }
-    
-    // Check if GitHub repository
-    owner, repo, err := parseGitHubURL(c.repoURL)
-    if err != nil {
-        return nil, fmt.Errorf("only GitHub repositories supported for publishing: %w", err)
-    }
-    
-    // Verify token is provided
-    if c.gitToken == "" {
-        return nil, fmt.Errorf("GitHub token required for publishing")
-    }
-    
-    // Create GitHub client and ensure fork
-    github := NewGitHubClient(c.gitToken, c.verbose)
-    fork, err := github.EnsureFork(ctx, owner, repo)
-    if err != nil {
-        return nil, fmt.Errorf("failed to ensure fork: %w", err)
-    }
-    
-    // Update fork URL in client
-    forkURL := fork.CloneURL
-    
-    // Clone/update fork
-    forkRepo, err := c.cloneOrUpdateFork(ctx, forkURL)
-    if err != nil {
-        return nil, fmt.Errorf("failed to prepare fork: %w", err)
-    }
-    
+
     // Parse manifest for package info
-    manifestData, _ := ioutil.ReadFile(manifestPath)
+    manifestData, err := os.ReadFile(manifestPath)
+    if err != nil {
+        return nil, fmt.Errorf("failed to read manifest: %w", err)
+    }
     var manifest GitManifest
-    json.Unmarshal(manifestData, &manifest)
-    
-    // Create publish branch
-    branchName, err := c.createPublishBranch(forkRepo, manifest.Name, manifest.Version)
+    if err := json.Unmarshal(manifestData, &manifest); err != nil {
+        return nil, fmt.Errorf("failed to parse manifest: %w", err)
+    }
+
+    // Work directly with the target repository (no fork management)
+    repo, err := c.cloneRepository(ctx, c.repoURL)
+    if err != nil {
+        return nil, fmt.Errorf("failed to prepare repository: %w", err)
+    }
+
+    // Create publish branch (reuse existing Phase 6 helper)
+    branchName, err := c.createPublishBranch(repo, manifest.Name, manifest.Version)
     if err != nil {
         return nil, fmt.Errorf("failed to create branch: %w", err)
     }
-    
-    // Add package files
-    if err := c.addPackageFiles(forkRepo, manifestPath, archivePath); err != nil {
+
+    // Add package files (reuse existing Phase 6 helper)
+    if err := c.addPackageFiles(repo, manifestPath, archivePath); err != nil {
         return nil, fmt.Errorf("failed to add package files: %w", err)
     }
-    
-    // Update registry index
-    if err := c.updateRegistryIndex(forkRepo, &manifest); err != nil {
+
+    // Update registry index (reuse existing Phase 6 helper)
+    if err := c.updateRegistryIndex(repo, &manifest); err != nil {
         return nil, fmt.Errorf("failed to update index: %w", err)
     }
-    
-    // Create commit
-    _, err = c.createCommit(forkRepo, &manifest)
+
+    // Create commit (reuse existing Phase 6 helper)
+    _, err = c.createCommit(repo, &manifest)
     if err != nil {
         return nil, fmt.Errorf("failed to create commit: %w", err)
     }
-    
-    // Push branch
-    if err := c.pushBranch(ctx, forkRepo, branchName); err != nil {
+
+    // Push branch to origin (same repository)
+    if err := c.pushBranch(ctx, repo, branchName); err != nil {
         return nil, fmt.Errorf("failed to push branch: %w", err)
     }
-    
-    // Create pull request
+
+    // Create pull request via GitHub API (same repository)
     pr, err := c.createPullRequestForPackage(ctx, branchName, &manifest)
     if err != nil {
-        // If PR creation fails, still return success with manual URL
-        manualURL := fmt.Sprintf("%s/compare/%s...%s:%s",
-            strings.TrimSuffix(c.repoURL, ".git"),
-            fork.Parent.DefaultBranch,
-            fork.Owner.Login,
-            branchName)
+        // If GitHub API fails, provide manual URL for same repository
+        owner, repoName, _ := parseGitHubURL(c.repoURL)
+        manualURL := fmt.Sprintf("https://github.com/%s/%s/compare/main...%s", 
+            owner, repoName, branchName) // Same repo - direct collaborator access
+        
+        if c.verbose {
+            fmt.Printf("⚠️ GitHub API PR creation failed: %v\n", err)
+            fmt.Printf("💡 Branch pushed successfully. Create PR manually: %s\n", manualURL)
+        }
         
         return &PublishResult{
             Name:    manifest.Name,
@@ -438,60 +384,173 @@ func (c *GitClient) PublishPackage(ctx context.Context, manifestPath, archivePat
             Message: fmt.Sprintf("Branch pushed. Create PR manually: %s", manualURL),
         }, nil
     }
-    
+
     return &PublishResult{
         Name:    manifest.Name,
         Version: manifest.Version,
         SHA256:  manifest.SHA256,
-        PRUrl:   pr.HTMLURL,
-        Message: fmt.Sprintf("Pull request created successfully: %s", pr.HTMLURL),
+        PRUrl:   pr.GetHTMLURL(),
+        Message: fmt.Sprintf("Pull request created successfully: %s", pr.GetHTMLURL()),
     }, nil
+}
+
+// cloneRepository clones the target repository directly (no fork management)
+func (c *GitClient) cloneRepository(ctx context.Context, repoURL string) (*git.Repository, error) {
+    // Create cache directory for the repository
+    cacheDir := c.cacheDir
+    
+    // Check if repository already cloned
+    if _, err := os.Stat(filepath.Join(cacheDir, ".git")); err == nil {
+        // Open existing repository
+        repo, err := git.PlainOpen(cacheDir)
+        if err != nil {
+            return nil, fmt.Errorf("failed to open repository: %w", err)
+        }
+        
+        // Update from remote
+        if err := c.updateRepository(ctx, repo); err != nil {
+            return nil, err
+        }
+        
+        return repo, nil
+    }
+    
+    // Clone repository
+    if c.verbose {
+        fmt.Printf("📥 Cloning repository: %s\n", repoURL)
+    }
+    
+    cloneOpts := &git.CloneOptions{
+        URL:      repoURL,
+        Progress: nil,
+    }
+    
+    if c.verbose {
+        cloneOpts.Progress = os.Stdout
+    }
+    
+    if c.gitToken != "" {
+        cloneOpts.Auth = c.getAuth()
+    }
+    
+    repo, err := git.PlainCloneContext(ctx, cacheDir, false, cloneOpts)
+    if err != nil {
+        return nil, fmt.Errorf("failed to clone repository: %w", err)
+    }
+    
+    return repo, nil
+}
+
+// updateRepository updates the repository from remote
+func (c *GitClient) updateRepository(ctx context.Context, repo *git.Repository) error {
+    if c.verbose {
+        fmt.Printf("🔄 Updating repository from remote\n")
+    }
+    
+    // Fetch latest changes
+    fetchOpts := &git.FetchOptions{
+        RemoteName: "origin",
+    }
+    
+    if c.gitToken != "" {
+        fetchOpts.Auth = c.getAuth()
+    }
+    
+    err := repo.FetchContext(ctx, fetchOpts)
+    if err != nil && err != git.NoErrAlreadyUpToDate {
+        return fmt.Errorf("failed to fetch from remote: %w", err)
+    }
+    
+    return nil
+}
+
+// createPullRequestForPackage creates a PR for package publication (same repository)
+func (c *GitClient) createPullRequestForPackage(ctx context.Context, branchName string, manifest *GitManifest) (*github.PullRequest, error) {
+    // Parse repository URL directly
+    owner, repo, err := parseGitHubURL(c.repoURL)
+    if err != nil {
+        return nil, fmt.Errorf("failed to parse repository URL: %w", err)
+    }
+    
+    // Create GitHub client
+    githubClient := NewGitHubClient(c.gitToken, c.verbose)
+    
+    // Verify collaborator access
+    if err := githubClient.CheckCollaboratorAccess(ctx, owner, repo); err != nil {
+        return nil, fmt.Errorf("access check failed: %w", err)
+    }
+    
+    // Get repository information
+    repository, err := githubClient.GetRepository(ctx, owner, repo)
+    if err != nil {
+        return nil, fmt.Errorf("failed to get repository info: %w", err)
+    }
+    
+    // Get authenticated user
+    user, err := githubClient.GetAuthenticatedUser(ctx)
+    if err != nil {
+        return nil, fmt.Errorf("failed to get user info: %w", err)
+    }
+    
+    // Create PR body
+    body := fmt.Sprintf(`## 📦 Package Publication Request
+
+**Package**: %s  
+**Version**: %s  
+**Description**: %s
+
+### Package Details
+- **SHA256**: %s
+- **Size**: %d bytes
+- **Publisher**: %s
+
+### Changes
+- Added package files to `+"`packages/%s/versions/%s/`"+`
+- Updated package metadata  
+- Updated registry index
+
+---
+*This pull request was automatically generated by RuleStack CLI*`,
+        manifest.Name,
+        manifest.Version,
+        manifest.Description,
+        manifest.SHA256,
+        manifest.Size,
+        user.GetLogin(),
+        manifest.Name,
+        manifest.Version)
+    
+    // Create pull request (same repository: branch -> main)
+    title := fmt.Sprintf("Publish %s@%s", manifest.Name, manifest.Version)
+    baseBranch := repository.GetDefaultBranch()
+    
+    pr, err := githubClient.CreatePullRequest(ctx, owner, repo, title, branchName, baseBranch, body)
+    if err != nil {
+        return nil, err
+    }
+    
+    return pr, nil
 }
 ```
 
 ### 7. Add Rate Limit Handling
 
-**File**: `internal/client/github_api.go`
+**File**: `internal/client/github_api.go` (update the GetRateLimit method already defined above)
 
 ```go
-// RateLimitInfo contains GitHub API rate limit information
-type RateLimitInfo struct {
-    Limit     int       `json:"limit"`
-    Remaining int       `json:"remaining"`
-    Reset     time.Time `json:"reset"`
-}
-
-// GetRateLimit gets current rate limit status
-func (g *GitHubClient) GetRateLimit(ctx context.Context) (*RateLimitInfo, error) {
-    resp, err := g.makeRequest(ctx, "GET", "/rate_limit", nil)
-    if err != nil {
-        return nil, err
-    }
-    defer resp.Body.Close()
-    
-    var result struct {
-        Core RateLimitInfo `json:"core"`
-    }
-    
-    if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-        return nil, err
-    }
-    
-    return &result.Core, nil
-}
-
 // WaitForRateLimit waits if rate limit is low
 func (g *GitHubClient) WaitForRateLimit(ctx context.Context) error {
-    info, err := g.GetRateLimit(ctx)
+    rateLimit, _, err := g.client.RateLimits.Get(ctx)
     if err != nil {
-        return err
+        return fmt.Errorf("failed to get rate limit: %v", err)
     }
     
-    if info.Remaining < 10 {
-        waitTime := time.Until(info.Reset)
+    core := rateLimit.GetCore()
+    if core.Remaining < 10 {
+        waitTime := time.Until(core.Reset.Time)
         if g.verbose {
             fmt.Printf("⏳ Rate limit low (%d remaining). Waiting %v\n", 
-                info.Remaining, waitTime)
+                core.Remaining, waitTime)
         }
         
         select {
@@ -504,442 +563,175 @@ func (g *GitHubClient) WaitForRateLimit(ctx context.Context) error {
     
     return nil
 }
+
+// CheckRateLimit provides rate limit information for debugging
+func (g *GitHubClient) CheckRateLimit(ctx context.Context) error {
+    rateLimit, _, err := g.client.RateLimits.Get(ctx)
+    if err != nil {
+        return fmt.Errorf("failed to get rate limit: %v", err)
+    }
+    
+    core := rateLimit.GetCore()
+    if g.verbose {
+        fmt.Printf("📊 Rate limit: %d/%d remaining (resets at %v)\n", 
+            core.Remaining, core.Limit, core.Reset.Time)
+    }
+    
+    return nil
+}
 ```
 
 ## Testing Requirements
 
-### Unit Tests
+### Unit Tests (Phase 7 Implementation)
 1. Test GitHub URL parsing
-2. Test PR body generation
+2. Test PR body generation  
 3. Test rate limit handling
 4. Mock GitHub API responses
 
-### Integration Tests
+### Integration Tests (Phase 7 Implementation)
 1. Test user authentication
-2. Test fork creation
-3. Test PR creation
+2. Test collaborator access verification
+3. Test PR creation (same repository)
 4. Test rate limit checking
-5. Test with existing fork
+5. Test direct repository access
 
 ### Manual Testing Checklist
 - [ ] Authenticate with GitHub token
-- [ ] Create fork of repository
-- [ ] Use existing fork
-- [ ] Create pull request
+- [ ] Verify collaborator access to registry repository
+- [ ] Clone repository directly
+- [ ] Create pull request (same repository)
 - [ ] Handle rate limiting
 - [ ] PR contains correct information
 - [ ] Works with private repositories
+- [ ] Multiple registries with different tokens work correctly
 
-### Cucumber Test Amendments
+### Cucumber Test Amendments (Deferred)
 
-**File**: `features/github-integration.feature` (new file)
-
-```gherkin
-Feature: GitHub API Integration
-  Git registry publishing should integrate with GitHub API for automated PR creation
-
-  Background:
-    Given I have a clean test environment
-    And I have a valid GitHub token with appropriate permissions
-    And I have a package ready to publish
-
-  Scenario: Automatic fork creation
-    Given a Git registry "github-test" with URL "https://github.com/test-org/test-registry"
-    And I use registry "github-test"
-    And I have authenticated to the Git registry
-    And I do not have an existing fork
-    When I run "rfh publish"
-    Then the command should succeed
-    And a new fork should be created automatically
-    And the output should contain "Fork created"
-    And the output should contain a pull request URL
-
-  Scenario: Use existing fork
-    Given a Git registry "github-test" with URL "https://github.com/test-org/test-registry"
-    And I use registry "github-test"
-    And I have authenticated to the Git registry
-    And I already have an existing fork
-    When I run "rfh publish"
-    Then the command should succeed
-    And the existing fork should be used
-    And the output should contain "Fork already exists"
-    And the output should contain a pull request URL
-
-  Scenario: Automatic pull request creation
-    Given a Git registry "github-test" with URL "https://github.com/test-org/test-registry"
-    And I use registry "github-test"
-    And I have authenticated to the Git registry
-    When I run "rfh publish"
-    Then the command should succeed
-    And a pull request should be created automatically
-    And the PR title should contain the package name and version
-    And the PR body should contain package details
-    And the PR body should contain SHA256 hash and size
-    And the output should contain the PR URL
-
-  Scenario: Pull request format is correct
-    Given a Git registry "github-test" with URL "https://github.com/test-org/test-registry"
-    And I use registry "github-test"
-    And I have authenticated to the Git registry
-    And I have "my-package@2.1.0" ready to publish
-    When I run "rfh publish"
-    Then the command should succeed
-    And the PR title should be "Publish my-package@2.1.0"
-    And the PR head should be "test-user:publish/my-package/2.1.0"
-    And the PR base should be "main"
-    And the PR should allow maintainer modifications
-
-  Scenario: Authentication failure handling
-    Given a Git registry "github-test" with URL "https://github.com/test-org/test-registry"
-    And I use registry "github-test"
-    And I have an invalid GitHub token
-    When I run "rfh publish"
-    Then the command should fail
-    And the output should contain "authentication failed" or "invalid token"
-
-  Scenario: Rate limiting handling
-    Given a Git registry "github-test" with URL "https://github.com/test-org/test-registry"
-    And I use registry "github-test"
-    And I have authenticated to the Git registry
-    And the GitHub API is rate limited
-    When I run "rfh publish"
-    Then the command should wait for rate limit reset
-    And the output should contain "Rate limit"
-    And the command should eventually succeed
-
-  Scenario: Insufficient permissions handling
-    Given a Git registry "github-test" with URL "https://github.com/test-org/test-registry"
-    And I use registry "github-test"
-    And I have a GitHub token with insufficient permissions
-    When I run "rfh publish"
-    Then the command should fail
-    And the output should contain "insufficient permissions" or "access denied"
-
-  Scenario: PR creation failure fallback
-    Given a Git registry "github-test" with URL "https://github.com/test-org/test-registry"
-    And I use registry "github-test"
-    And I have authenticated to the Git registry
-    And PR creation will fail due to API issues
-    When I run "rfh publish"
-    Then the command should succeed with warnings
-    And the output should contain "Branch pushed"
-    And the output should contain a manual PR creation URL
-    And the output should contain "Create PR manually"
-
-  Scenario: Private repository support
-    Given a Git registry "github-private" with URL "https://github.com/test-org/private-registry"
-    And the registry is a private repository
-    And I use registry "github-private"
-    And I have authenticated to the Git registry
-    When I run "rfh publish"
-    Then the command should succeed
-    And a pull request should be created
-    And the fork should be private
-
-  Scenario: User information retrieval
-    Given a Git registry "github-test" with URL "https://github.com/test-org/test-registry"
-    And I use registry "github-test"
-    And I have authenticated to the Git registry
-    When I run "rfh publish --verbose"
-    Then the command should succeed
-    And the output should contain "Authenticated as: test-user"
-    And the user information should be used in PR creation
-
-  Scenario: Multiple registries with different tokens
-    Given a Git registry "github-org1" with URL "https://github.com/org1/registry"
-    And a Git registry "github-org2" with URL "https://github.com/org2/registry"
-    And "github-org1" has token "token1"
-    And "github-org2" has token "token2"
-    When I publish to "github-org1"
-    Then the command should use "token1" for authentication
-    When I publish to "github-org2"
-    Then the command should use "token2" for authentication
-```
-
-**File**: `features/step_definitions/github_api_steps.js`
-
-Add new step definitions:
-```javascript
-Given('I have a valid GitHub token with appropriate permissions', async function () {
-  process.env.GITHUB_TOKEN = 'ghp_valid_token_with_permissions';
-  // Mock GitHub API to return successful responses
-  await this.mockGitHubAPI.setup({
-    user: { login: 'test-user', name: 'Test User' },
-    permissions: ['repo', 'public_repo']
-  });
-});
-
-Given('I do not have an existing fork', async function () {
-  // Mock GitHub API to return 404 for fork check
-  await this.mockGitHubAPI.setupNoFork('test-org', 'test-registry');
-});
-
-Given('I already have an existing fork', async function () {
-  // Mock existing fork in GitHub API
-  await this.mockGitHubAPI.setupExistingFork('test-user', 'test-registry', {
-    parent: { full_name: 'test-org/test-registry' }
-  });
-});
-
-Then('a new fork should be created automatically', function () {
-  assert(this.mockGitHubAPI.forkWasCreated(), 'Fork should have been created');
-});
-
-Then('the existing fork should be used', function () {
-  assert(!this.mockGitHubAPI.forkWasCreated(), 'Should not create new fork');
-  const output = this.lastResult.stdout || '';
-  assert(output.includes('Fork already exists'), 'Should use existing fork');
-});
-
-Then('a pull request should be created automatically', function () {
-  assert(this.mockGitHubAPI.prWasCreated(), 'Pull request should have been created');
-});
-
-Then('the PR title should contain the package name and version', function () {
-  const prData = this.mockGitHubAPI.getCreatedPR();
-  assert(prData.title.includes('test-package') && prData.title.includes('1.0.0'),
-    `PR title should contain package info: ${prData.title}`);
-});
-
-Then('the PR body should contain package details', function () {
-  const prData = this.mockGitHubAPI.getCreatedPR();
-  assert(prData.body.includes('Package:') && prData.body.includes('test-package'),
-    'PR body should contain package details');
-});
-
-Then('the PR body should contain SHA256 hash and size', function () {
-  const prData = this.mockGitHubAPI.getCreatedPR();
-  assert(prData.body.includes('SHA256:') && prData.body.includes('Size:'),
-    'PR body should contain hash and size');
-});
-
-Then('the output should contain the PR URL', function () {
-  const output = this.lastResult.stdout || '';
-  assert(output.includes('pull request created') && output.includes('github.com'),
-    'Output should contain PR URL');
-});
-
-Then('the PR title should be {string}', function (expectedTitle) {
-  const prData = this.mockGitHubAPI.getCreatedPR();
-  assert(prData.title === expectedTitle, 
-    `Expected PR title "${expectedTitle}", got "${prData.title}"`);
-});
-
-Then('the PR head should be {string}', function (expectedHead) {
-  const prData = this.mockGitHubAPI.getCreatedPR();
-  assert(prData.head === expectedHead,
-    `Expected PR head "${expectedHead}", got "${prData.head}"`);
-});
-
-Then('the PR base should be {string}', function (expectedBase) {
-  const prData = this.mockGitHubAPI.getCreatedPR();
-  assert(prData.base === expectedBase,
-    `Expected PR base "${expectedBase}", got "${prData.base}"`);
-});
-
-Then('the PR should allow maintainer modifications', function () {
-  const prData = this.mockGitHubAPI.getCreatedPR();
-  assert(prData.maintainer_can_modify === true,
-    'PR should allow maintainer modifications');
-});
-
-Given('I have an invalid GitHub token', async function () {
-  process.env.GITHUB_TOKEN = 'invalid_token';
-  await this.mockGitHubAPI.setupInvalidToken();
-});
-
-Given('the GitHub API is rate limited', async function () {
-  await this.mockGitHubAPI.setupRateLimit({
-    remaining: 0,
-    reset: Math.floor(Date.now() / 1000) + 60 // Reset in 1 minute
-  });
-});
-
-Then('the command should wait for rate limit reset', function () {
-  const output = this.lastResult.stdout || '';
-  assert(output.includes('Rate limit') && output.includes('Waiting'),
-    'Should wait for rate limit reset');
-});
-
-Given('I have a GitHub token with insufficient permissions', async function () {
-  process.env.GITHUB_TOKEN = 'ghp_limited_token';
-  await this.mockGitHubAPI.setup({
-    user: { login: 'test-user' },
-    permissions: [] // No permissions
-  });
-});
-
-Given('PR creation will fail due to API issues', async function () {
-  await this.mockGitHubAPI.setupPRCreationFailure('API temporarily unavailable');
-});
-
-Then('the command should succeed with warnings', function () {
-  assert(!this.lastResult.error || this.lastResult.exitCode === 0,
-    'Command should succeed despite PR creation failure');
-});
-
-Then('the output should contain a manual PR creation URL', function () {
-  const output = this.lastResult.stdout || '';
-  assert(output.includes('github.com') && output.includes('compare'),
-    'Should provide manual PR creation URL');
-});
-
-Given('the registry is a private repository', async function () {
-  await this.mockGitHubAPI.setupPrivateRepo('test-org', 'private-registry');
-});
-
-Then('the fork should be private', function () {
-  const forkData = this.mockGitHubAPI.getCreatedFork();
-  assert(forkData.private === true, 'Fork should be private');
-});
-
-Then('the output should contain {string}', function (expectedText) {
-  const output = this.lastResult.stdout || '';
-  assert(output.includes(expectedText),
-    `Expected "${expectedText}" in output: ${output}`);
-});
-
-Then('the user information should be used in PR creation', function () {
-  const prData = this.mockGitHubAPI.getCreatedPR();
-  assert(prData.body.includes('test-user'), 'PR should contain user info');
-});
-
-Given('{string} has token {string}', async function (registryName, token) {
-  const config = await this.loadConfig();
-  if (!config.registries[registryName]) {
-    config.registries[registryName] = {};
-  }
-  config.registries[registryName].git_token = token;
-  await this.saveConfig(config);
-});
-
-When('I publish to {string}', async function (registryName) {
-  await this.runCommand(`rfh publish --registry ${registryName}`);
-});
-
-Then('the command should use {string} for authentication', function (expectedToken) {
-  const usedToken = this.mockGitHubAPI.getUsedToken();
-  assert(usedToken === expectedToken,
-    `Expected token "${expectedToken}", got "${usedToken}"`);
-});
-```
-
-**File**: `features/support/mock-github-api.js` (new helper file)
-
-```javascript
-class MockGitHubAPI {
-  constructor() {
-    this.reset();
-  }
-  
-  reset() {
-    this.forkCreated = false;
-    this.prCreated = false;
-    this.createdPR = null;
-    this.createdFork = null;
-    this.usedToken = null;
-    this.user = null;
-  }
-  
-  setup(options) {
-    this.user = options.user;
-    this.permissions = options.permissions || [];
-  }
-  
-  setupNoFork(owner, repo) {
-    // Mock API to return 404 for fork check
-  }
-  
-  setupExistingFork(username, repo, forkData) {
-    this.createdFork = { ...forkData, owner: { login: username } };
-  }
-  
-  setupInvalidToken() {
-    // Mock API to return 401 for requests
-  }
-  
-  setupRateLimit(rateLimitInfo) {
-    this.rateLimitInfo = rateLimitInfo;
-  }
-  
-  setupPRCreationFailure(reason) {
-    this.prCreationWillFail = reason;
-  }
-  
-  setupPrivateRepo(owner, repo) {
-    this.privateRepos = this.privateRepos || [];
-    this.privateRepos.push(`${owner}/${repo}`);
-  }
-  
-  forkWasCreated() {
-    return this.forkCreated;
-  }
-  
-  prWasCreated() {
-    return this.prCreated;
-  }
-  
-  getCreatedPR() {
-    return this.createdPR;
-  }
-  
-  getCreatedFork() {
-    return this.createdFork;
-  }
-  
-  getUsedToken() {
-    return this.usedToken;
-  }
-}
-
-module.exports = { MockGitHubAPI };
-```
+**Note**: Cucumber testing for GitHub integration will be deferred until real GitHub repositories and test keys are set up for integration testing.
 
 ## Success Criteria
-- Can authenticate with GitHub token
-- Automatically creates fork if needed
-- Creates well-formatted pull requests
+- Can authenticate with GitHub token and verify collaborator access
+- Creates well-formatted pull requests on the same repository (branch → main)
+- Works directly with target repository (no fork management)
 - Handles rate limiting gracefully
-- Provides clear error messages
+- Provides clear error messages for access issues
 - Returns PR URL for user reference
+- Gracefully falls back to manual same-repository PR creation if API fails
+- **Supports multiple registries with different GitHub tokens (hard requirement)**
+- **Maintains backwards compatibility with HTTP registries (no changes)**
 
 ## Dependencies
-- Phase 6: Git Registry Publishing
-- GitHub personal access token
+- Phase 6: Git Registry Publishing (completed)
+- GitHub personal access token with collaborator permissions
 - Network access to GitHub API
+- User must be added as collaborator to registry repositories
 
 ## Risks
 - **Risk**: GitHub API rate limits
   **Mitigation**: Implement rate limit checking and waiting
   
-- **Risk**: Token permissions insufficient
-  **Mitigation**: Clear error messages about required permissions
+- **Risk**: Insufficient collaborator permissions
+  **Mitigation**: Access verification before operations, clear error messages
   
-- **Risk**: API changes
-  **Mitigation**: Use stable v3 API, version headers
+- **Risk**: API failures during PR creation
+  **Mitigation**: Graceful fallback to manual PR creation workflow
+  
+- **Risk**: Branch conflicts or existing PRs
+  **Mitigation**: Check for existing branches/PRs, provide clear error messages
 
 ## Configuration
 
 Add to CLI config:
 ```toml
 [registries.github-registry]
-url = "https://github.com/org/registry"
+url = "https://github.com/org/registry"  # Registry repo where user is collaborator
 type = "git"
-git_token = "ghp_xxxxxxxxxxxx"
+git_token = "ghp_xxxxxxxxxxxx"         # Token with repo access
 ```
 
 Environment variables:
 ```bash
-export GITHUB_TOKEN=ghp_xxxxxxxxxxxx
-export GITHUB_USERNAME=myusername
-export GIT_AUTHOR_NAME="Your Name"
-export GIT_AUTHOR_EMAIL="your.email@example.com"
+export GITHUB_TOKEN=ghp_xxxxxxxxxxxx    # Personal access token
+export GIT_AUTHOR_NAME="Your Name"      # Commit author name
+export GIT_AUTHOR_EMAIL="your.email@example.com"  # Commit author email
 ```
 
-## Next Steps
-This completes the Git registry implementation. Consider future enhancements:
-- GitLab API support
-- Bitbucket integration
-- PR status checking
-- Automatic merging for trusted publishers
-- Webhook integration for CI/CD
+**Important**: Users must be added as collaborators to the registry repository with write access.
+
+## Backwards Compatibility Requirements
+
+### Remote-HTTP Registry Support (Must Maintain)
+- **Keep existing HTTP registry functionality** unchanged
+- Phase 7 changes apply **only to Git registries** 
+- HTTP registries continue to work as before (no changes needed)
+
+### Multi-Registry Token Support (Hard Requirement)
+- Support different GitHub tokens per registry
+- Each Git registry can have its own `git_token` configuration
+- Token selection per registry for authentication and API calls
+
+Example multi-registry configuration:
+```toml
+[registries.company-internal]
+url = "https://github.com/company/internal-registry"
+type = "git"
+git_token = "ghp_company_internal_token"
+
+[registries.open-source]
+url = "https://github.com/oss/public-registry"  
+type = "git"
+git_token = "ghp_oss_token"
+
+[registries.http-registry]
+url = "https://registry.example.com/api"
+type = "http"
+# No changes to HTTP registries
+```
+
+### Fix-Forward Approach
+- **No backwards compatibility** for Phase 6 fork-based Git publishing
+- Complete replacement approach - clean break from fork logic
+- Focus on maintaining HTTP registry compatibility only
+
+## Summary of Simplified Workflow
+
+The Phase 7 implementation creates a **direct collaborator workflow** that is much simpler than the original fork-based approach:
+
+### **Original Complex Workflow (Avoided):**
+1. Detect if fork exists → Create fork if needed → Clone fork → Sync with upstream → Create branch on fork → Push to fork → Create PR from fork to upstream
+
+### **New Simplified Workflow:**
+1. Clone registry repository directly → Create branch → Add files → Commit → Push branch → Create PR (same repo)
+
+### **Key Benefits:**
+✅ **Eliminates Fork Management**: No fork detection, creation, or synchronization  
+✅ **Direct Repository Access**: Work directly on the target repository  
+✅ **Simplified Authentication**: Only need collaborator access, no fork permissions  
+✅ **Reduced API Calls**: Fewer GitHub API operations required  
+✅ **Better Performance**: No fork cloning or synchronization delays  
+✅ **Clearer Error Messages**: Direct feedback about repository access issues  
+
+This approach is **perfect for organizational workflows** where team members are collaborators on shared registry repositories.
+
+## Implementation Notes
+
+### Complete Phase 6 Replacement
+- **Remove** all fork-related code from Phase 6 (`git_fork.go`)
+- **Replace** the entire `PublishPackage` method in `internal/client/git.go`
+- **Keep** existing Phase 6 helper methods (`createPublishBranch`, `addPackageFiles`, `updateRegistryIndex`, `createCommit`, `pushBranch`)
+- **Add** new GitHub API integration files (`github_api.go`)
+- **Update** fallback URLs to point to same-repository comparisons (no fork URLs)
+- **Branch cleanup** is deferred - Phase 7 will not handle cleanup of publish branches after PR merge
+
+### Files to Remove
+- `internal/client/git_fork.go` (entire file - fork management no longer needed)
+
+### Files to Create
+- `internal/client/github_api.go` (GitHub API client and operations)
+
+### Files to Modify
+- `internal/client/git.go` (replace `PublishPackage` method completely)
+- `go.mod` (add GitHub API dependencies)
+
+The result is a **much simpler and more reliable** publishing workflow focused on direct collaborator access.

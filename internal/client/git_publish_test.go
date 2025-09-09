@@ -16,35 +16,55 @@ func TestGitPublishing(t *testing.T) {
 	client := &GitClient{
 		cacheDir: tempDir,
 		verbose:  false, // Reduce noise in tests
+		repoURL:  "https://github.com/test-org/test-repo.git",
+		gitToken: "test-token",
 	}
 
-	t.Run("DetectFork", func(t *testing.T) {
-		// Set test username
-		os.Setenv("GITHUB_USERNAME", "test-user")
-		defer os.Unsetenv("GITHUB_USERNAME")
-
-		// Test valid GitHub URL
-		fork, err := client.detectFork("https://github.com/owner/repo.git")
-		if err != nil {
-			t.Fatalf("detectFork failed: %v", err)
+	t.Run("ParseGitHubURL", func(t *testing.T) {
+		tests := []struct {
+			name      string
+			url       string
+			wantOwner string
+			wantRepo  string
+			wantErr   bool
+		}{
+			{
+				name:      "valid https URL",
+				url:       "https://github.com/owner/repo.git",
+				wantOwner: "owner",
+				wantRepo:  "repo",
+				wantErr:   false,
+			},
+			{
+				name:      "valid https URL without .git",
+				url:       "https://github.com/owner/repo",
+				wantOwner: "owner",
+				wantRepo:  "repo",
+				wantErr:   false,
+			},
+			{
+				name:      "non-GitHub URL",
+				url:       "https://gitlab.com/owner/repo.git",
+				wantOwner: "",
+				wantRepo:  "",
+				wantErr:   true,
+			},
 		}
 
-		if fork.Username != "test-user" {
-			t.Errorf("Expected username 'test-user', got '%s'", fork.Username)
-		}
-
-		if fork.RepoName != "repo" {
-			t.Errorf("Expected repo name 'repo', got '%s'", fork.RepoName)
-		}
-
-		if fork.ForkURL != "https://github.com/test-user/repo.git" {
-			t.Errorf("Expected fork URL 'https://github.com/test-user/repo.git', got '%s'", fork.ForkURL)
-		}
-
-		// Test non-GitHub URL
-		_, err = client.detectFork("https://gitlab.com/owner/repo.git")
-		if err == nil {
-			t.Error("Expected error for non-GitHub URL")
+		for _, tt := range tests {
+			t.Run(tt.name, func(t *testing.T) {
+				owner, repo, err := parseGitHubURL(tt.url)
+				if (err != nil) != tt.wantErr {
+					t.Errorf("parseGitHubURL() error = %v, wantErr %v", err, tt.wantErr)
+					return
+				}
+				if owner != tt.wantOwner {
+					t.Errorf("parseGitHubURL() owner = %v, want %v", owner, tt.wantOwner)
+				}
+				if repo != tt.wantRepo {
+					t.Errorf("parseGitHubURL() repo = %v, want %v", repo, tt.wantRepo)
+				}
+			})
 		}
 	})
 
@@ -182,30 +202,4 @@ func TestGitPublishing(t *testing.T) {
 		}
 	})
 
-	t.Run("GetUsername", func(t *testing.T) {
-		// Test with GITHUB_USERNAME
-		os.Setenv("GITHUB_USERNAME", "github-user")
-		defer os.Unsetenv("GITHUB_USERNAME")
-
-		username := client.getUsername()
-		if username != "github-user" {
-			t.Errorf("Expected username 'github-user', got '%s'", username)
-		}
-
-		// Test with GIT_USER when GITHUB_USERNAME is not set
-		os.Unsetenv("GITHUB_USERNAME")
-		os.Setenv("GIT_USER", "git-user")
-		defer os.Unsetenv("GIT_USER")
-
-		username = client.getUsername()
-		if username != "git-user" {
-			t.Errorf("Expected username 'git-user', got '%s'", username)
-		}
-
-		// Test with no environment variables
-		os.Unsetenv("GIT_USER")
-		username = client.getUsername()
-		// Should return empty string or git config value
-		// We don't test git config here as it's system dependent
-	})
 }

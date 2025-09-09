@@ -14,6 +14,8 @@ var (
 	ErrConnectionFailed  = fmt.Errorf("connection failed")
 	ErrInvalidRegistry   = fmt.Errorf("invalid registry")
 	ErrNotImplemented    = fmt.Errorf("not implemented")
+	ErrNotFound          = fmt.Errorf("not found")
+	ErrInvalidOperation  = fmt.Errorf("invalid operation")
 )
 
 // RegistryError provides detailed error information
