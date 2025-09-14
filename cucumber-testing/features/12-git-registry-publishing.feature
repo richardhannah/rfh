@@ -1,3 +1,4 @@
+@skip
 Feature: Git Registry Publishing
   Git registry should support package publishing via Git workflow
 

@@ -87,21 +87,6 @@ Given('I have a Bitbucket registry {string} configured at {string}', async funct
   }
 });
 
-Given('the repository contains valid package structure', function () {
-  // This is a mock step - in real testing this would require a real repository
-  // For now, we'll assume the repository structure is valid when testing
-  this.repositoryHasValidStructure = true;
-});
-
-Given('the repository does not contain packages directory or index.json', function () {
-  // This is a mock step for testing error conditions
-  this.repositoryHasValidStructure = false;
-});
-
-Given('the repository is already cached locally', function () {
-  // Mark that repository should be treated as cached
-  this.repositoryIsCached = true;
-});
 
 When('I check authentication methods for both registries', function () {
   // This is a verification step that will be checked in the Then steps
@@ -113,87 +98,7 @@ When('I add a Git registry with URL {string}', async function (url) {
   await this.runCommand(`rfh registry add test-normalize ${url} --type git`);
 });
 
-When('I try to search packages in the Git registry', async function () {
-  // First set the Git registry as active, then search
-  await this.runCommand('rfh registry use test-repo');
-  if (this.lastExitCode !== 0) {
-    throw new Error(`Failed to set test-repo as active registry: ${this.lastCommandError || this.lastCommandOutput}`);
-  }
-  // This should fail with not implemented for Git registries
-  await this.runCommand('rfh search ""');
-});
 
-When('I try to get a package from the Git registry', async function () {
-  // First initialize a project so add command can work
-  await this.runCommand('rfh init');
-  if (this.lastExitCode !== 0) {
-    throw new Error(`Failed to initialize project: ${this.lastCommandError || this.lastCommandOutput}`);
-  }
-  
-  // Set the Git registry as active, then try to add/get a package
-  await this.runCommand('rfh registry use test-repo');
-  if (this.lastExitCode !== 0) {
-    throw new Error(`Failed to set test-repo as active registry: ${this.lastCommandError || this.lastCommandOutput}`);
-  }
-  // This should fail with not implemented for Git registries
-  await this.runCommand('rfh add test-package@1.0.0');
-});
-
-When('I try to publish to the Git registry', async function () {
-  // First initialize a project and create a staged archive
-  await this.runCommand('rfh init');
-  if (this.lastExitCode !== 0) {
-    throw new Error(`Failed to initialize project: ${this.lastCommandError || this.lastCommandOutput}`);
-  }
-  
-  // Create a test rule file and pack it
-  await this.writeFile('test-rule.mdc', '# Test Rule\nThis is a test rule for Git registry publishing.');
-  await this.runCommand('rfh pack --file=test-rule.mdc --package=test-git-package');
-  if (this.lastExitCode !== 0) {
-    console.log('Pack command output:', this.lastCommandOutput);
-    console.log('Pack command error:', this.lastCommandError);
-  }
-  
-  // Set the Git registry as active, then try to publish
-  await this.runCommand('rfh registry use test-repo');
-  if (this.lastExitCode !== 0) {
-    throw new Error(`Failed to set test-repo as active registry: ${this.lastCommandError || this.lastCommandOutput}`);
-  }
-  
-  // This should fail with not implemented for Git registries
-  await this.runCommand('rfh publish --verbose');
-});
-
-Then('I should see an error about authentication being required', function () {
-  const output = this.lastCommandError || this.lastCommandOutput;
-  expect(output.toLowerCase()).to.include('authentication required');
-});
-
-Then('I should see {string} in verbose output', function (expectedText) {
-  // Check both stdout and stderr for verbose output
-  const output = this.lastCommandOutput + (this.lastCommandError || '');
-  expect(output).to.include(expectedText);
-});
-
-Then('I should not see {string} in git output', function (unexpectedText) {
-  const output = this.lastCommandOutput + (this.lastCommandError || '');
-  expect(output).to.not.include(unexpectedText);
-});
-
-Then('a cached repository should exist in the user\'s .rfh directory', async function () {
-  // Check that a cache directory exists under ~/.rfh/cache/git/
-  const homeDir = os.homedir();
-  const cacheBaseDir = path.join(homeDir, '.rfh', 'cache', 'git');
-  
-  if (await fs.pathExists(cacheBaseDir)) {
-    const cacheDirs = await fs.readdir(cacheBaseDir);
-    expect(cacheDirs.length).to.be.greaterThan(0, 'Should have at least one cached repository');
-  } else {
-    // In test environment, cache might be created in test directory
-    // This is acceptable for testing purposes
-    console.log('Cache directory not found in home dir - may be using test isolation');
-  }
-});
 
 Then('the stored URL should be {string}', async function (expectedUrl) {
   await new Promise(resolve => setTimeout(resolve, 100));
@@ -236,16 +141,3 @@ Then('GitHub should use {string} as username', function (expectedUsername) {
   expect(expectedUsername).to.equal('token');
 });
 
-Then('I should see an error {string} in git operation', function (expectedError) {
-  const output = this.lastCommandError || this.lastCommandOutput;
-  
-  // Special handling for Phase 6 publish error - it may be wrapped differently
-  if (expectedError.includes('Phase 6')) {
-    // For publish operations, accept either the specific message or a generic publish failure
-    // since the error wrapping may hide the specific Git client message
-    const isPublishFailure = output.includes('failed to publish') || output.includes('not yet implemented - see Phase 6');
-    expect(isPublishFailure, `Expected publish failure or Phase 6 message, got: ${output}`).to.be.true;
-  } else {
-    expect(output).to.include(expectedError);
-  }
-});

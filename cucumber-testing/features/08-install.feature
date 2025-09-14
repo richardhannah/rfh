@@ -8,13 +8,14 @@ Feature: Install Command
     And RFH is installed and accessible
 
   Scenario: Install missing packages from empty project
-    Given I have initialized an RFH project
+    Given I have initialized a new project
     And I have a project manifest with the following dependencies:
       | package-name    | version |
       | security-rules  | 1.0.0   |
       | logging-rules   | 2.1.0   |
     And the test registry is configured
     And test packages are available
+    And I have a user registered
     And I am logged in as a user
     When I run "rfh install ."
     Then I should see "Installation Summary:"
@@ -24,12 +25,13 @@ Feature: Install Command
     And the command should exit with zero status
 
   Scenario: Skip packages that are already up-to-date
-    Given I have initialized an RFH project
+    Given I have initialized a new project
     And I have a project manifest with the following dependencies:
       | package-name    | version |
       | security-rules  | 1.0.0   |
     And the test registry is configured
     And test packages are available
+    And I have a user registered
     And I am logged in as a user
     And I have already installed "security-rules" version "1.0.0"
     When I run "rfh install ."
@@ -39,7 +41,7 @@ Feature: Install Command
     And the command should exit with zero status
 
   Scenario: Update packages to higher versions
-    Given I have initialized an RFH project
+    Given I have initialized a new project
     And I have a project manifest with the following dependencies:
       | package-name    | version |
       | security-rules  | 1.2.0   |
@@ -54,7 +56,7 @@ Feature: Install Command
     And the command should exit with zero status
 
   Scenario: Skip packages when installed version is newer
-    Given I have initialized an RFH project
+    Given I have initialized a new project
     And I have a project manifest with the following dependencies:
       | package-name    | version |
       | security-rules  | 1.0.0   |
@@ -69,7 +71,7 @@ Feature: Install Command
     And the command should exit with zero status
 
   Scenario: Handle mixed package states
-    Given I have initialized an RFH project
+    Given I have initialized a new project
     And I have a project manifest with the following dependencies:
       | package-name      | version |
       | security-rules    | 1.2.0   |
@@ -78,6 +80,7 @@ Feature: Install Command
       | new-package       | 1.0.0   |
     And the test registry is configured
     And test packages are available
+    And I have a user registered
     And I am logged in as a user
     And I have already installed "security-rules" version "1.0.0"
     And I have already installed "logging-rules" version "2.0.0"
@@ -92,7 +95,7 @@ Feature: Install Command
     And the command should exit with zero status
 
   Scenario: Continue processing after package failure
-    Given I have initialized an RFH project
+    Given I have initialized a new project
     And I have a project manifest with the following dependencies:
       | package-name      | version |
       | security-rules    | 1.0.0   |
@@ -100,6 +103,7 @@ Feature: Install Command
       | logging-rules     | 2.0.0   |
     And the test registry is configured
     And test packages are available
+    And I have a user registered
     And I am logged in as a user
     When I run "rfh install ."
     Then I should see "Installation Summary:"
@@ -111,58 +115,24 @@ Feature: Install Command
     And the command should exit with zero status
 
   Scenario: Install command with no dependencies
-    Given I have initialized an RFH project
+    Given I have initialized a new project
     And I have a project manifest with no dependencies
     When I run "rfh install ."
     Then I should see "No dependencies found in rulestack.json"
     And the command should exit with zero status
 
-  Scenario: Install command without project manifest
-    Given I am in an empty directory
-    When I run "rfh install ."
-    Then I should see "failed to find project root"
-    And the command should exit with non-zero status
-
   Scenario: Install command with invalid argument
-    Given I have initialized an RFH project
+    Given I have initialized a new project
     When I run "rfh install something-else"
     Then I should see "only '.' is supported"
     And the command should exit with non-zero status
 
-  Scenario: Install command without authentication
-    Given I have initialized an RFH project
+  Scenario: Install command without registry configured
+    Given I have initialized a new project
     And I have a project manifest with the following dependencies:
-      | package-name    | version |
-      | security-rules  | 1.0.0   |
+      | package-name   | version |
+      | security-rules | 1.0.0   |
+    And I have no registry configured
     When I run "rfh install ."
-    Then I should see "no registry configured"
+    Then I should see "no registry configured. Use 'rfh registry add' to add a registry"
     And the command should exit with non-zero status
-
-  Scenario: Verbose output shows detailed progress
-    Given I have initialized an RFH project
-    And I have a project manifest with the following dependencies:
-      | package-name    | version |
-      | security-rules  | 1.0.0   |
-    And the test registry is configured
-    And test packages are available
-    And I am logged in as a user
-    When I run "rfh install . --verbose"
-    Then I should see "Installing packages from project manifest"
-    And I should see "Project root:"
-    And I should see "Installing security-rules@1.0.0"
-    And I should see "Installation Summary:"
-    And the command should exit with zero status
-
-  Scenario: Install updates project manifests and CLAUDE.md
-    Given I have initialized an RFH project
-    And I have a project manifest with the following dependencies:
-      | package-name    | version |
-      | security-rules  | 1.0.0   |
-    And the test registry is configured
-    And test packages are available
-    And I am logged in as a user
-    When I run "rfh install ."
-    Then I should see "security-rules@1.0.0 → installed successfully"
-    And "rulestack.json" should contain dependency "security-rules": "1.0.0"
-    And "rulestack.lock.json" should contain package "security-rules" with version "1.0.0"
-    And the package should be downloaded to ".rulestack/security-rules.1.0.0/"

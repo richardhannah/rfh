@@ -157,49 +157,49 @@ func (s *Server) SetupRoutes(router *mux.Router) *RouteRegistry {
 	api.HandleFunc("/health", s.healthHandler).Methods("GET")
 
 	// Search endpoints - public, with rate limiting
-	registry.RegisterRouteWithRateLimit("/v1/packages", "GET", false, s.searchPackagesHandler, "Search packages", 300)
+	registry.RegisterRouteWithRateLimit("/v1/packages", "GET", false, s.searchPackagesHandler, "Search packages", 3000)
 	api.HandleFunc("/packages", s.searchPackagesHandler).Methods("GET")
 
 	// Blob download - public, with rate limiting for abuse prevention
-	registry.RegisterRouteWithRateLimit("/v1/blobs/{sha256}", "GET", false, s.downloadBlobHandler, "Download package blob", 150)
+	registry.RegisterRouteWithRateLimit("/v1/blobs/{sha256}", "GET", false, s.downloadBlobHandler, "Download package blob", 1500)
 	api.HandleFunc("/blobs/{sha256}", s.downloadBlobHandler).Methods("GET")
 
 	// Package routes (no scope support)
-	registry.RegisterRouteWithRateLimit("/v1/packages/{name}/versions/{version}", "GET", false, s.getPackageVersionHandler, "Get package version", 600)
+	registry.RegisterRouteWithRateLimit("/v1/packages/{name}/versions/{version}", "GET", false, s.getPackageVersionHandler, "Get package version", 6000)
 	api.HandleFunc("/packages/{name}/versions/{version}", s.getPackageVersionHandler).Methods("GET")
 
-	registry.RegisterRouteWithRateLimit("/v1/packages/{name}", "GET", false, s.getPackageHandler, "Get package details", 600)
+	registry.RegisterRouteWithRateLimit("/v1/packages/{name}", "GET", false, s.getPackageHandler, "Get package details", 6000)
 	api.HandleFunc("/packages/{name}", s.getPackageHandler).Methods("GET")
 
 	// Publishing - requires publisher role, with rate limiting
-	registry.RegisterRouteWithRoleAndRateLimit("/v1/packages", "POST", "publisher", s.publishPackageHandler, "Publish package", 50)
+	registry.RegisterRouteWithRoleAndRateLimit("/v1/packages", "POST", "publisher", s.publishPackageHandler, "Publish package", 500)
 	api.HandleFunc("/packages", s.publishPackageHandler).Methods("POST")
 
 	// Authentication endpoints - public for registration and login
-	registry.RegisterRouteWithRateLimit("/v1/auth/register", "POST", false, s.registerHandler, "User registration", 50)
+	registry.RegisterRouteWithRateLimit("/v1/auth/register", "POST", false, s.registerHandler, "User registration", 500)
 	api.HandleFunc("/auth/register", s.registerHandler).Methods("POST")
 
-	registry.RegisterRouteWithRateLimit("/v1/auth/login", "POST", false, s.loginHandler, "User login", 50)
+	registry.RegisterRouteWithRateLimit("/v1/auth/login", "POST", false, s.loginHandler, "User login", 1000)
 	api.HandleFunc("/auth/login", s.loginHandler).Methods("POST")
 
 	// User management endpoints - require authentication
-	registry.RegisterRouteWithRoleAndRateLimit("/v1/auth/logout", "POST", "user", s.logoutHandler, "User logout", 30)
+	registry.RegisterRouteWithRoleAndRateLimit("/v1/auth/logout", "POST", "user", s.logoutHandler, "User logout", 300)
 	api.HandleFunc("/auth/logout", s.logoutHandler).Methods("POST")
 
-	registry.RegisterRouteWithRoleAndRateLimit("/v1/auth/profile", "GET", "user", s.profileHandler, "Get user profile", 60)
+	registry.RegisterRouteWithRoleAndRateLimit("/v1/auth/profile", "GET", "user", s.profileHandler, "Get user profile", 600)
 	api.HandleFunc("/auth/profile", s.profileHandler).Methods("GET")
 
-	registry.RegisterRouteWithRoleAndRateLimit("/v1/auth/change-password", "POST", "user", s.changePasswordHandler, "Change password", 5)
+	registry.RegisterRouteWithRoleAndRateLimit("/v1/auth/change-password", "POST", "user", s.changePasswordHandler, "Change password", 50)
 	api.HandleFunc("/auth/change-password", s.changePasswordHandler).Methods("POST")
 
-	registry.RegisterRouteWithRoleAndRateLimit("/v1/auth/delete-account", "DELETE", "user", s.deleteAccountHandler, "Delete account", 2)
+	registry.RegisterRouteWithRoleAndRateLimit("/v1/auth/delete-account", "DELETE", "user", s.deleteAccountHandler, "Delete account", 20)
 	api.HandleFunc("/auth/delete-account", s.deleteAccountHandler).Methods("DELETE")
 
 	// Admin endpoints - require admin role
-	registry.RegisterRouteWithRoleAndRateLimit("/v1/admin/users", "GET", "admin", s.listUsersHandler, "List all users", 30)
+	registry.RegisterRouteWithRoleAndRateLimit("/v1/admin/users", "GET", "admin", s.listUsersHandler, "List all users", 300)
 	api.HandleFunc("/admin/users", s.listUsersHandler).Methods("GET")
 
-	registry.RegisterRouteWithRoleAndRateLimit("/v1/admin/users/{id}", "DELETE", "admin", s.adminDeleteUserHandler, "Admin delete user", 5)
+	registry.RegisterRouteWithRoleAndRateLimit("/v1/admin/users/{id}", "DELETE", "admin", s.adminDeleteUserHandler, "Admin delete user", 50)
 	api.HandleFunc("/admin/users/{id}", s.adminDeleteUserHandler).Methods("DELETE")
 
 	return registry

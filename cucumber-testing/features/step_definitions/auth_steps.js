@@ -9,8 +9,16 @@ const { spawn } = require('child_process');
 // Helper functions are now provided by the World class
 
 // Enhanced World authentication step definitions
+Given('I have a user registered', async function () {
+  await this.createTestUser('test-user', 'user');
+});
+
+Given('I have a user {string} registered', async function (username) {
+  await this.createTestUser(username, 'user');
+});
+
 Given('I am logged in as a user', async function () {
-  await this.loginAsUser();
+  await this.loginAsUserOnly();
 });
 
 Given('I am logged in as root', async function () {

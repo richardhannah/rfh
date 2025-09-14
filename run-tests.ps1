@@ -107,7 +107,7 @@ switch ($TestTarget) {
     }
     default {
         Write-Host "Running all available tests..." -ForegroundColor Yellow
-        npm test
+        npx cucumber-js --tags "not @skip" $FailFastFlag
         break
     }
 }

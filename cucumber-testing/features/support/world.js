@@ -277,6 +277,13 @@ class CustomWorld extends World {
     this.currentUser = username;
   }
 
+  async loginAsUserOnly(username = 'test-user') {
+    // Only login, don't create user - assumes user already exists
+    await this.delayForAuth(75);
+    await this.runCommand(`rfh auth login --username ${username} --password testpass123`);
+    this.currentUser = username;
+  }
+
   // Helper method for API calls using JWT tokens
   async apiCall(method, endpoint, data = null) {
     if (!fetch) {
@@ -387,8 +394,24 @@ class CustomWorld extends World {
     
     // Publish test packages that are expected by the tests
     try {
+      // Security rules - multiple versions for testing upgrades/downgrades
+      await this.publishPackage('security-rules', '1.0.0', '# Security Rules v1.0.0\n\nBasic security rules for testing purposes.');
       await this.publishPackage('security-rules', '1.0.1', '# Security Rules v1.0.1\n\nTest security rules for testing purposes.');
+      await this.publishPackage('security-rules', '1.2.0', '# Security Rules v1.2.0\n\nUpdated security rules for testing purposes.');
+      
+      // Logging rules - multiple versions
+      await this.publishPackage('logging-rules', '2.0.0', '# Logging Rules v2.0.0\n\nLogging rules for testing purposes.');
+      await this.publishPackage('logging-rules', '2.1.0', '# Logging Rules v2.1.0\n\nUpdated logging rules for testing purposes.');
+      
+      // Best practices - for version comparison tests
+      await this.publishPackage('best-practices', '1.0.1', '# Best Practices v1.0.1\n\nBest practices rules for testing purposes.');
+      
+      // New package - for fresh installs
+      await this.publishPackage('new-package', '1.0.0', '# New Package v1.0.0\n\nNew package for testing purposes.');
+      
+      // Example rules - for other tests
       await this.publishPackage('example-rules', '0.1.0', '# Example Rules v0.1.0\n\nTest example rules for testing purposes.');
+      
       console.log('Test packages published successfully');
     } catch (error) {
       console.warn(`Warning: Failed to publish test packages: ${error.message}`);

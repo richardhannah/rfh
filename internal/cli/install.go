@@ -89,6 +89,21 @@ func runInstall() error {
 		return nil
 	}
 
+	// Validate registry configuration before proceeding
+	cfg, err := config.LoadCLI()
+	if err != nil {
+		return fmt.Errorf("failed to load config: %w", err)
+	}
+
+	registryName := cfg.Current
+	if registryName == "" {
+		return fmt.Errorf("no registry configured. Use 'rfh registry add' to add a registry")
+	}
+
+	if _, exists := cfg.Registries[registryName]; !exists {
+		return fmt.Errorf("registry '%s' not found. Use 'rfh registry list' to see available registries", registryName)
+	}
+
 	// Analyze package requirements
 	requirements, err := analyzePackageRequirements(projectRoot, projectManifest.Dependencies)
 	if err != nil {

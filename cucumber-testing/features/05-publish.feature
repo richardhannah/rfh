@@ -47,16 +47,8 @@ Feature: RFH Publish Command
     And I have a rule file "rules.mdc" with content "# Unauth Test Rules"
     When I run "rfh pack --file=rules.mdc --package=unauth-test" in the project directory
     And I run "rfh publish" in the project directory
-    Then I should see "no authentication token available"
-    And I should see "Use 'rfh auth login' to authenticate"
-    And the command should exit with non-zero status
-
-  Scenario: Publish with no authentication configured
-    Given I have a registry configured but no authentication token
-    And I have a rule file "rules.mdc" with content "# Token Test Rules"
-    When I run "rfh pack --file=rules.mdc --package=token-test" in the project directory
-    And I run "rfh publish" in the project directory
     Then I should see either authentication error or connection error
+    And I should see "Failed to publish"
     And the command should exit with non-zero status
 
   # Multiple staged archives

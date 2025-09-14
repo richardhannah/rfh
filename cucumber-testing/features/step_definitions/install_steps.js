@@ -51,21 +51,21 @@ Given('I have already installed {string} version {string}', async function (pack
   const packageDir = path.join(rulestackDir, `${packageName}.${version}`);
   
   await fs.ensureDir(packageDir);
+  console.log(`DEBUG: Created package directory: ${packageDir}`);
   
   // Create a simple rule file to make the package look real
   const ruleFile = path.join(packageDir, `${packageName}_rules.md`);
   await fs.writeFile(ruleFile, `# ${packageName} Rules\n\nTest rules for ${packageName} v${version}`);
+  console.log(`DEBUG: Created rule file: ${ruleFile}`);
   
-  // Update rulestack.json to include this dependency
+  // DO NOT update rulestack.json - that should keep the desired version, not the installed version
+  // The manifest should contain what we WANT, not what we HAVE
   const manifestPath = path.join(this.testDir, 'rulestack.json');
   if (await fs.pathExists(manifestPath)) {
     const manifestContent = await fs.readFile(manifestPath, 'utf8');
     const manifest = JSON.parse(manifestContent);
-    if (!manifest.dependencies) {
-      manifest.dependencies = {};
-    }
-    manifest.dependencies[packageName] = version;
-    await fs.writeFile(manifestPath, JSON.stringify(manifest, null, 2));
+    console.log(`DEBUG: Pre-installing ${packageName}@${version}, manifest wants ${packageName}@${manifest.dependencies?.[packageName] || 'not specified'}`);
+    // Do NOT modify the manifest - it should keep the target version
   }
   
   // Create or update lock file
@@ -88,4 +88,20 @@ Given('I have already installed {string} version {string}', async function (pack
   };
   
   await fs.writeFile(lockPath, JSON.stringify(lockManifest, null, 2));
+});
+
+Given('I have no registry configured', async function () {
+  // Use the test config directory (same as other test steps)
+  await fs.ensureDir(this.testConfigDir);
+  const configPath = path.join(this.testConfigDir, 'config.toml');
+  
+  // Create empty config file with no registries
+  const emptyConfig = `# Empty config for testing - no registries configured
+current = ""
+
+[registries]
+`;
+  
+  await fs.writeFile(configPath, emptyConfig);
+  console.log('DEBUG: Created empty config with no registries at', configPath);
 });

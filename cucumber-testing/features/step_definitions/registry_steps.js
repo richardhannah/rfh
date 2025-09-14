@@ -247,6 +247,14 @@ Then('the original registry should remain unchanged', async function () {
 });
 
 // Cleanup hook - restore original config
+Then('I should see search results or {string}', function (noResultsMessage) {
+  const output = this.lastCommandOutput;
+  const hasResults = output.includes('Found') || output.includes('Package') || output.includes('Name:') || output.includes('Version:');
+  const hasNoResults = output.includes(noResultsMessage);
+  
+  expect(hasResults || hasNoResults, `Expected to see search results or "${noResultsMessage}", but got: ${output}`).to.be.true;
+});
+
 const { After } = require('@cucumber/cucumber');
 
 After(async function () {

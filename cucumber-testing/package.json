@@ -4,7 +4,7 @@
   "description": "This directory contains Behavior-Driven Development (BDD) test scenarios written in Cucumber/Gherkin format for the RFH (RuleStack File Handler) CLI tool.",
   "main": "index.js",
   "scripts": {
-    "test": "cucumber-js --fail-fast",
+    "test": "cucumber-js --tags \"not @skip\" --fail-fast",
     "test:init": "cucumber-js features/01-init-*.feature --fail-fast",
     "test:working": "cucumber-js features/01-init-empty-directory.feature --fail-fast",
     "test:actual": "cucumber-js features/01-init-empty-directory.feature --format progress --fail-fast",

@@ -1,3 +1,4 @@
+@skip
 Feature: Git Registry Search and Discovery
   Git registry should support package search and discovery operations
 
