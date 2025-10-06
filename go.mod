@@ -4,7 +4,7 @@ go 1.24.4
 
 require (
 	github.com/bmatcuk/doublestar/v4 v4.9.1
-	github.com/go-git/go-git/v5 v5.16.2
+	github.com/go-git/go-git/v5 v5.16.3
 	github.com/golang-jwt/jwt/v5 v5.3.0
 	github.com/google/go-github/v67 v67.0.0
 	github.com/gorilla/mux v1.8.1
